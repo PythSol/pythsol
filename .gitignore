@@ -29,6 +29,9 @@ coverage.xml
 artifacts/
 *.log
 
+# Toolchain unpacked for local spikes is never committed.
+Spikes/tools/
+
 # --- OS ---
 .DS_Store
 Thumbs.db
