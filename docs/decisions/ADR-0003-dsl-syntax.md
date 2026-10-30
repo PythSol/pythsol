@@ -14,18 +14,23 @@ this shape.
 
 ## Decision
 
-Use **decorators + annotated wrappers**:
+Use **decorators + annotated wrappers** (as landed in Phase 2; see
+`examples/counter/programs/counter.py` for the reference surface):
 
 ```python
-@program
-class counter:
+@account
+class Counter:
     authority: Pubkey
     count: u64
     bump: u8
 
-@instruction(join)
-def increment(authority: Signer, counter: Mut[counter], by: u64) -> None:
-    require(counter.authority == authority.key, counter.Unauthorized)
+@error
+class CounterError(ProgramError):
+    Unauthorized = 100
+
+@instruction
+def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
+    require(counter.authority == authority.key, CounterError.Unauthorized)
     counter.count += by   # overflow-checked
 ```
 
@@ -39,17 +44,9 @@ Where a parameter/field annotation is always one of:
 - a generic *collection* wrapper: `Option[T]`, `Vec[T]`, `FixedArray[T, N]`, `FixedString[N]`.
 
 Constraints (`Seeds`, `HasOne`, `CloseTo`, `Address`, `Owner`, `Executable`, `Ata`)
-are declared as annotations in the **account field** of a `@program` class:
-
-```python
-@program
-class counter:
-    authority: Signer
-    counter: counter @ Seeds[authority, [b"counter"]] @ HasOne[authority]
-```
-
-The exact syntax for constraints is a **Phase 4** decision; Phase 2 only accepts
-basic types and the wrappers above.
+will be declared as annotations in the **account field** of an `@account` class;
+their exact syntax is a **Phase 4** decision, Phase 2 only accepts the basic
+types and wrappers above.
 
 ## Verification (spike)
 
