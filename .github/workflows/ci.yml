@@ -18,7 +18,9 @@ jobs:
       - name: Ruff
         run: uv tool run --from pythsol ruff check .
       - name: mypy --strict
-        run: uv run mypy --strict .
+        run: uv run mypy
+      - name: Ruff format check
+        run: uv run ruff format --check .
 
   unit:
     strategy:

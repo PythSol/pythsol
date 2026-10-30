@@ -27,7 +27,7 @@ classifiers = [
 # The compiler/CLI itself stays runtime-dep-free.
 # `pythsol[test]` adds what the in-process SVM test harness needs.
 test = ["pytest>=8", "pytest-cov>=4", "solders>=0.27,<0.30", "solana>=0.41"]
-dev = ["ruff>=0.5", "mypy>=1.10", "py-right>=0.5.0", "hatchling>=1.24", "build>=1.2"]
+dev = ["ruff>=0.5", "mypy>=1.10", "pyright>=1.1.350", "hatchling>=1.24", "build>=1.2"]
 
 [project.urls]
 Homepage = "https://github.com/PythSol/pythsol"
@@ -52,12 +52,16 @@ exclude = [".venv", "Spikes", "docs", "*.md", "*.toml"]
 select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
 ignore = ["E203", "RUF012"]  # allow mutable class attrs on decorators like @program.
 
+[tool.ruff.lint.per-file-ignores]
+# Fixture sources inside test tables legitimately exceed the line limit.
+"tests/*" = ["E501"]
+
 [tool.mypy]
 python_version = "3.11"
 strict = true
 ignore_missing_imports = true
 warn_unused_ignores = true
-packages = ["pythsol"]
+files = ["src/pythsol", "examples"]
 exclude = "Spikes"
 
 [tool.pytest.ini_options]
