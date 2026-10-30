@@ -8,6 +8,7 @@ import sys
 import click
 
 from pythsol import __version__
+from pythsol.cli.commands.check import check
 from pythsol.cli.commands.doctor import doctor
 
 
@@ -29,6 +30,7 @@ def main(prog_name: str | None = None) -> None:
 
 # Re-attach commands after the group definition so auto-help works uniformly.
 cli.add_command(doctor)
+cli.add_command(check)
 
 
 def _entrypoint() -> None:  # pragma: no cover — packaging script
