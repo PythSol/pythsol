@@ -1,12 +1,14 @@
-"""PythSol compiler — pipeline modules.
+"""PythSol compiler — front-end and toolchain modules.
 
-Phase 1 exposes `toolchain` (SBF toolchain discovery). Phase 2 adds the front-end
-(parse/subset/type-check); Phase 3 adds ProgramModel/IDL/C emitter.
+Pipeline: ``parse → subset → resolve → typecheck`` produce
+:class:`~pythsol.compiler.diagnostics.Diagnostic` objects; ``toolchain`` then
+compiles the generated C (Phase 3) to native SBF with clang + ld.lld.
 """
 
 from __future__ import annotations
 
-from pythsol.compiler.diagnostics import PS4010, PysolError
+from pythsol.compiler.diagnostics import PS4010, Diagnostic, PysolError
+from pythsol.compiler.front import check_source, check_tree
 from pythsol.compiler.toolchain import (
     ToolchainPaths,
     compile_to_sbf,
@@ -21,8 +23,11 @@ from pythsol.compiler.toolchain import (
 
 __all__ = [
     "PS4010",
+    "Diagnostic",
     "PysolError",
     "ToolchainPaths",
+    "check_source",
+    "check_tree",
     "compile_to_sbf",
     "find_cargo_build_sbf",
     "find_clang",
