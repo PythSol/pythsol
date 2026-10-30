@@ -32,6 +32,49 @@ class PysolError(Exception):
 
 
 # ---------------------------------------------------------------------------
+# Positioned diagnostics (Phase 2 front-end output)
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Diagnostic:
+    """One problem with a stable code and 1-based source position.
+
+    ``render()`` produces the clang-style string the CLI prints:
+
+        PS1003 program.py:4:5: unsupported statement: Try
+
+    The shape of :meth:`as_dict` is the ``--json`` contract; keep it additive.
+    """
+
+    code: str
+    message: str
+    file: str = "<program>"
+    line: int = 1
+    col: int = 1
+    fix: str | None = None
+
+    def render(self) -> str:
+        text = f"{self.code} {self.file}:{self.line}:{self.col}: {self.message}"
+        if self.fix:
+            return f"{text}\n  fix: {self.fix}"
+        return text
+
+    def position_key(self) -> tuple[int, int]:
+        return (self.line, self.col)
+
+    def as_dict(self) -> dict[str, str | int | None]:
+        return {
+            "code": self.code,
+            "message": self.message,
+            "file": self.file,
+            "line": self.line,
+            "col": self.col,
+            "fix": self.fix,
+        }
+
+
+# ---------------------------------------------------------------------------
 # Subset / parse problems (PS1xxx)
 # ---------------------------------------------------------------------------
 PS1000 = "PS1000"  # unparseable syntax
