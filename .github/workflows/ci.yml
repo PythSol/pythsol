@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv python install 3.12
+      - run: uv sync --extra dev
+      - name: Ruff
+        run: uv tool run --from pythsol ruff check .
+      - name: mypy --strict
+        run: uv run mypy --strict .
+
+  unit:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.11", "3.12", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv python install "${{ matrix.python-version }}"
+      - run: uv sync --extra dev
+      - run: uv run --python "${{ matrix.python-version }}" pip install -e . 
+      - run: uv run --python "${{ matrix.python-version }}" pytest -q --no-header
+
+  toolchain:
+    # Phase 1: install Agave platform-tools, compile the Phase 1 spike C, run it in LiteSVM.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv python install 3.12
+      - run: uv sync --extra test --extra dev
+      - run: uv run pip install -e .
+      - name: Install Agave platform-tools (clang/lld)
+        run: |
+          mkdir -p ~/.cache/solana/platform-tools
+          curl -L --fail "${{ vars.AGAVE_PLATFORM_TOOLS_URL || 'https://github.com/anza-xyz/platform-tools/releases/download/v1.58/platform-tools-linux-x86_64.tar.bz2' }}" | tar -jxf - -C ~/.cache/solana/platform-tools
+      - run: uv run pytest -q -m toolchain --no-header

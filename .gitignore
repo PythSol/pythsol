@@ -1,0 +1,34 @@
+# .gitignore for PythSol (Python + C toolchain artifacts)
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.so
+*.so.*
+*.pyd
+.venv/
+venv/
+env/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+dist/
+build/
+*.egg-info/
+uv.lock
+# (uv.lock is generated but not committed until Phase 7: we build from source in CI.)
+
+# --- Build outputs ---
+target/
+tmp/
+out/
+coverage.xml
+artifacts/
+*.log
+
+# --- OS ---
+.DS_Store
+Thumbs.db

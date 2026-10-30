@@ -1,0 +1,20 @@
+# Normalize line endings for cross-platform dev and docs review.
+* text=auto
+
+*.py text eol=lf
+*.pyi text eol=lf
+*.md text
+*.rst text
+*.sh text eol=lf
+*.{cmd,bat,ps1} text eol=crlf
+
+# Tests should not see Windows-only code reflows.
+tests/** text eol=lf
+
+# No binary diff noise.
+*.so binary
+*.so.* binary
+*.png binary
+*.jpg binary
+*.ico binary
+*.tar.* binary

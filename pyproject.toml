@@ -1,0 +1,81 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pythsol"
+version = "0.1.0"
+description = "PythSol: write Solana programs in a typed Python subset, compiled to native SBF."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+authors = [{ name = "PythSol contributors" }]
+dependencies = ["click>=8.1"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+
+[project.optional-dependencies]
+# The compiler/CLI itself stays runtime-dep-free.
+# `pythsol[test]` adds what the in-process SVM test harness needs.
+test = ["pytest>=8", "pytest-cov>=4", "solders>=0.27,<0.30", "solana>=0.41"]
+dev = ["ruff>=0.5", "mypy>=1.10", "py-right>=0.5.0", "hatchling>=1.24", "build>=1.2"]
+
+[project.urls]
+Homepage = "https://github.com/PythSol/pythsol"
+Repository = "https://github.com/PythSol/pythsol"
+Issues = "https://github.com/PythSol/pythsol/issues"
+Changelog = "https://github.com/PythSol/pythsol/blob/main/CHANGELOG.md"
+
+[project.scripts]
+pythsol = "pythsol.cli.main:main"
+# Spec-draft naming: keep `pysol` working because PRD/TRD examples say `pysol build`.
+pysol = "pythsol.cli.main:main"
+
+[tool.hatch.build.targets.wheel]
+# Src layout: auto-detected by hatchling (src/pythsol).
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = [".venv", "Spikes", "docs", "*.md", "*.toml"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
+ignore = ["E203", "RUF012"]  # allow mutable class attrs on decorators like @program.
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+warn_unused_ignores = true
+packages = ["pythsol"]
+exclude = "Spikes"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-q --strict-markers --tb=short"
+testpaths = ["tests"]
+markers = [
+  "toolchain: requires the SBF platform-tools to compile to native .so",
+  "smoke: end-to-end spike against LiteSVM + SBF toolchain",
+  "unit: fast local unit test",
+]
+filterwarnings = [
+  "error::DeprecationWarning:pythsol.*",  # Python parser must be spam-free.
+]
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.coverage.run]
+source = ["pythsol"]
+omit = ["src/pythsol/runtime/*"]
