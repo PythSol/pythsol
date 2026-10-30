@@ -66,10 +66,14 @@ def run_hello_in_litesvm(so_path: Path, program_id: str) -> tuple[bool, list[str
         data=b"",
     )
     blockhash = svm.latest_blockhash()
-    msg = Message([ix], payer.pubkey(), blockhash)
+    msg = Message.new_with_blockhash([ix], payer.pubkey(), blockhash)
     tx = Transaction([payer], msg, blockhash)
     result = svm.send_transaction(tx)
-    return result.ok(), [line for line in result.log_messages()]
+    from solders.transaction_metadata import FailedTransactionMetadata  # nosec B417
+
+    ok = not isinstance(result, FailedTransactionMetadata)
+    logs = result.logs() if hasattr(result, "logs") else []
+    return ok, list(logs)
 
 
 def _pk(program_id: str):  # noqa: ANN001 — the solders type takes the same shape in both files

@@ -143,7 +143,7 @@ def _from_cargo_build_sbf() -> ToolchainPaths | None:
         lld=lld,
         sdk_root=clang.parents[3],  # llvm/bin/clang -> platform-tools
         from_env=False,
-        arch=_guess_arch(clang),
+        arch=_sbpf_version_from_clang(clang),
     )
 
 
@@ -174,7 +174,7 @@ def _from_dir(root: Path, *, from_env: bool) -> ToolchainPaths | None:
     lld = find_lld(clang)
     if lld is None:
         return None
-    arch = _guess_arch(clang)
+    arch = _sbpf_version_from_clang(clang)
     return ToolchainPaths(clang=clang, lld=lld, sdk_root=root, from_env=from_env, arch=arch)
 
 
@@ -210,16 +210,29 @@ def find_lld(clang_path: Path) -> Path | None:
     return None
 
 
-def _guess_arch(_clang: Path) -> str:
-    """Best-effort: make `clang -print-targets` answer for sbf or sbpfv3."""
-    try:
-        out = _run([str(_clang), "-print-targets"], cwd=str(_clang.parent))
-    except (OSError, subprocess.SubprocessError):
-        return "sbf"
-    for arch in ("sbfv3", "sbpfv3", "sbf"):
-        if arch in out:
-            return arch
-    return "sbf"
+#: CPU code the SBF target uses for `clang -mcpu=` (anza `sbf_base.rs` calls
+#: `cpu` `generic|v1|v2|v3|v4`). Default is `v0`, matching `cargo-build-sbf`
+#: `--arch v0` default.
+DEFAULT_SBF_VERSION = "v0"
+
+_SBF_CPU_NAMES = ("generic", "v1", "v2", "v3", "v4")
+
+
+def _sbpf_version_from_clang(clang: Path) -> str:
+    """Pick an SBF version accepted by the located clang for `--target=sbf`.
+
+    We *never* silently change the bytecode shape: unsupported versions raise.
+    """
+    for name in _SBF_CPU_NAMES:
+        try:
+            result = _run(
+                [str(clang), "--target=sbf", f"-mcpu={name}", "-c", "-", "-o", os.devnull],
+            )
+        except (OSError, subprocess.SubprocessError):
+            continue
+        if result and not result.startswith("clang.exe : error: unknown target CPU"):
+            return name
+    return DEFAULT_SBF_VERSION
 
 
 def _run(args: list[str], cwd: str | Path | None = None) -> str:
@@ -266,14 +279,13 @@ def sbpf_compile_args(tc: ToolchainPaths, source: Path, out_obj: Path) -> list[s
     """Flags to compile a C source into an SBF object with clang."""
     return [
         str(tc.clang),
-        f"-target={tc.arch}",
-        "-features=static-syscalls",
+        "--target=sbf",
+        f"-mcpu={tc.arch}",
         "-fno-builtin",
         "-fno-stack-protector",
         "-fno-unwind-tables",
         "-fno-asynchronous-unwind-tables",
         "-fno-exceptions",
-        "-fomit-frame-pointer",  # SBF loves short frames
         "-O2",
         str(source),
         "-c",
@@ -284,10 +296,10 @@ def sbpf_compile_args(tc: ToolchainPaths, source: Path, out_obj: Path) -> list[s
 
 def sbpf_link_args(tc: ToolchainPaths, obj: Path, out_so: Path) -> list[str]:
     """Flags to link an SBF object into a `.so` program with lld."""
-    arch = tc.arch.replace("sbf", "").lower()
+    arch = tc.arch.lower()
     is_v3 = arch in ("v3", "v4")
     script = _SBF_V3_SCRIPT if is_v3 else _SBF_V0_SCRIPT
-    script_path = out_so.parent / f"link{arch or 'v0'}.ld"
+    script_path = out_so.parent / f"link{arch}.ld"
     script_path.write_text(script, encoding="utf-8")
     extra = ["-Bsymbolic"] if is_v3 else []
     return [

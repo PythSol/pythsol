@@ -128,11 +128,17 @@ _tc = _sbf_clang_available()
 @pytest.mark.toolchain
 def test_hello_compiles_and_litesvm_reports_success(tmp_path: Path) -> None:
     pytest.importorskip("solders")
-    if _tc is None:
+    tc = _tc
+    sdk = Path(__file__).parents[1] / "Spikes" / "tools" / "platform-tools-1.58"
+    if tc is None and sdk.is_dir():
+        os.environ.setdefault("PYTHSOL_SBF_SDK", str(sdk))
+        tc = toolchain.locate_platform_tools(None)
+    if tc is None:
         pytest.skip("no runnable SBF platform-tools on this machine (see ADR-0006)")
     source = Path(__file__).parents[1] / "Spikes" / "c" / "hello.c"
-    so = toolchain.compile_to_sbf(_tc, source, tmp_path)
+    so = toolchain.compile_to_sbf(tc, source, tmp_path)
     assert so.is_file() and so.stat().st_size > 0
     spike = pytest.importorskip("Spikes.python.cn_litesvm_hello")
-    ok, _logs = spike.run_hello_in_litesvm(so, spike.DEFAULT_PROGRAM_ID)
-    assert ok
+    ok, logs = spike.run_hello_in_litesvm(so, spike.DEFAULT_PROGRAM_ID)
+    assert ok, f"LiteSVM execution failed: logs={logs}"
+    assert any("pythsol: hello from SBF!" in str(entry) for entry in logs)
