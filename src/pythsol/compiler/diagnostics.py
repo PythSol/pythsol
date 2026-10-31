@@ -17,26 +17,6 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class PysolError(Exception):
-    """A structured compiler/toolchain error raised back to the CLI."""
-
-    code: str
-    message: str
-    fix: str | None = None
-
-    def render(self) -> str:
-        text = f"{self.code}: {self.message}"
-        if self.fix:
-            return f"{text}\nsuggested fix: {self.fix}"
-        return text
-
-
-# ---------------------------------------------------------------------------
-# Positioned diagnostics (Phase 2 front-end output)
-# ---------------------------------------------------------------------------
-
-
-@dataclass(frozen=True)
 class Diagnostic:
     """One problem with a stable code and 1-based source position.
 
@@ -72,6 +52,26 @@ class Diagnostic:
             "col": self.col,
             "fix": self.fix,
         }
+
+
+class PysolError(Exception):
+    """A structured compiler/toolchain error raised back to the CLI.
+
+    Not a dataclass: exceptions must accept ``__traceback__`` writes when
+    raised (a frozen dataclass blocks click's re-raise machinery).
+    """
+
+    def __init__(self, code: str, message: str, fix: str | None = None) -> None:
+        super().__init__(message)
+        self.code = code
+        self.message = message
+        self.fix = fix
+
+    def render(self) -> str:
+        text = f"{self.code}: {self.message}"
+        if self.fix:
+            return f"{text}\nsuggested fix: {self.fix}"
+        return text
 
 
 # ---------------------------------------------------------------------------
@@ -111,9 +111,18 @@ PS3000 = "PS3000"  # aliasing refusal (mutable data used for a live aliasing ref
 PS3001 = "PS3001"  # unsupported constraint combination.
 
 # ---------------------------------------------------------------------------
-# Toolchain problems (PS4xxx) — see toolchain.py for exact text.
+# Toolchain problems (PS40xx) — see toolchain.py for exact text.
 # ---------------------------------------------------------------------------
 PS4010 = "PS4010"
+
+# Model/elaboration problems (PS41xx) — raised by model.py when a type-checked
+# program still contains something the emitter model cannot represent.
+PS4001 = "PS4001"  # unsupported construct in the emitter model
+
+# Emitter problems (PS5xxx) — raised by emit.py while lowering an AST body.
+PS5001 = "PS5001"  # unsupported statement in an instruction body
+PS5002 = "PS5002"  # unsupported expression in an instruction body
+PS5003 = "PS5003"  # Init[...] without a `bump: u8` data parameter / payer signer
 
 # ---------------------------------------------------------------------------
 # Internal compiler errors (PS9xxx)
