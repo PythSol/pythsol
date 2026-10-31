@@ -8,8 +8,10 @@ import sys
 import click
 
 from pythsol import __version__
+from pythsol.cli.commands.build import build
 from pythsol.cli.commands.check import check
 from pythsol.cli.commands.doctor import doctor
+from pythsol.cli.commands.emit_c import emit_c
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
@@ -31,6 +33,8 @@ def main(prog_name: str | None = None) -> None:
 # Re-attach commands after the group definition so auto-help works uniformly.
 cli.add_command(doctor)
 cli.add_command(check)
+cli.add_command(emit_c)
+cli.add_command(build)
 
 
 def _entrypoint() -> None:  # pragma: no cover — packaging script
