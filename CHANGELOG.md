@@ -4,6 +4,10 @@ PythSol follows Keep a Changelog; before 1.0 every breaking change is listed und
 
 ## [0.1.0] — 2026-10-30
 ### Added
+- Phase 3 — compiler back-end: `compiler/model.py` (IR-free `ProgramModel` with Anchor discriminators/packed Borsh layouts/`6000 + index` error codes), `compiler/emit.py` (C emitter lowering role checks, PDAs, System CPIs, `require`, checked arithmetic, dispatch table), `compiler/pipeline.py` (`emit_program`, `PS4xxx`/`PS5xxx` diagnostics), and `compiler/idl.py` (deterministic Anchor-legacy IDL + structural validator).
+- Phase 3 — `pythsol build PROGRAM.py`: native SBF `.so` + generated C + IDL + `manifest.json` (sha256 hashes, toolchain info); byte-deterministic output verified by two-build tests.
+- Phase 3 — the SBF runtime `src/pythsol/runtime/pythsol_rt.h`: zero-copy input decoder, Borsh readers/writers, checked arithmetic, PDA verification with the `ProgramDerivedAddress` domain suffix, C-ABI `sol_invoke_signed_c` CPI wrappers, and `rt_fail_log` `(file:line)` attribution — all pinned by ADR-0010 after empirical verification (LiteSVM + agave 1.18.26 sources).
+- Phase 3 — acceptance harness `tests/test_phase3_litesvm.py`: counter initialize → increment(5) = 5; unauthorized increment fails `Custom(6000)` with `(counter.py:51)` log; overflow increment aborts at `(counter.py:52)` with no side effects. Plus model/IDL/emit/build unit and negative suites (PS4001/PS5003).
 - Phase 0 — repository skeleton, Apache-2.0 license, contributing/code of conduct/security docs, [ADRs](docs/decisions/), `pyproject.toml` with hatchling/ruff/mypy, GitHub Actions `lint` + `unit` CI.
 - Phase 1 — `pythsol.compiler.toolchain`: Agave/Anza platform-tools discovery (`PYTHSOL_SBF_SDK`, default cache path), sbpf compile/link flag helpers derived from `anza-xyz/rust@3175de2636 sbf_base.rs`, `compile_to_sbf` helper, plus `pythsol doctor` (Python, platform-tools, clang/lld sanity, `solana` CLI, `cargo-build-sbf`, keypair presence, optional RPC check) with `--json` and fix commands.
 - Phase 1 — SBF spike C source at `Spikes/c/hello.c` and LiteSVM runner `Spikes/python/cn_litesvm_hello.py` gated behind the `toolchain` pytest marker.
