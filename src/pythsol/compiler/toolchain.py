@@ -18,6 +18,7 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from shutil import which
@@ -275,9 +276,14 @@ def default_solana_keypair() -> Path:
 # ---------------------------------------------------------------------------
 
 
-def sbpf_compile_args(tc: ToolchainPaths, source: Path, out_obj: Path) -> list[str]:
+def sbpf_compile_args(
+    tc: ToolchainPaths,
+    source: Path,
+    out_obj: Path,
+    include_dirs: Sequence[Path] | None = None,
+) -> list[str]:
     """Flags to compile a C source into an SBF object with clang."""
-    return [
+    flags: list[str] = [
         str(tc.clang),
         "--target=sbf",
         f"-mcpu={tc.arch}",
@@ -287,11 +293,11 @@ def sbpf_compile_args(tc: ToolchainPaths, source: Path, out_obj: Path) -> list[s
         "-fno-asynchronous-unwind-tables",
         "-fno-exceptions",
         "-O2",
-        str(source),
-        "-c",
-        "-o",
-        str(out_obj),
     ]
+    for include_dir in include_dirs or ():
+        flags.extend(("-I", str(include_dir)))
+    flags.extend((str(source), "-c", "-o", str(out_obj)))
+    return flags
 
 
 def sbpf_link_args(tc: ToolchainPaths, obj: Path, out_so: Path) -> list[str]:
@@ -325,7 +331,12 @@ def sbpf_link_args(tc: ToolchainPaths, obj: Path, out_so: Path) -> list[str]:
     ]
 
 
-def compile_to_sbf(tc: ToolchainPaths, source: Path, out_dir: Path) -> Path:
+def compile_to_sbf(
+    tc: ToolchainPaths,
+    source: Path,
+    out_dir: Path,
+    include_dirs: Sequence[Path] | None = None,
+) -> Path:
     """Compile a hand-written C file to an SBF ``.so``.
 
     Returns the path of the produced ``.so``. Raises :class:`PysolError`
@@ -334,7 +345,7 @@ def compile_to_sbf(tc: ToolchainPaths, source: Path, out_dir: Path) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     obj = out_dir / (source.stem + ".o")
     so = out_dir / (source.stem + ".so")
-    comp = sbpf_compile_args(tc, source, obj)
+    comp = sbpf_compile_args(tc, source, obj, include_dirs=include_dirs)
     completed = subprocess.run(comp, capture_output=True, text=True, check=False, timeout=120)
     if completed.returncode != 0:
         raise PysolError(code=PS4010, message=completed.stderr or "clang compile error")
