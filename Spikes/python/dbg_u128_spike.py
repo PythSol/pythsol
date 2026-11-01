@@ -11,15 +11,15 @@ PROGRAM_ID = "F1x3Lz3Nn3jvrUWM65uwGFPzFGuCB5GMUksMiNGxiKgU"
 
 os.environ.setdefault("PYTHSOL_SBF_SDK", str(ROOT / "Spikes" / "tools" / "platform-tools-1.58"))
 tc = toolchain.locate_platform_tools(None)
-print("toolchain:", tc)
 
-out = ROOT / "target" / "pythsol" / "u128_spike"
+out = ROOT / "target" / "pythsol" / "u128_div_spike"
 out.mkdir(parents=True, exist_ok=True)
+name = os.environ.get("SPIKE_C", "u128_div")
 try:
-    so = toolchain.compile_to_sbf(tc, ROOT / "Spikes" / "c" / "u128.c", out)
+    so = toolchain.compile_to_sbf(tc, ROOT / "Spikes" / "c" / f"{name}.c", out)
     print("compiled:", so)
 except Exception as err:
-    print("COMPILE FAILED:", err)
+    print("COMPILE FAILED:", type(err).__name__, err)
     raise SystemExit(0)
 
 from solders.litesvm import LiteSVM

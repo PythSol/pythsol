@@ -13,6 +13,7 @@ in ``tests/test_phase2_fuzz.py`` crash-free.
 from __future__ import annotations
 
 import ast
+from pathlib import Path
 
 from pythsol.compiler.diagnostics import (
     PS1001,
@@ -47,6 +48,8 @@ PYTHSOL_EXPORTS: frozenset[str] = frozenset(
         "Pubkey",
         "Signer",
         "SystemProgram",
+        "TokenAccount",
+        "TokenMint",
         "ProgramError",
         "Mut",
         "Account",
@@ -60,12 +63,29 @@ PYTHSOL_EXPORTS: frozenset[str] = frozenset(
         "instruction",
         "account",
         "error",
+        "enum",
+        "struct",
+        "event",
         "require",
+        "emit",
+        "system_transfer",
+        "token_transfer",
+        "token2022_transfer",
+        "ata_create",
+        "Seeds",
+        "HasOne",
+        "CloseTo",
+        "Address",
+        "Owner",
     }
 )
 
 #: Wrappers that may be subscripted in annotations, and their expected arity
 #: (number of type arguments; ``None`` means "any").
+_CONSTRAINTS: frozenset[str] = frozenset(
+    {"Seeds", "HasOne", "CloseTo", "Address", "Owner"}
+)
+
 _WRAPPER_ARITY: dict[str, int] = {
     "Mut": 1,
     "Account": 1,
@@ -93,40 +113,107 @@ _BUILTIN_BANNER_TYPES: frozenset[str] = frozenset(
 
 _DYNAMIC_EXEC_NAMES: frozenset[str] = frozenset({"__import__", "eval", "exec", "compile"})
 
-_KNOWN_CALLABLES: frozenset[str] = frozenset({"require", "len", "range"})
+_WIDTH_CASTS: frozenset[str] = frozenset(
+    {"u8", "u16", "u32", "u64", "u128", "i8", "i16", "i32", "i64", "i128"}
+)
+
+#: Names an ``@enum`` class must not take (they are already types).
+_ENUM_SHADOW: frozenset[str] = _WIDTH_CASTS | {
+    "bool",
+    "Pubkey",
+    "Signer",
+    "Option",
+    "Vec",
+    "FixedArray",
+    "FixedString",
+}
+
+_KNOWN_CALLABLES: frozenset[str] = frozenset(
+    {
+        "require",
+        "len",
+        "range",
+        "emit",
+        "system_transfer",
+        "token_transfer",
+        "token2022_transfer",
+        "ata_create",
+        *_WIDTH_CASTS,
+    }
+)
 
 _MAX_COLLECTION_SIZE = 4096
+
+
+def _seed_text(value: str) -> bool:
+    """A PDA seed that can be pasted into a C string without escaping."""
+    if not 1 <= len(value.encode("utf-8")) <= 32:
+        return False
+    return value.isascii() and all(ch.isalnum() or ch == "_" for ch in value)
+
+
+def _is_str_lit(node: ast.expr) -> bool:
+    return isinstance(node, ast.Constant) and isinstance(node.value, str)
+
+
+def _assign_str_ok(stmt: ast.Assign) -> bool:
+    """``account.field = "hi"`` may be a FixedString store. ``s = "hi"`` stays PS2004."""
+    if not _is_str_lit(stmt.value):
+        return False
+    return bool(stmt.targets) and all(isinstance(target, ast.Attribute) for target in stmt.targets)
+
+
+def _ann_str_ok(stmt: ast.AnnAssign) -> bool:
+    """``name: FixedString[N] = "hi"`` is the annotated form of the same store."""
+    if stmt.value is None or not _is_str_lit(stmt.value):
+        return False
+    ann = stmt.annotation
+    return (
+        isinstance(ann, ast.Subscript)
+        and isinstance(ann.value, ast.Name)
+        and ann.value.id == "FixedString"
+    )
 
 
 def scan_module(
     source: str,
     file: str = "<program>",
+    modules: frozenset[str] | None = None,
 ) -> tuple[ast.Module | None, list[Diagnostic]]:
     """Parse ``source`` and apply the structural subset rules.
 
     Returns the parsed tree (or ``None`` on a syntax error) and all ``PS1xxx``
-    diagnostics in source order.
+    diagnostics in source order. ``modules`` names sibling project modules
+    the file may import. ``None`` keeps the single-file rule.
     """
 
     tree, parse_diags = parse_source(source, file)
     if tree is None:
         return None, parse_diags
-    return tree, scan_tree(tree, file)
+    return tree, scan_tree(tree, file, modules)
 
 
-def scan_tree(tree: ast.Module, file: str = "<program>") -> list[Diagnostic]:
+def scan_tree(
+    tree: ast.Module,
+    file: str = "<program>",
+    modules: frozenset[str] | None = None,
+) -> list[Diagnostic]:
     """Apply the structural subset rules to an already-parsed module."""
-    checker = _SubsetVisitor(file)
+    checker = _SubsetVisitor(file, modules)
     return checker.run(tree)
 
 
 class _SubsetVisitor:
     """One source file's structural checks."""
 
-    def __init__(self, file: str) -> None:
+    def __init__(self, file: str, modules: frozenset[str] | None = None) -> None:
         self._file = file
+        self._modules = modules
         self._diags: list[Diagnostic] = []
         self._imports: set[str] = set()
+        self._helpers: set[str] = set()
+        self._events: set[str] = set()
+        self._imported: set[str] = set()
 
     # -- helpers -----------------------------------------------------------
 
@@ -144,6 +231,19 @@ class _SubsetVisitor:
         )
 
     def run(self, tree: ast.Module) -> list[Diagnostic]:
+        self._helpers = {
+            stmt.name
+            for stmt in tree.body
+            if isinstance(stmt, ast.FunctionDef) and not stmt.decorator_list
+        }
+        self._events = {
+            stmt.name
+            for stmt in tree.body
+            if isinstance(stmt, ast.ClassDef)
+            and len(stmt.decorator_list) == 1
+            and isinstance(stmt.decorator_list[0], ast.Name)
+            and stmt.decorator_list[0].id == "event"
+        }
         for index, stmt in enumerate(tree.body):
             if isinstance(stmt, ast.ImportFrom):
                 self._visit_import(stmt)
@@ -167,7 +267,11 @@ class _SubsetVisitor:
             ):
                 continue  # module docstring
             else:
-                self._at(stmt, PS1003, "modules may only declare instructions, accounts, errors")
+                self._at(
+                    stmt,
+                    PS1003,
+                    "modules may only declare instructions, accounts, errors, and enums",
+                )
         return self._diags
 
     # -- imports -----------------------------------------------------------
@@ -182,6 +286,9 @@ class _SubsetVisitor:
                     self._at(alias, PS1001, "unsupported `__future__` import")
             return
         if module != "pythsol" or stmt.level:
+            if self._allow_project_import(stmt, module):
+                self._visit_project_import(stmt)
+                return
             self._at(
                 stmt,
                 PS1001,
@@ -203,6 +310,29 @@ class _SubsetVisitor:
                 continue
             self._imports.add(alias.name)
 
+    def _allow_project_import(self, stmt: ast.ImportFrom, module: str | None) -> bool:
+        """True when ``stmt`` names a sibling module this file may import.
+
+        Single-file checks pass no module set, so every foreign import keeps
+        the historical PS1001 at the import statement.
+        """
+        if self._modules is None or stmt.level or not module or not module.isidentifier():
+            return False
+        if module == Path(self._file).stem:
+            self._at(stmt, PS1001, "a module cannot import itself")
+            return True
+        return module in self._modules
+
+    def _visit_project_import(self, stmt: ast.ImportFrom) -> None:
+        """Record a sibling import. The name is checked once that file is loaded."""
+        if stmt.module == Path(self._file).stem:
+            return  # diagnostic already reported
+        for alias in stmt.names:
+            if alias.name == "*" or alias.asname is not None:
+                self._at(alias, PS1001, "import aliases and star imports are not supported")
+                continue
+            self._imported.add(alias.name)
+
     # -- functions ---------------------------------------------------------
 
     def _visit_function(self, node: ast.FunctionDef, *, top_level: bool) -> None:
@@ -216,7 +346,6 @@ class _SubsetVisitor:
     def _check_decorator(self, node: ast.FunctionDef) -> None:
         decorators = node.decorator_list
         if not decorators:
-            self._at(node, PS2008, "functions must be decorated with `@instruction`")
             return
         if len(decorators) != 1:
             self._at(decorators[1], PS2008, "only a single `@instruction` decorator is allowed")
@@ -266,25 +395,47 @@ class _SubsetVisitor:
     def _visit_class(self, node: ast.ClassDef) -> None:
         decorators = node.decorator_list
         if not decorators:
-            self._at(node, PS1012, "classes must be decorated with `@account` or `@error`")
+            self._at(
+                node,
+                PS1012,
+                "classes must be decorated with "
+                "`@account`, `@struct`, `@event`, `@error`, or `@enum`",
+            )
             return
         if len(decorators) != 1:
             self._at(decorators[1], PS2008, "only a single decorator is allowed on classes")
             return
         dec = decorators[0]
-        if not isinstance(dec, ast.Name) or dec.id not in ("account", "error", "instruction"):
-            self._at(dec, PS2008, "unknown class decorator; use `@account` or `@error`")
+        allowed = ("account", "struct", "event", "error", "enum", "instruction")
+        if not isinstance(dec, ast.Name) or dec.id not in allowed:
+            self._at(
+                dec,
+                PS2008,
+                "unknown class decorator; use `@account`, `@struct`, "
+                "`@event`, `@error`, or `@enum`",
+            )
             return
         if dec.id == "instruction":
-            self._at(dec, PS2008, "`@instruction` decorates functions; use `@account`/`@error`")
+            self._at(
+                dec,
+                PS2008,
+                "`@instruction` decorates functions; "
+                "use `@account`, `@struct`, `@event`, `@error`, or `@enum`",
+            )
             return
         if dec.id not in self._imports:
             self._at(dec, PS2008, f"`@{dec.id}` used but not imported")
             return
         if dec.id == "account":
             self._visit_account_class(node)
-        else:
+        elif dec.id == "struct":
+            self._visit_struct_class(node)
+        elif dec.id == "event":
+            self._visit_event_class(node)
+        elif dec.id == "error":
             self._visit_error_class(node)
+        else:
+            self._visit_enum_class(node)
 
     def _visit_account_class(self, node: ast.ClassDef) -> None:
         if node.bases or node.keywords:
@@ -294,6 +445,28 @@ class _SubsetVisitor:
             allow_annassign=True,
             allow_assign=False,
             message="account fields are annotated declarations: `field: u64`",
+        )
+
+    def _visit_struct_class(self, node: ast.ClassDef) -> None:
+        if node.bases or node.keywords:
+            self._at(node, PS1012, "`@struct` classes must not inherit from anything")
+        self._visit_class_body(
+            node,
+            allow_annassign=True,
+            allow_assign=False,
+            message="struct fields are annotated declarations: `field: u64`",
+        )
+        if not any(isinstance(stmt, ast.AnnAssign) for stmt in node.body):
+            self._at(node, PS1012, "structs need at least one field")
+
+    def _visit_event_class(self, node: ast.ClassDef) -> None:
+        if node.bases or node.keywords:
+            self._at(node, PS1012, "`@event` classes must not inherit from anything")
+        self._visit_class_body(
+            node,
+            allow_annassign=True,
+            allow_assign=False,
+            message="event fields are annotated declarations: `field: u64`",
         )
 
     def _visit_error_class(self, node: ast.ClassDef) -> None:
@@ -308,6 +481,15 @@ class _SubsetVisitor:
             message="error members are plain assignments: `Member = <int constant>`",
         )
 
+    def _visit_enum_class(self, node: ast.ClassDef) -> None:
+        if node.bases or node.keywords:
+            self._at(node, PS1012, "`@enum` classes must not inherit")
+        if node.name in _ENUM_SHADOW:
+            self._at(node, PS2001, f"enum name `{node.name}` shadows a built-in type")
+        count = self._visit_enum_body(node)
+        if count == 0:
+            self._at(node, PS1012, "enums need at least one variant")
+
     def _visit_class_body(
         self,
         node: ast.ClassDef,
@@ -315,8 +497,10 @@ class _SubsetVisitor:
         allow_annassign: bool,
         allow_assign: bool,
         message: str,
-    ) -> None:
+        assign_kind: str = "error",
+    ) -> int:
         seen: set[str] = set()
+        assigns = 0
         for index, stmt in enumerate(node.body):
             if (
                 index == 0
@@ -338,11 +522,16 @@ class _SubsetVisitor:
                 if not allow_assign:
                     self._at(stmt, PS1012, message)
                     continue
-                self._check_error_member(stmt, seen)
+                if assign_kind == "enum":
+                    self._check_enum_member(stmt, seen, assigns)
+                else:
+                    self._check_error_member(stmt, seen)
+                assigns += 1
                 continue
             if isinstance(stmt, ast.Pass):
                 continue
             self._at(stmt, PS1012, "unsupported statement inside a DSL class body")
+        return assigns
 
     def _check_class_field(self, stmt: ast.AnnAssign, seen: set[str]) -> None:
         if not isinstance(stmt.target, ast.Name):
@@ -384,6 +573,99 @@ class _SubsetVisitor:
         if not 0 <= value.value < 2**32:
             self._at(value, PS2007, f"error code {value.value} must fit in u32")
 
+    def _visit_enum_body(self, node: ast.ClassDef) -> int:
+        """``Name = index`` is a unit variant. ``Name: u64`` carries that scalar."""
+        seen: set[str] = set()
+        count = 0
+        for index, stmt in enumerate(node.body):
+            if (
+                index == 0
+                and isinstance(stmt, ast.Expr)
+                and isinstance(stmt.value, ast.Constant)
+                and isinstance(stmt.value.value, str)
+            ):
+                continue
+            if isinstance(stmt, ast.FunctionDef):
+                self._at(stmt, PS1012, "methods are not supported inside DSL classes")
+                continue
+            if isinstance(stmt, ast.Pass):
+                continue
+            if isinstance(stmt, ast.AnnAssign):
+                self._check_enum_payload(stmt, seen)
+                count += 1
+                continue
+            if isinstance(stmt, ast.Assign):
+                self._check_enum_member(stmt, seen, count)
+                count += 1
+                continue
+            self._at(stmt, PS1012, "unsupported statement inside a DSL class body")
+        return count
+
+    def _check_enum_payload(self, stmt: ast.AnnAssign, seen: set[str]) -> None:
+        if not isinstance(stmt.target, ast.Name):
+            self._at(stmt, PS2005, "enum variants must be plain names")
+            return
+        if stmt.target.id in seen:
+            self._at(stmt, PS2001, f"duplicate variant `{stmt.target.id}`")
+        seen.add(stmt.target.id)
+        if stmt.value is not None:
+            self._at(stmt, PS1012, "a payload variant has no initializer; the tag is its index")
+        ann = stmt.annotation
+        if not isinstance(ann, ast.Name) or ann.id not in {
+            "u8",
+            "u16",
+            "u32",
+            "u64",
+            "i8",
+            "i16",
+            "i32",
+            "i64",
+            "bool",
+        }:
+            self._at(
+                ann,
+                PS2007,
+                "a data-enum payload must be one scalar (u8..u64, i8..i64, or bool)",
+            )
+
+    def _check_enum_member(self, stmt: ast.Assign, seen: set[str], index: int) -> None:
+        target = stmt.targets[0] if stmt.targets else None
+        if stmt.targets and len(stmt.targets) != 1:
+            self._at(stmt, PS1012, "assign one enum variant at a time")
+            return
+        if not isinstance(target, ast.Name):
+            self._at(stmt, PS2005, "enum variants must be plain names")
+            return
+        if target.id in seen:
+            self._at(stmt, PS2001, f"duplicate variant `{target.id}`")
+        seen.add(target.id)
+        value = stmt.value
+        if (
+            not isinstance(value, ast.Constant)
+            or isinstance(value.value, bool)
+            or not isinstance(value.value, int)
+        ):
+            self._visit_expr(value)
+            self._at(
+                target,
+                PS1012,
+                "unit variants are `Name = <index>`; a payload variant is `Name: u64`",
+            )
+            return
+        if index > 255:
+            self._at(
+                value,
+                PS2007,
+                f"unit enums have at most 256 variants; `{target.id}` is past u8",
+            )
+            return
+        if value.value != index:
+            self._at(
+                value,
+                PS2007,
+                f"enum variant `{target.id}` must be tag {index} (declaration index)",
+            )
+
     # -- annotations -------------------------------------------------------
 
     def _check_annotation(self, node: ast.expr) -> None:
@@ -419,12 +701,28 @@ class _SubsetVisitor:
             self._at(node, PS2001, "unsupported generic annotation")
             return
         base_name = base.id
+        if base_name == "Vec":
+            items = list(node.slice.elts) if isinstance(node.slice, ast.Tuple) else [node.slice]
+            if len(items) not in (1, 2):
+                self._at(
+                    node,
+                    PS2007,
+                    f"`Vec` takes 1 or 2 type arguments, got {len(items)}",
+                )
+                return
+            self._check_annotation(items[0])
+            if len(items) == 2:
+                self._check_size(items[1])
+            return
         if base_name in ("list", "dict", "set", "tuple", "frozenset"):
             self._at(
                 node,
                 PS1007,
                 f"unbounded container `{base_name}`; use FixedArray/Vec with explicit sizes",
             )
+            return
+        if base_name in _CONSTRAINTS:
+            self._check_constraint_annotation(node, base_name)
             return
         if base_name not in _WRAPPER_ARITY:
             self._at(node, PS2001, f"unknown wrapper `{base_name}`")
@@ -446,6 +744,32 @@ class _SubsetVisitor:
             self._check_annotation(slot)
         for slot in size_slots:
             self._check_size(slot)
+
+    def _check_constraint_annotation(self, node: ast.Subscript, name: str) -> None:
+        """``HasOne[Mut[T], "field"]`` and the other account constraints."""
+        items = list(node.slice.elts) if isinstance(node.slice, ast.Tuple) else [node.slice]
+        if len(items) != 2:
+            self._at(node, PS2007, f"`{name}` takes an account wrapper and one argument")
+            return
+        self._check_annotation(items[0])
+        arg = items[1]
+        if name in ("Seeds", "HasOne"):
+            if isinstance(arg, ast.Constant) and isinstance(arg.value, str) and arg.value:
+                if name == "Seeds" and _seed_text(arg.value):
+                    return
+                if name == "HasOne" and arg.value.isidentifier():
+                    return
+            if name == "Seeds":
+                self._at(
+                    arg,
+                    PS2007,
+                    "`Seeds` needs a 1..32 byte string of letters, digits, or `_`",
+                )
+            else:
+                self._at(arg, PS2007, '`HasOne` needs the field name as a string, `"authority"`')
+            return
+        if not isinstance(arg, ast.Name):
+            self._at(arg, PS2007, f"`{name}` needs the name of another parameter")
 
     def _check_size(self, slot: ast.expr) -> None:
         if not isinstance(slot, ast.Constant):
@@ -482,13 +806,13 @@ class _SubsetVisitor:
             if isinstance(stmt, ast.Assign):
                 for target in stmt.targets:
                     self._visit_store_target(target)
-                self._visit_expr(stmt.value)
+                self._visit_expr(stmt.value, str_ok=_assign_str_ok(stmt))
                 continue
             if isinstance(stmt, ast.AnnAssign):
                 self._visit_store_target(stmt.target)
                 self._check_annotation(stmt.annotation)
                 if stmt.value is not None:
-                    self._visit_expr(stmt.value)
+                    self._visit_expr(stmt.value, str_ok=_ann_str_ok(stmt))
                 continue
             if isinstance(stmt, ast.AugAssign):
                 self._visit_store_target(stmt.target)
@@ -517,14 +841,37 @@ class _SubsetVisitor:
                 self._visit_block(stmt.body, docstring_ok=False)
                 self._visit_block(stmt.orelse, docstring_ok=False)
                 continue
+            if isinstance(stmt, ast.Match):
+                self._visit_match(stmt)
+                continue
             if isinstance(stmt, ast.FunctionDef):
                 self._visit_function(stmt, top_level=False)
                 continue
             name = type(stmt).__name__
             self._at(stmt, PS1003, f"unsupported statement: {name}")
 
+    def _visit_match(self, stmt: ast.Match) -> None:
+        self._visit_expr(stmt.subject)
+        for case in stmt.cases:
+            if case.guard is not None:
+                self._at(case.guard, PS1003, "match guards are not supported")
+                self._visit_expr(case.guard)
+            self._visit_match_pattern(case.pattern)
+            self._visit_block(case.body, docstring_ok=False)
+
+    def _visit_match_pattern(self, pattern: ast.pattern) -> None:
+        if isinstance(pattern, ast.MatchAs) and pattern.pattern is None and pattern.name is None:
+            return
+        if isinstance(pattern, ast.MatchValue) and isinstance(pattern.value, ast.Attribute):
+            self._visit_expr(pattern.value)
+            return
+        self._at(pattern, PS1003, "match cases must be `Enum.Variant` or `_`")
+
     def _visit_store_target(self, target: ast.expr) -> None:
         if isinstance(target, (ast.Name, ast.Attribute)):
+            self._visit_expr(target)
+            return
+        if isinstance(target, ast.Subscript):
             self._visit_expr(target)
             return
         if isinstance(target, ast.Starred):
@@ -534,7 +881,7 @@ class _SubsetVisitor:
 
     # -- expressions -------------------------------------------------------
 
-    def _visit_expr(self, node: ast.expr) -> None:
+    def _visit_expr(self, node: ast.expr, *, str_ok: bool = False) -> None:
         if isinstance(node, ast.Constant):
             value = node.value
             if isinstance(value, bool) or value is None or isinstance(value, int):
@@ -543,6 +890,8 @@ class _SubsetVisitor:
                 self._at(node, PS1002, f"`{value!r}` is not allowed; use fixed-width integers")
                 return
             if isinstance(value, str):
+                if str_ok:
+                    return
                 self._at(node, PS2004, "string literals are not part of the program surface")
                 return
             self._at(node, PS2004, f"`{type(value).__name__}` literals are unsupported")
@@ -620,14 +969,25 @@ class _SubsetVisitor:
 
     def _visit_call(self, node: ast.Call) -> None:
         func = node.func
+        if isinstance(func, ast.Name) and func.id == "emit":
+            self._visit_emit(node)
+            return
         if isinstance(func, ast.Name):
-            if func.id in _DYNAMIC_EXEC_NAMES:
+            if func.id in self._events:
+                self._at(func, PS1010, f"`{func.id}` is an event; write emit({func.id}(...))")
+            elif func.id in _DYNAMIC_EXEC_NAMES:
                 self._at(func, PS1004, f"`{func.id}()` is forbidden in program code")
-            elif func.id not in _KNOWN_CALLABLES:
+            elif (
+                func.id not in _KNOWN_CALLABLES
+                and func.id not in self._helpers
+                and func.id not in self._imported
+            ):
                 self._at(
                     func,
                     PS1010,
-                    f"unknown function `{func.id}`; supported: require, len, range",
+                    f"unknown function `{func.id}`; supported: require, len, range, "
+                    "width casts such as u64(x), emit(Event(...)), system_transfer, "
+                    "and plain helper functions",
                 )
         elif isinstance(func, ast.Attribute):
             self._at(func, PS1010, "method calls are not supported in the subset")
@@ -639,3 +999,25 @@ class _SubsetVisitor:
             self._visit_expr(arg)
         for keyword in node.keywords:
             self._at(keyword.value, PS1003, "keyword arguments are not supported")
+
+    def _visit_emit(self, node: ast.Call) -> None:
+        """``emit(Event(...))`` is the only place an event constructor is legal."""
+        if node.keywords:
+            for keyword in node.keywords:
+                self._at(keyword.value, PS1003, "keyword arguments are not supported")
+        if len(node.args) != 1 or node.keywords:
+            self._at(node, PS1010, "emit() takes one event: emit(Name(...))")
+            for arg in node.args:
+                self._visit_expr(arg)
+            return
+        arg = node.args[0]
+        if isinstance(arg, ast.Call) and isinstance(arg.func, ast.Name):
+            # Any `Name(...)` has the event shape. Typecheck names the event.
+            if arg.keywords:
+                for keyword in arg.keywords:
+                    self._at(keyword.value, PS1003, "keyword arguments are not supported")
+            for inner in arg.args:
+                self._visit_expr(inner)
+            return
+        self._at(node, PS1010, "emit() takes one event: emit(Name(...))")
+        self._visit_expr(arg)

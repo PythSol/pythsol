@@ -12,15 +12,16 @@ exceptions for user input), so the CLI and tests share one contract:
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from pythsol.compiler import resolve, subset, typecheck
+from pythsol.compiler import resolve, typecheck
 from pythsol.compiler.diagnostics import PS9000, Diagnostic
 from pythsol.compiler.emit import emit_program_c
 from pythsol.compiler.idl import build_idl, validate_idl
 from pythsol.compiler.model import ProgramModel, build_model
-from pythsol.compiler.parse import parse_source
+from pythsol.compiler.modules import load_program
 
 __all__ = [
     "GeneratedProgram",
@@ -52,35 +53,23 @@ class GeneratedProgram:
 
 
 def prepare_program(
-    source_text: str, file: str = "<program>"
+    source_text: str,
+    file: str = "<program>",
+    *,
+    modules: Mapping[str, str] | None = None,
+    module_files: Mapping[str, str] | None = None,
 ) -> tuple[resolve.Program | None, list[Diagnostic]]:
-    """parse → subset → resolve → typecheck; returns the ``Program`` or diags."""
+    """parse → subset → resolve → typecheck; returns the ``Program`` or diags.
+
+    ``modules`` is the same sibling map ``check_source`` accepts. Project
+    modules are parsed, not executed.
+    """
     try:
-        tree, parse_diags = parse_source(source_text, file)
-    except Exception as err:  # pragma: no cover — the parser never raises today
+        program, diagnostics = load_program(source_text, file, modules, module_files)
+    except Exception as err:  # pragma: no cover — load_program catches stage errors
         return None, _internal(file, "parse", err)
-    if tree is None:
-        return None, parse_diags
-    if parse_diags:
-        return None, parse_diags
-
-    diagnostics: list[Diagnostic] = list(parse_diags)
-    try:
-        subset_diags = subset.scan_tree(tree, file)
-    except Exception as err:
-        return None, diagnostics + _internal(file, "subset", err)
-    diagnostics.extend(subset_diags)
-    if subset_diags:
+    if program is None or diagnostics:
         return None, diagnostics
-
-    try:
-        program, resolve_diags = resolve.collect(tree, file)
-    except Exception as err:
-        return None, diagnostics + _internal(file, "resolve", err)
-    diagnostics.extend(resolve_diags)
-    if resolve_diags:
-        return None, diagnostics
-
     try:
         diagnostics.extend(typecheck.check_program(program, file))
     except Exception as err:
@@ -92,6 +81,9 @@ def emit_program(
     source_text: str,
     path: Path,
     name: str | None = None,
+    *,
+    modules: Mapping[str, str] | None = None,
+    module_files: Mapping[str, str] | None = None,
 ) -> GeneratedProgram:
     """Run the full pipeline for one source file.
 
@@ -101,7 +93,12 @@ def emit_program(
     file_path = Path(path)
     program_name = name or file_path.stem
     source = file_path.name
-    program, diagnostics = prepare_program(source_text, file=str(file_path))
+    program, diagnostics = prepare_program(
+        source_text,
+        file=str(file_path),
+        modules=modules,
+        module_files=module_files,
+    )
     if program is None or diagnostics:
         return GeneratedProgram(
             name=program_name,
@@ -138,7 +135,7 @@ def idl_ok(model: ProgramModel) -> list[str]:
 
 
 def _sorted(diags: list[Diagnostic]) -> list[Diagnostic]:
-    return sorted(diags, key=lambda d: (d.line, d.col, d.code))
+    return sorted(diags, key=lambda d: (d.file, d.line, d.col, d.code))
 
 
 def _internal(file: str, stage: str, err: BaseException) -> list[Diagnostic]:

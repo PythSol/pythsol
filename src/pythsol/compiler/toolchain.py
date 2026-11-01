@@ -163,7 +163,24 @@ def _default_sdk_dirs() -> list[Path]:
         p = (home / rel).expanduser()
         if p.is_dir() and p != home / DEFAULT_TMPCACHE_DIR:
             out.append(p)
+    out.extend(_repo_sdk_dirs())
     return out
+
+
+def _repo_sdk_dirs() -> list[Path]:
+    """Platform-tools checked in under ``Spikes/tools`` for local builds."""
+    found: list[Path] = []
+    seen: set[Path] = set()
+    starts = [Path.cwd(), Path(__file__).resolve()]
+    for start in starts:
+        for parent in (start, *start.parents):
+            tools = parent / "Spikes" / "tools"
+            if not tools.is_dir() or tools in seen:
+                continue
+            seen.add(tools)
+            matches = [child for child in tools.glob("platform-tools-*") if child.is_dir()]
+            found.extend(sorted(matches, reverse=True))
+    return found
 
 
 def _from_dir(root: Path, *, from_env: bool) -> ToolchainPaths | None:

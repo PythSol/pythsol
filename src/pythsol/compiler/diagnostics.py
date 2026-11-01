@@ -89,7 +89,7 @@ PS1008 = "PS1008"  # unsupported attribute access / dynamic attribute assignment
 PS1009 = "PS1009"  # unsupported operator (is, in, not-in on non-enums).
 PS1010 = "PS1010"  # unsupported call (dynamic callee).
 PS1011 = "PS1011"  # unsupported comprehension/generator.
-PS1012 = "PS1012"  # unsupported `class` (only @account/@error programs).
+PS1012 = "PS1012"  # unsupported `class` (only @account/@error/@enum programs).
 
 # ---------------------------------------------------------------------------
 # Type-check problems (PS2xxx)

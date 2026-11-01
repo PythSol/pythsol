@@ -21,6 +21,9 @@
  *   RT_ERR_PDA       1008  account is not the expected PDA
  *   RT_ERR_OVERFLOW  1009  checked arithmetic overflowed
  *   RT_ERR_DIV_ZERO  1010  division by zero
+ *   RT_ERR_ENUM      1011  unit-enum byte is not a declared variant
+ *   RT_ERR_OPTION    1012  `.value` read while the option tag is clear
+ *   RT_ERR_STRING    1013  FixedString length is past its reserved bytes
  *
  * The runtime never dereferences beyond what the caller checked; field
  * access helpers are unchecked because the account-size equality check is
@@ -112,6 +115,14 @@ typedef struct SolSignerSeeds {
 } SolSignerSeeds;
 
 extern uint64_t sol_log_(const unsigned char *msg, uint64_t len);
+
+/* One slice for sol_log_data. The VM base64-encodes it as "Program data:". */
+typedef struct SolBytes {
+    const uint8_t *addr;
+    uint64_t len;
+} SolBytes;
+
+extern void sol_log_data(SolBytes *fields, uint64_t fields_len);
 extern uint64_t sol_invoke_signed_c(
     const SolInstruction *instruction,
     const SolAccountInfo *account_infos,
@@ -140,6 +151,10 @@ extern uint64_t sol_sha256(const uint64_t *vals, int val_cnt, unsigned char *res
 #define RT_ERR_PDA 1008u
 #define RT_ERR_OVERFLOW 1009u
 #define RT_ERR_DIV_ZERO 1010u
+#define RT_ERR_ENUM 1011u
+#define RT_ERR_OPTION 1012u
+#define RT_ERR_STRING 1013u
+#define RT_ERR_CONSTRAINT 1014u
 
 /* ------------------------------------------------------------------ */
 /* Caps                                                                */
@@ -161,6 +176,24 @@ extern uint64_t sol_sha256(const uint64_t *vals, int val_cnt, unsigned char *res
 static const uint8_t RT_SYSTEM_ID[32] = {
     0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u,
     0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u
+};
+
+/* TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA */
+static const uint8_t RT_TOKEN_ID[32] = {
+    6u, 221u, 246u, 225u, 215u, 101u, 161u, 147u, 217u, 203u, 225u, 70u, 206u, 235u, 121u, 172u,
+    28u, 180u, 133u, 237u, 95u, 91u, 55u, 145u, 58u, 140u, 245u, 133u, 126u, 255u, 0u, 169u
+};
+
+/* TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb */
+static const uint8_t RT_TOKEN_2022_ID[32] = {
+    6u, 221u, 246u, 225u, 238u, 117u, 143u, 222u, 24u, 66u, 93u, 188u, 228u, 108u, 205u, 218u,
+    182u, 26u, 252u, 77u, 131u, 185u, 13u, 39u, 254u, 189u, 249u, 40u, 216u, 161u, 139u, 252u
+};
+
+/* ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL */
+static const uint8_t RT_ATA_ID[32] = {
+    140u, 151u, 37u, 143u, 78u, 36u, 137u, 241u, 187u, 61u, 16u, 41u, 20u, 142u, 13u, 131u,
+    11u, 90u, 19u, 153u, 218u, 255u, 16u, 132u, 4u, 142u, 123u, 216u, 219u, 233u, 248u, 89u
 };
 
 /* ------------------------------------------------------------------ */
@@ -189,6 +222,12 @@ typedef struct RtCtx {
 typedef struct RtDispatchEntry {
     const unsigned char disc[8];
     uint64_t (*fn)(RtCtx *rt);
+    /* lld encodes an rodata function pointer as an lddw immediate and
+     * writes the high 32 bits at fn+12, which is past this 16-byte
+     * prefix. `spill` absorbs that write so it cannot zero the next
+     * discriminator or the program id that follows the table. The
+     * loader rewrites `fn` from .rel.dyn before the program runs. */
+    uint64_t spill;
 } RtDispatchEntry;
 
 /* ------------------------------------------------------------------ */
@@ -252,6 +291,14 @@ static inline void rt_fail_log(uint64_t code, const char *file, uint64_t line,
     (void)sol_log_((const unsigned char *)buf, k);
 }
 
+/* Log an event: 8-byte discriminator then the packed payload, one slice. */
+static inline void rt_log_event(const uint8_t *data, uint64_t len) {
+    SolBytes field;
+    field.addr = data;
+    field.len = len;
+    sol_log_data(&field, 1u);
+}
+
 /* ------------------------------------------------------------------ */
 /* Little-endian field access (byte-wise; alignment-safe on SBF)        */
 /* ------------------------------------------------------------------ */
@@ -292,6 +339,31 @@ static inline void rt_st_u32(uint8_t *d, uint64_t off, uint32_t v) {
 static inline void rt_st_u64(uint8_t *d, uint64_t off, uint64_t v) {
     uint64_t i;
     for (i = 0u; i < 8u; i++) {
+        d[off + i] = (uint8_t)((v >> (8u * i)) & 0xFFu);
+    }
+}
+
+/* 128-bit limbs ------------------------------------------------------------
+ * C's char literals for __int128 need two u64 limbs; RT_U128_VAL(hi, lo)
+ * composes them. Little-endian field storage is byte-wise like above.
+ */
+typedef unsigned __int128 RtU128;
+typedef signed __int128 RtI128;
+#define RT_U128_VAL(hi, lo) ((((RtU128)(hi)) << 64) | ((RtU128)(lo)))
+
+static inline uint64_t rt_ld_u128(const uint8_t *d, uint64_t off, RtU128 *out) {
+    RtU128 v = 0;
+    uint64_t i;
+    for (i = 0u; i < 16u; i++) {
+        v |= ((RtU128)d[off + i]) << (8u * i);
+    }
+    *out = v;
+    return RT_OK;
+}
+
+static inline void rt_st_u128(uint8_t *d, uint64_t off, RtU128 v) {
+    uint64_t i;
+    for (i = 0u; i < 16u; i++) {
         d[off + i] = (uint8_t)((v >> (8u * i)) & 0xFFu);
     }
 }
@@ -352,72 +424,395 @@ static inline uint64_t rt_owner_eq(const RtAccount *acct, const uint8_t *pid) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Checked arithmetic (compiler builtins; no libc)                      */
+/* Checked arithmetic (compiler builtins; no libc).                     */
+/*                                                                     */
+/* Contract (mirrors pythsol.refrt exactly — see ADR-0011):            */
+/*   * every helper returns RT_OK (0) on success, otherwise the RT_ERR_* */
+/*     code the caller must abort with — div-zero (1010) and overflow   */
+/*     (1009) are *different values*, the emitter logs the actual code; */
+/*   * division is FLOOR division for both signednesses: for signed     */
+/*     types, C's `/` is truncating, so the quotient is corrected by    */
+/*     one when the remainder's sign disagrees with the divisor's;      */
+/*   * `min / -1` and `min % -1` abort with RT_ERR_OVERFLOW for signed; */
+/*   * shifts abort with RT_ERR_DIV_ZERO when the count is negative or  */
+/*     >= the width's bit count; left shifts additionally abort with    */
+/*     RT_ERR_OVERFLOW when the (arithmetically-sign-extended) product  */
+/*     leaves the type's range.                                         */
 /* ------------------------------------------------------------------ */
 
-static inline uint64_t rt_checked_add_u64(uint64_t a, uint64_t b, uint64_t *out) {
-    return __builtin_add_overflow(a, b, out) ? 1u : 0u;
-}
-
-static inline uint64_t rt_checked_sub_u64(uint64_t a, uint64_t b, uint64_t *out) {
-    return __builtin_sub_overflow(a, b, out) ? 1u : 0u;
-}
-
-static inline uint64_t rt_checked_mul_u64(uint64_t a, uint64_t b, uint64_t *out) {
-    return __builtin_mul_overflow(a, b, out) ? 1u : 0u;
-}
-
-static inline uint64_t rt_checked_div_u64(uint64_t a, uint64_t b, uint64_t *out) {
-    if (b == 0u) {
-        return 1u;
+#define RT_CHK3(OP, T, STYLE)                                              \
+    static inline uint64_t rt_checked_##OP##_##STYLE(T a, T b, T *out) {   \
+        return __builtin_##OP##_overflow(a, b, out) ? RT_ERR_OVERFLOW      \
+                                                    : RT_OK;               \
     }
-    *out = a / b;
-    return 0u;
-}
 
-static inline uint64_t rt_checked_mod_u64(uint64_t a, uint64_t b, uint64_t *out) {
-    if (b == 0u) {
-        return 1u;
-    }
-    *out = a % b;
-    return 0u;
-}
+RT_CHK3(add, uint8_t, u8)
+RT_CHK3(add, uint16_t, u16)
+RT_CHK3(add, uint32_t, u32)
+RT_CHK3(add, uint64_t, u64)
+RT_CHK3(add, RtU128, u128)
+RT_CHK3(add, int8_t, i8)
+RT_CHK3(add, int16_t, i16)
+RT_CHK3(add, int32_t, i32)
+RT_CHK3(add, int64_t, i64)
+RT_CHK3(add, RtI128, i128)
 
-/* Signed flavour (used when operands are i64). */
-static inline uint64_t rt_checked_add_i64(int64_t a, int64_t b, int64_t *out) {
-    return __builtin_add_overflow(a, b, out) ? 1u : 0u;
-}
+RT_CHK3(sub, uint8_t, u8)
+RT_CHK3(sub, uint16_t, u16)
+RT_CHK3(sub, uint32_t, u32)
+RT_CHK3(sub, uint64_t, u64)
+RT_CHK3(sub, RtU128, u128)
+RT_CHK3(sub, int8_t, i8)
+RT_CHK3(sub, int16_t, i16)
+RT_CHK3(sub, int32_t, i32)
+RT_CHK3(sub, int64_t, i64)
+RT_CHK3(sub, RtI128, i128)
 
-static inline uint64_t rt_checked_sub_i64(int64_t a, int64_t b, int64_t *out) {
-    return __builtin_sub_overflow(a, b, out) ? 1u : 0u;
-}
+RT_CHK3(mul, uint8_t, u8)
+RT_CHK3(mul, uint16_t, u16)
+RT_CHK3(mul, uint32_t, u32)
+RT_CHK3(mul, uint64_t, u64)
+RT_CHK3(mul, RtU128, u128)
+RT_CHK3(mul, int8_t, i8)
+RT_CHK3(mul, int16_t, i16)
+RT_CHK3(mul, int32_t, i32)
+RT_CHK3(mul, int64_t, i64)
+RT_CHK3(mul, RtI128, i128)
 
-static inline uint64_t rt_checked_mul_i64(int64_t a, int64_t b, int64_t *out) {
-    return __builtin_mul_overflow(a, b, out) ? 1u : 0u;
-}
+/* floor-div/mod helpers ---------------------------------------------------- */
 
+/* i64 / i128 done natively (no wider signed type exists). */
 static inline uint64_t rt_checked_div_i64(int64_t a, int64_t b, int64_t *out) {
     if (b == 0) {
-        return 1u;
+        return RT_ERR_DIV_ZERO;
     }
     if (a == (int64_t)(-9223372036854775807ll - 1) && b == -1) {
-        return 1u; /* INT64_MIN / -1 overflows */
+        return RT_ERR_OVERFLOW;
     }
-    *out = a / b;
-    return 0u;
+    int64_t q = a / b;
+    int64_t r = a % b;
+    if (r != 0 && ((r < 0) != (b < 0))) {
+        q -= 1; /* floor, not C truncation */
+    }
+    *out = q;
+    return RT_OK;
 }
 
 static inline uint64_t rt_checked_mod_i64(int64_t a, int64_t b, int64_t *out) {
     if (b == 0) {
-        return 1u;
+        return RT_ERR_DIV_ZERO;
     }
     if (a == (int64_t)(-9223372036854775807ll - 1) && b == -1) {
-        *out = 0;
-        return 0u;
+        return RT_ERR_OVERFLOW; /* min % -1 is the same overflow class */
     }
-    *out = a % b;
-    return 0u;
+    int64_t q = a / b;
+    int64_t r = a % b;
+    if (r != 0 && ((r < 0) != (b < 0))) {
+        r += b; /* convert remainder to the floor system */
+        q -= 1;
+    }
+    *out = r;
+    return RT_OK;
 }
+
+static inline uint64_t rt_checked_div_i128(RtI128 a, RtI128 b, RtI128 *out) {
+    if (b == 0) {
+        return RT_ERR_DIV_ZERO;
+    }
+    if (a == (RtI128)1 << 127 && b == -1) {
+        return RT_ERR_OVERFLOW;
+    }
+    RtI128 q = a / b;
+    RtI128 r = a % b;
+    if (r != 0 && ((r < 0) != (b < 0))) {
+        q -= 1;
+    }
+    *out = q;
+    return RT_OK;
+}
+
+static inline uint64_t rt_checked_mod_i128(RtI128 a, RtI128 b, RtI128 *out) {
+    if (b == 0) {
+        return RT_ERR_DIV_ZERO;
+    }
+    if (a == (RtI128)1 << 127 && b == -1) {
+        return RT_ERR_OVERFLOW;
+    }
+    RtI128 q = a / b;
+    RtI128 r = a % b;
+    if (r != 0 && ((r < 0) != (b < 0))) {
+        r += b;
+        q -= 1;
+    }
+    *out = r;
+    return RT_OK;
+}
+
+/* Small signed widths: compute in int64_t width to dodge promotion UB. */
+
+static inline uint64_t rt_checked_div_i8(int8_t a, int8_t b, int8_t *out) {
+    if (b == 0) {
+        return RT_ERR_DIV_ZERO;
+    }
+    if (a == -128 && b == -1) {
+        return RT_ERR_OVERFLOW;
+    }
+    int64_t q = (int64_t)a / (int64_t)b;
+    int64_t r = (int64_t)a % (int64_t)b;
+    if (r != 0 && ((r < 0) != (b < 0))) {
+        q -= 1;
+    }
+    *out = (int8_t)q;
+    return RT_OK;
+}
+
+static inline uint64_t rt_checked_mod_i8(int8_t a, int8_t b, int8_t *out) {
+    if (b == 0) {
+        return RT_ERR_DIV_ZERO;
+    }
+    if (a == -128 && b == -1) {
+        return RT_ERR_OVERFLOW;
+    }
+    int64_t q = (int64_t)a / (int64_t)b;
+    int64_t r = (int64_t)a % (int64_t)b;
+    if (r != 0 && ((r < 0) != (b < 0))) {
+        r += (int64_t)b;
+        q -= 1;
+    }
+    *out = (int8_t)r;
+    return RT_OK;
+}
+
+static inline uint64_t rt_checked_div_i16(int16_t a, int16_t b, int16_t *out) {
+    if (b == 0) {
+        return RT_ERR_DIV_ZERO;
+    }
+    if (a == -32768 && b == -1) {
+        return RT_ERR_OVERFLOW;
+    }
+    int64_t q = (int64_t)a / (int64_t)b;
+    int64_t r = (int64_t)a % (int64_t)b;
+    if (r != 0 && ((r < 0) != (b < 0))) {
+        q -= 1;
+    }
+    *out = (int16_t)q;
+    return RT_OK;
+}
+
+static inline uint64_t rt_checked_mod_i16(int16_t a, int16_t b, int16_t *out) {
+    if (b == 0) {
+        return RT_ERR_DIV_ZERO;
+    }
+    if (a == -32768 && b == -1) {
+        return RT_ERR_OVERFLOW;
+    }
+    int64_t q = (int64_t)a / (int64_t)b;
+    int64_t r = (int64_t)a % (int64_t)b;
+    if (r != 0 && ((r < 0) != (b < 0))) {
+        r += (int64_t)b;
+        q -= 1;
+    }
+    *out = (int16_t)r;
+    return RT_OK;
+}
+
+static inline uint64_t rt_checked_div_i32(int32_t a, int32_t b, int32_t *out) {
+    if (b == 0) {
+        return RT_ERR_DIV_ZERO;
+    }
+    if (a == (-2147483647 - 1) && b == -1) {
+        return RT_ERR_OVERFLOW;
+    }
+    int64_t q = (int64_t)a / (int64_t)b;
+    int64_t r = (int64_t)a % (int64_t)b;
+    if (r != 0 && ((r < 0) != (b < 0))) {
+        q -= 1;
+    }
+    *out = (int32_t)q;
+    return RT_OK;
+}
+
+static inline uint64_t rt_checked_mod_i32(int32_t a, int32_t b, int32_t *out) {
+    if (b == 0) {
+        return RT_ERR_DIV_ZERO;
+    }
+    if (a == (-2147483647 - 1) && b == -1) {
+        return RT_ERR_OVERFLOW;
+    }
+    int64_t q = (int64_t)a / (int64_t)b;
+    int64_t r = (int64_t)a % (int64_t)b;
+    if (r != 0 && ((r < 0) != (b < 0))) {
+        r += (int64_t)b;
+        q -= 1;
+    }
+    *out = (int32_t)r;
+    return RT_OK;
+}
+
+/* unsigned div/mod: floor == trunc; only the zero divisor aborts. */
+#define RT_CHK_DIVMOD_UNSIGNED(STYLE, T)                                   \
+    static inline uint64_t rt_checked_div_##STYLE(T a, T b, T *out) {      \
+        if (b == (T)0) {                                                   \
+            return RT_ERR_DIV_ZERO;                                        \
+        }                                                                  \
+        *out = (T)(a / b);                                                 \
+        return RT_OK;                                                      \
+    }                                                                      \
+    static inline uint64_t rt_checked_mod_##STYLE(T a, T b, T *out) {      \
+        if (b == (T)0) {                                                   \
+            return RT_ERR_DIV_ZERO;                                        \
+        }                                                                  \
+        *out = (T)(a % b);                                                 \
+        return RT_OK;                                                      \
+    }
+
+RT_CHK_DIVMOD_UNSIGNED(u8, uint8_t)
+RT_CHK_DIVMOD_UNSIGNED(u16, uint16_t)
+RT_CHK_DIVMOD_UNSIGNED(u32, uint32_t)
+RT_CHK_DIVMOD_UNSIGNED(u64, uint64_t)
+RT_CHK_DIVMOD_UNSIGNED(u128, RtU128)
+
+/* shifts -------------------------------------------------------------------
+ * Mirrors refrt exactly: RT_ERR_DIV_ZERO when s < 0 or s >= bits, then
+ * RT_ERR_OVERFLOW when the *mathematical* product a·2^s leaves the type's
+ * bounds (a plain multiply trick would wrongly accept wrapped products,
+ * e.g. i8 1 << 7 or i64 1 << 63, so result ranges are checked first).
+ * Narrow types compute in 64-bit; u64/i64 in 128-bit; u128/i128 use bound
+ * comparisons and raw-bit shifts (no signed-shift UB on the result path).
+ */
+
+#define RT_CHK_SHL_U(STYLE, T)                                             \
+    static inline uint64_t rt_checked_shl_##STYLE(T a, T s, T *out) {      \
+        if (s >= (T)(sizeof(T) * 8)) {                                     \
+            return RT_ERR_DIV_ZERO;                                        \
+        }                                                                  \
+        uint64_t wide = ((uint64_t)a) << s;                                \
+        if (wide > (uint64_t)((T)-1)) {                      \
+            return RT_ERR_OVERFLOW;                                        \
+        }                                                                  \
+        *out = (T)wide;                                                    \
+        return RT_OK;                                                      \
+    }
+
+RT_CHK_SHL_U(u8, uint8_t)
+RT_CHK_SHL_U(u16, uint16_t)
+RT_CHK_SHL_U(u32, uint32_t)
+
+static inline uint64_t rt_checked_shl_u64(uint64_t a, uint64_t s, uint64_t *out) {
+    if (s >= 64u) {
+        return RT_ERR_DIV_ZERO;
+    }
+    RtU128 wide = ((RtU128)a) << s;
+    if (wide > (RtU128)UINT64_MAX) {
+        return RT_ERR_OVERFLOW;
+    }
+    *out = (uint64_t)wide;
+    return RT_OK;
+}
+
+static inline uint64_t rt_checked_shl_u128(RtU128 a, RtU128 s, RtU128 *out) {
+    if (s >= 128) {
+        return RT_ERR_DIV_ZERO;
+    }
+    if (a > ((RtU128)0 - (RtU128)1) >> s) {
+        return RT_ERR_OVERFLOW;
+    }
+    *out = a << s; /* unsigned: well-defined modulo 2^128 */
+    return RT_OK;
+}
+
+#define RT_CHK_SHL_I(STYLE, T, MINVCONST, MAXVCONST)                       \
+    static inline uint64_t rt_checked_shl_##STYLE(T a, T s, T *out) {      \
+        if (s >= (T)(sizeof(T) * 8)) {                                     \
+            return RT_ERR_DIV_ZERO;                                        \
+        }                                                                  \
+        int64_t wide = (int64_t)a;                                         \
+        int64_t lo = (int64_t)((MINVCONST) >> s);                           \
+        int64_t hi = (int64_t)((MAXVCONST) >> s);                           \
+        if (wide < lo || wide > hi) {                                      \
+            return RT_ERR_OVERFLOW;                                        \
+        }                                                                  \
+        wide = wide << s; /* value proven in-range */                      \
+        *out = (T)wide;                                                    \
+        return RT_OK;                                                      \
+    }
+
+RT_CHK_SHL_I(i8, int8_t, (-128), 127)
+RT_CHK_SHL_I(i16, int16_t, (-32768), 32767)
+RT_CHK_SHL_I(i32, int32_t, (-2147483647 - 1), 2147483647)
+
+static inline uint64_t rt_checked_shl_i64(int64_t a, int64_t s, int64_t *out) {
+    if (s >= 64) {
+        return RT_ERR_DIV_ZERO;
+    }
+    if (a == 0) {
+        *out = 0;
+        return RT_OK;
+    }
+    /* Bound comparisons in the wide i128 domain; lo via an arithmetic
+     * shift of INT64_MIN inside i128 (exact, no implementation-defined
+     * narrow-type traps), then the product in i128 as well. */
+    RtI128 lo = ((RtI128)(-9223372036854775807LL - 1)) >> s;
+    RtI128 hi = (RtI128)(9223372036854775807LL) >> s;
+    if ((RtI128)a < lo || (RtI128)a > hi) {
+        return RT_ERR_OVERFLOW;
+    }
+    RtI128 two_s = (RtI128)1 << s; /* s < 64 fits i128 as a positive value */
+    *out = (int64_t)((RtI128)a * two_s);
+    return RT_OK;
+}
+
+static inline uint64_t rt_checked_shl_i128(RtI128 a, RtI128 s, RtI128 *out) {
+    if (s >= 128) {
+        return RT_ERR_DIV_ZERO;
+    }
+    if (a == 0) {
+        *out = 0;
+        return RT_OK;
+    }
+    if (s == 127) {
+        /* 2^127 has no positive i128 value: only a == -1 fits (result MIN). */
+        if (a == -1) {
+            *out = (RtI128)((RtU128)1 << 127);
+            return RT_OK;
+        }
+        return RT_ERR_OVERFLOW;
+    }
+    if (a > 0) {
+        RtI128 max_v = (RtI128)(((RtU128)0 - (RtU128)1) >> 1);
+        if (a > (max_v >> s)) {
+            return RT_ERR_OVERFLOW;
+        }
+    } else {
+        RtI128 min_v = (RtI128)((RtU128)1 << 127);
+        if (a < (min_v >> s)) {
+            return RT_ERR_OVERFLOW;
+        }
+    }
+    RtI128 two_s = (RtI128)((RtU128)1 << s);
+    *out = (RtI128)(a * two_s); /* product proven in-range */
+    return RT_OK;
+}
+
+#define RT_CHK_SHR(STYLE, T)                                               \
+    static inline uint64_t rt_checked_shr_##STYLE(T a, T s, T *out) {      \
+        if (s < 0 || s >= (T)(sizeof(T) * 8)) {                            \
+            return RT_ERR_DIV_ZERO;                                        \
+        }                                                                  \
+        *out = (T)(a >> s); /* arithmetic for signed, logical for unsigned */ \
+        return RT_OK;                                                      \
+    }
+
+RT_CHK_SHR(u8, uint8_t)
+RT_CHK_SHR(u16, uint16_t)
+RT_CHK_SHR(u32, uint32_t)
+RT_CHK_SHR(u64, uint64_t)
+RT_CHK_SHR(u128, RtU128)
+RT_CHK_SHR(i8, int8_t)
+RT_CHK_SHR(i16, int16_t)
+RT_CHK_SHR(i32, int32_t)
+RT_CHK_SHR(i64, int64_t)
+RT_CHK_SHR(i128, RtI128)
 
 /* ------------------------------------------------------------------ */
 /* PDA verification:                                                   */
@@ -526,6 +921,197 @@ static inline uint64_t rt_system_create_account(
     groups[0].seeds = &seeds[0];
     groups[0].len = 2u;
     return sol_invoke_signed_c(&ix, &infos[0], 2u, &groups[0], 1u);
+}
+
+/* System Transfer (tag 2): u32 tag | u64 lamports. ``from`` signs the outer
+ * transaction; ``to`` is writable and does not sign this CPI. The System
+ * program must already be in the caller's account list. */
+static inline uint64_t rt_system_transfer(RtCtx *rt, RtAccount *from, RtAccount *to,
+                                          uint64_t lamports) {
+    uint8_t payload[12];
+    SolAccountMeta metas[2];
+    SolAccountInfo infos[2];
+    SolInstruction ix;
+    uint64_t i;
+    uint8_t saw = 0u;
+    for (i = 0u; i < rt->n_accounts; i++) {
+        if (rt_key_eq(rt->accounts[i].key, (const SolPubkey *)(const void *)RT_SYSTEM_ID)) {
+            saw = 1u;
+        }
+    }
+    if (!saw) {
+        return RT_ERR_CPI;
+    }
+    rt_st_u32(payload, 0u, 2u);
+    rt_st_u64(payload, 4u, lamports);
+    metas[0].pubkey = from->key;
+    metas[0].is_writable = 1u;
+    metas[0].is_signer = 1u;
+    metas[1].pubkey = to->key;
+    metas[1].is_writable = 1u;
+    metas[1].is_signer = 0u;
+    infos[0].key = from->key;
+    infos[0].lamports = from->lamports;
+    infos[0].data_len = from->data_len;
+    infos[0].data = from->data;
+    infos[0].owner = from->owner;
+    infos[0].rent_epoch = 0u;
+    infos[0].is_signer = from->is_signer;
+    infos[0].is_writable = from->is_writable;
+    infos[0].executable = from->executable;
+    infos[1].key = to->key;
+    infos[1].lamports = to->lamports;
+    infos[1].data_len = to->data_len;
+    infos[1].data = to->data;
+    infos[1].owner = to->owner;
+    infos[1].rent_epoch = 0u;
+    infos[1].is_signer = to->is_signer;
+    infos[1].is_writable = to->is_writable;
+    infos[1].executable = to->executable;
+    ix.program_id = (SolPubkey *)(const void *)RT_SYSTEM_ID;
+    ix.accounts = &metas[0];
+    ix.accounts_len = 2u;
+    ix.data = &payload[0];
+    ix.data_len = 12u;
+    return sol_invoke_signed_c(&ix, &infos[0], 2u, (const SolSignerSeeds *)0, 0u);
+}
+
+/* Move lamports off an account this program owns. The System program rejects
+ * Transfer when `from` carries data, which every PythSol account does. */
+static inline uint64_t rt_move_lamports(RtCtx *rt, RtAccount *from, RtAccount *to,
+                                        uint64_t lamports) {
+    if (!from->is_writable || !to->is_writable) {
+        return RT_ERR_WRITABLE;
+    }
+    if (!rt_key_eq(from->owner, (const SolPubkey *)(const void *)rt->program_id)) {
+        return RT_ERR_OWNER;
+    }
+    if (*from->lamports < lamports || *to->lamports > ~0ull - lamports) {
+        return RT_ERR_OVERFLOW;
+    }
+    *from->lamports -= lamports;
+    *to->lamports += lamports;
+    return 0u;
+}
+
+static inline uint8_t rt_has_program(const RtCtx *rt, const uint8_t *program) {
+    uint64_t i;
+    for (i = 0u; i < rt->n_accounts; i++) {
+        if (rt_key_eq(rt->accounts[i].key, (const SolPubkey *)(const void *)program)) {
+            return 1u;
+        }
+    }
+    return 0u;
+}
+
+static inline void rt_fill_info(SolAccountInfo *info, RtAccount *acct) {
+    info->key = acct->key;
+    info->lamports = acct->lamports;
+    info->data_len = acct->data_len;
+    info->data = acct->data;
+    info->owner = acct->owner;
+    info->rent_epoch = 0u;
+    info->is_signer = acct->is_signer;
+    info->is_writable = acct->is_writable;
+    info->executable = acct->executable;
+}
+
+/* SPL Token / Token-2022 Transfer: one tag byte (3) then a u64 amount.
+ * Accounts: source writable, destination writable, authority signer. */
+static inline uint64_t rt_token_transfer(RtCtx *rt, const uint8_t *program,
+                                         RtAccount *src, RtAccount *dst,
+                                         RtAccount *authority, uint64_t amount) {
+    uint8_t payload[9];
+    SolAccountMeta metas[3];
+    SolAccountInfo infos[3];
+    SolInstruction ix;
+    if (!rt_has_program(rt, program)) {
+        return RT_ERR_CPI;
+    }
+    payload[0] = 3u;
+    rt_st_u64(payload, 1u, amount);
+    metas[0].pubkey = src->key;
+    metas[0].is_writable = 1u;
+    metas[0].is_signer = 0u;
+    metas[1].pubkey = dst->key;
+    metas[1].is_writable = 1u;
+    metas[1].is_signer = 0u;
+    metas[2].pubkey = authority->key;
+    metas[2].is_writable = 0u;
+    metas[2].is_signer = 1u;
+    rt_fill_info(&infos[0], src);
+    rt_fill_info(&infos[1], dst);
+    rt_fill_info(&infos[2], authority);
+    ix.program_id = (SolPubkey *)(const void *)program;
+    ix.accounts = &metas[0];
+    ix.accounts_len = 3u;
+    ix.data = &payload[0];
+    ix.data_len = 9u;
+    return sol_invoke_signed_c(&ix, &infos[0], 3u, (const SolSignerSeeds *)0, 0u);
+}
+
+/* Associated Token Account CreateIdempotent (data byte 1).
+ * Accounts: payer, ata, owner, mint, system program, token program. */
+static inline uint64_t rt_ata_create(RtCtx *rt, RtAccount *payer, RtAccount *ata,
+                                     RtAccount *owner, RtAccount *mint,
+                                     const uint8_t *token_program) {
+    uint8_t payload[1];
+    SolAccountMeta metas[6];
+    SolAccountInfo infos[6];
+    SolInstruction ix;
+    RtAccount *system;
+    RtAccount *token;
+    if (!rt_has_program(rt, RT_ATA_ID) || !rt_has_program(rt, RT_SYSTEM_ID) ||
+        !rt_has_program(rt, token_program)) {
+        return RT_ERR_CPI;
+    }
+    system = 0;
+    token = 0;
+    {
+        uint64_t i;
+        for (i = 0u; i < rt->n_accounts; i++) {
+            if (rt_key_eq(rt->accounts[i].key, (const SolPubkey *)(const void *)RT_SYSTEM_ID)) {
+                system = &rt->accounts[i];
+            }
+            if (rt_key_eq(rt->accounts[i].key, (const SolPubkey *)(const void *)token_program)) {
+                token = &rt->accounts[i];
+            }
+        }
+    }
+    if (system == 0 || token == 0) {
+        return RT_ERR_CPI;
+    }
+    payload[0] = 1u;
+    metas[0].pubkey = payer->key;
+    metas[0].is_writable = 1u;
+    metas[0].is_signer = 1u;
+    metas[1].pubkey = ata->key;
+    metas[1].is_writable = 1u;
+    metas[1].is_signer = 0u;
+    metas[2].pubkey = owner->key;
+    metas[2].is_writable = 0u;
+    metas[2].is_signer = 0u;
+    metas[3].pubkey = mint->key;
+    metas[3].is_writable = 0u;
+    metas[3].is_signer = 0u;
+    metas[4].pubkey = system->key;
+    metas[4].is_writable = 0u;
+    metas[4].is_signer = 0u;
+    metas[5].pubkey = token->key;
+    metas[5].is_writable = 0u;
+    metas[5].is_signer = 0u;
+    rt_fill_info(&infos[0], payer);
+    rt_fill_info(&infos[1], ata);
+    rt_fill_info(&infos[2], owner);
+    rt_fill_info(&infos[3], mint);
+    rt_fill_info(&infos[4], system);
+    rt_fill_info(&infos[5], token);
+    ix.program_id = (SolPubkey *)(const void *)RT_ATA_ID;
+    ix.accounts = &metas[0];
+    ix.accounts_len = 6u;
+    ix.data = &payload[0];
+    ix.data_len = 1u;
+    return sol_invoke_signed_c(&ix, &infos[0], 6u, (const SolSignerSeeds *)0, 0u);
 }
 
 /* ------------------------------------------------------------------ */

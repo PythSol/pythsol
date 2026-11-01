@@ -9,23 +9,39 @@ is what the random-AST fuzzer relies on.
 from __future__ import annotations
 
 import ast
+from collections.abc import Mapping
 
 from pythsol.compiler import resolve, subset, typecheck
 from pythsol.compiler.diagnostics import PS9000, Diagnostic
-from pythsol.compiler.parse import parse_source
+from pythsol.compiler.modules import load_program
 
 __all__ = ["check_source", "check_tree"]
 
 
-def check_source(source: str, file: str = "<program>") -> list[Diagnostic]:
-    """Check a program from text; returns all diagnostics."""
+def check_source(
+    source: str,
+    file: str = "<program>",
+    *,
+    modules: Mapping[str, str] | None = None,
+    module_files: Mapping[str, str] | None = None,
+) -> list[Diagnostic]:
+    """Check a program from text; returns all diagnostics.
+
+    ``modules`` maps a sibling module name to source text. The compiler parses
+    those strings. It does not import or execute them. Omit ``modules`` for a
+    single file; a foreign import is then rejected exactly as before.
+    """
     try:
-        tree, parse_diags = parse_source(source, file)
+        program, diagnostics = load_program(source, file, modules, module_files)
     except Exception as err:
         return _internal(file, "parse", err)
-    if tree is None:
-        return parse_diags
-    return check_tree(tree, file)
+    if program is None or diagnostics:
+        return diagnostics
+    try:
+        diagnostics.extend(typecheck.check_program(program, file))
+    except Exception as err:
+        return diagnostics + _internal(file, "typecheck", err)
+    return diagnostics
 
 
 def check_tree(tree: ast.Module, file: str = "<program>") -> list[Diagnostic]:
