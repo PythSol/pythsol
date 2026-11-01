@@ -23,9 +23,25 @@ compiler-generated C, and no user source is ever executed.
 
 | URL | What runs there | Made by |
 |---|---|---|
-| https://pythsol-docs-rehmandakat67-3497.vercel.app | Starlight docs (static) | Vercel CLI deploy of `web/docs/dist` |
-| https://pythsol-playground.vercel.app | browser check + emit as one Python function; `POST /v1/compile` answers 403 with Docker guidance | Vercel CLI deploy of `deploy/vercel` tree |
-| Render `pythsol-playground` | **not yet** — API account needs a card (see below) | `Spikes/tools/render-service.ps1` |
+| https://pythsol.vercel.app | **one project**: `/` landing, `/playground` editor (check + emit), `/docs/...` Starlight, `/v1/*` API | Vercel CLI deploy of `target\vercel_stage` (built by `Spikes/tools/stage-vercel-one.ps1`) |
+
+Production domains on the same project: `pythsol.com` + `www.pythsol.com`.
+The name is **not registered yet** — when it is, point DNS at Vercel:
+
+| Record | Name | Value |
+|---|---|---|
+| A | `@` | `76.76.21.21` |
+| CNAME | `www` | `cname.vercel-dns.com` |
+
+TLS is issued automatically once DNS resolves. Then
+`https://pythsol.com` is the product, `pythsol.vercel.app` stays as a mirror.
+
+Because the GA Python runtime routes **every** request to the one
+`index.py` entrypoint, it also serves the docs static files under `/docs`
+(content-type map, hashed-asset immutable cache, path-traversal guard) and
+the landing page. The Starlight build lives at `web/docs` (`base: "/docs"`
+and `trailingSlash: "never"` in `astro.config.mjs`); `web/docs/dist` is
+copied into the deployment as `docs/`.
 
 ## Deploying to Vercel (check + emit, no compile)
 
@@ -47,11 +63,10 @@ Commands (CLI is Vercel-authenticated on this Windows machine; token lives
 in `%APPDATA%\com.vercel.cli\Data\auth.json` — never commit it):
 
 ```powershell
-# stage then deploy (Spikes/tools/stage-vercel-play.ps1 builds the tree)
-.\.venv\Scripts\python.exe Spikes\python\dbg_build_vercel_play_payload.py
-powershell -NoProfile -ExecutionPolicy Bypass -File Spikes\tools\stage-vercel-play.ps1
-target\cli\node_modules\.bin\vercel.cmd deploy target\vercel_play_stage `
-  --prod --yes --scope rehmandakat67-3497 --name pythsol-playground
+# stage then deploy (Spikes/tools/stage-vercel-one.ps1 builds the tree)
+powershell -NoProfile -ExecutionPolicy Bypass -File Spikes\tools\stage-vercel-one.ps1
+target\cli\node_modules\.bin\vercel.cmd deploy target\vercel_stage `
+  --prod --yes --scope rehmandakat67-3497 --name pythsol
 ```
 
 Traps learned here:

@@ -12,15 +12,18 @@ release or publish to PyPI unless the user gives credentials and an explicit
 publish order.
 
 Live since 2026-11-01 (see `docs/guides/hosting.md` for URL truth and deploy
-traps): docs at `https://pythsol-docs-rehmandakat67-3497.vercel.app`,
-playground check/emit at `https://pythsol-playground.vercel.app` (compile
-returns 403 with Docker guidance — that is by design, `healthz` reports it).
-Source of these deploys: `github.com/PythSol/pythsol` branch `main`. Render
-(full compile container) is staged in `Spikes/tools/render-service.ps1` and
-blocked on a dashboard payment card. The Vercel Python runtime serves one
+traps): **one Vercel project** at `https://pythsol.vercel.app` — `/` landing,
+`/playground` (check/emit serverless, compile returns 403 with Docker
+guidance by design), `/docs/...` Starlight (rebuilt with `base: /docs`).
+Domains `pythsol.com` and `www.pythsol.com` are attached to the project but
+the domain name is not registered yet; DNS records for it are in the hosting
+guide. Source of these deploys: `github.com/PythSol/pythsol` branch `main`.
+Render (full compile container) is staged in `Spikes/tools/render-service.ps1`
+and blocked on a dashboard payment card. The Vercel Python runtime serves one
 entrypoint (`deploy/vercel/index.py`, exact `def app(environ, start_response)`
-signature) and routes all paths to it; legacy `api/*.py` files and legacy
-`routes` are kept only as reference for other hosts.
+signature) and routes all paths to it — including the docs static files —
+legacy `api/*.py` files and legacy `routes` are kept only as reference for
+other hosts.
 
 ## Goal
 

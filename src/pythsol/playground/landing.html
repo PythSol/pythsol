@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PythSol — Solana programs in typed Python</title>
+    <meta name="description" content="Write Solana programs in a typed Python subset. PythSol compiles to native SBF bytecode with an Anchor-style IDL and a solders client." />
+    <link rel="stylesheet" href="/site.css" />
+  </head>
+  <body>
+    <nav>
+      <a class="mark" href="/">Pyth<span>Sol</span></a>
+      <a class="item" href="/docs">Docs</a>
+      <a class="item" href="/playground">Playground</a>
+    </nav>
+    <section class="hero">
+      <div class="wrap">
+        <h1>Write Solana programs in typed Python.</h1>
+        <p>
+          PythSol checks a strict Python subset, lowers it to C, and compiles
+          native SBF bytecode plus an Anchor-style IDL and a solders client —
+          from one <code>pythsol build</code>. Nothing here ever runs your code.
+        </p>
+        <div class="actions">
+          <a href="/playground">Open the Playground</a>
+          <a class="quiet" href="/docs">Read the Docs</a>
+          <a class="quiet" href="/docs/quickstart">Quickstart</a>
+        </div>
+      </div>
+    </section>
+    <main class="wrap">
+      <div class="split">
+        <section>
+          <h2>You write Python</h2>
+          <pre>def handler(ctx: Context, payer: Signer, amount: u64) -> u64:
+    vault = make_pda(&quot;vault&quot;, payer.key)
+    require!(amount &gt;= 1000)
+    move_lamports(from=vault, to=payer.key, lamports=amount)
+    return 0</pre>
+        </section>
+        <section>
+          <h2>You get a Solana program</h2>
+          <pre>pythsol build program.py
+out/program.so        native SBF bytecode
+out/idl.json          Anchor-style IDL
+out/pythsol_client.py solders client
+out/manifest.json     build manifest</pre>
+        </section>
+      </div>
+      <h2>What PythSol gives you</h2>
+      <div class="cards">
+        <section class="card">
+          <h3>Checked, not executed</h3>
+          <p class="note">
+            The parser reads your AST and the type checker proves accounts,
+            seeds, and lamports — your Python never gets executed by the site.
+          </p>
+        </section>
+        <section class="card">
+          <h3>Native, not WASM</h3>
+          <p class="note">
+            clang targets the Solana SBF backend directly, so the artifact is a
+            real deployable program with verifiable bytecode.
+          </p>
+        </section>
+        <section class="card">
+          <h3>Workflow included</h3>
+          <p class="note">
+            LiteSVM tests, deploy, faucet, wallet, verify, and a generated
+            client ship with the CLI — no extra glue to write.
+          </p>
+        </section>
+      </div>
+      <h2>Pick your road</h2>
+      <div class="steps">
+        <section class="step">
+          <h3>Try ideas in the browser</h3>
+          <a href="/playground">Open the Playground</a>
+          <p class="note">Check types, seeds, and lamports flow; view the generated C.</p>
+        </section>
+        <section class="step">
+          <h3>Build locally, deploy to Devnet</h3>
+          <a href="/docs/quickstart">Follow the Quickstart</a>
+          <p class="note"><code>pipx install pythsol</code>, then <code>pythsol init my-program</code>.</p>
+        </section>
+      </div>
+    </main>
+    <footer>
+      PythSol 0.1.0 — the typed-Python subset for Solana. Source:
+      <a href="https://github.com/PythSol/pythsol">github.com/PythSol/pythsol</a>.
+    </footer>
+  </body>
+</html>

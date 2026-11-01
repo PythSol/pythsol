@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import pathlib
 from urllib.parse import parse_qs, unquote
 
 from wsgi_common import _json_response, _read_body, _source_of
@@ -21,6 +22,7 @@ __all__ = ["app"]
 
 _UI_FILES: dict[str, str] = {
     "playground.html": "text/html; charset=utf-8",
+    "landing.html": "text/html; charset=utf-8",
     "docs.html": "text/html; charset=utf-8",
     "app.css": "text/css; charset=utf-8",
     "site.css": "text/css; charset=utf-8",
@@ -28,9 +30,29 @@ _UI_FILES: dict[str, str] = {
 }
 
 _PAGE_ROUTES: dict[str, str] = {
-    "/": "playground.html",
+    "/": "landing.html",
     "/playground": "playground.html",
-    "/docs": "docs.html",
+}
+
+_DOCS_TYPES: dict[str, str] = {
+    "html": "text/html; charset=utf-8",
+    "css": "text/css; charset=utf-8",
+    "js": "text/javascript; charset=utf-8",
+    "mjs": "text/javascript; charset=utf-8",
+    "json": "application/json; charset=utf-8",
+    "xml": "application/xml; charset=utf-8",
+    "txt": "text/plain; charset=utf-8",
+    "svg": "image/svg+xml",
+    "png": "image/png",
+    "jpg": "image/jpeg",
+    "jpeg": "image/jpeg",
+    "webp": "image/webp",
+    "ico": "image/x-icon",
+    "woff": "font/woff",
+    "woff2": "font/woff2",
+    "wasm": "application/wasm",
+    "map": "application/json; charset=utf-8",
+    "webmanifest": "application/manifest+json",
 }
 
 
@@ -67,11 +89,73 @@ def _serve_ui(start_response, rel: str) -> list[bytes]:
     return [raw]
 
 
+def _docs_static(start_response, path: str) -> list[bytes] | None:
+    """Serve the Starlight build under /docs; None means not-a-docs-file."""
+    if path == "/docs" or path == "/docs/":
+        rel_parts: list[str] = []
+    elif path.startswith("/docs/"):
+        rel = unquote(path[len("/docs/"):])
+        rel_parts = [part for part in rel.split("/") if part and part != "."]
+    else:
+        return None
+    if ".." in rel_parts:
+        return _not_found_404(start_response)
+
+    doc_root = (pathlib.Path(os.environ.get("PYTHSOL_DOCS_DIR", "docs"))).resolve()
+    candidates: list[pathlib.Path] = []
+    if rel_parts:
+        joined = doc_root.joinpath(*rel_parts)
+        candidates = [joined / "index.html", joined.with_name(joined.name + ".html"), joined]
+    else:
+        candidates = [doc_root / "index.html"]
+    target: pathlib.Path | None = None
+    for candidate in candidates:
+        try:
+            resolved = candidate.resolve()
+        except OSError:
+            continue
+        if doc_root not in resolved.parents and resolved != doc_root:
+            continue
+        if resolved.is_file():
+            target = resolved
+            break
+    if target is None:
+        return _not_found_404(start_response)
+
+    suffix = target.suffix.lstrip(".").lower()
+    ctype = _DOCS_TYPES.get(suffix, "application/octet-stream")
+    try:
+        raw = target.read_bytes()
+    except OSError:
+        return _not_found_404(start_response)
+
+    rel_posix = target.relative_to(doc_root).as_posix()
+    if "/_astro/" in f"/{rel_posix}" or "/pagefind/" in f"/{rel_posix}":
+        cache = "public, max-age=31536000, immutable"
+    elif suffix in _DOCS_TYPES and suffix != "html":
+        cache = "public, max-age=300"
+    else:
+        cache = "public, max-age=60, must-revalidate"
+    start_response(
+        "200 _",
+        [
+            ("content-type", ctype),
+            ("content-length", str(len(raw))),
+            ("cache-control", cache),
+        ],
+    )
+    return [raw]
+
+
 def app(environ, start_response):
     """Dispatch on the browser path (UI pages, then examples/API)."""
     query = parse_qs(environ.get("QUERY_STRING", ""))
     path = unquote((query.get("pathname") or [environ.get("PATH_INFO", "/")])[0])
     method = environ.get("REQUEST_METHOD", "GET")
+
+    docs_response = _docs_static(start_response, path)
+    if docs_response is not None:
+        return docs_response
 
     if path in _PAGE_ROUTES:
         return _serve_ui(start_response, _PAGE_ROUTES[path])

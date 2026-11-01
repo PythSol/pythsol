@@ -4,7 +4,10 @@ import starlight from "@astrojs/starlight";
 // Light theme only (ADR-0008). Dark OS preferences still get these colors
 // from src/styles/theme.css. Tokens live in web/shared-tokens/tokens.json.
 export default defineConfig({
-  site: "https://github.com/PythSol/pythsol",
+  // Hosted under one domain: https://pythsol.com serves /docs from this build.
+  site: "https://pythsol.com",
+  base: "/docs",
+  trailingSlash: "never",
   integrations: [
     starlight({
       title: "PythSol",

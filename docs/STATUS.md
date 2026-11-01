@@ -11,8 +11,9 @@ A short pointer is `AGENTS.md` at the repo root.
 - [x] Native SBF `.so`, IDL, and solders client from `pythsol build`
 - [x] LiteSVM tests for counter, ledger, vault, escrow, and the purse fixture
 - [x] `pythsol test`, build cache, wallet, faucet, deploy, port, verify, profile
-- [x] Hosted playground, browser check and emit: deployed to Vercel (`https://pythsol-playground.vercel.app`), check and emit served as serverless Python, compile answers 403 with Docker guidance
-- [x] Hosted docs: deployed to Vercel (`https://pythsol-docs-rehmandakat67-3497.vercel.app`)
+- [x] Hosted playground, browser check and emit: deployed to Vercel (`https://pythsol.vercel.app`) as one project with the docs; check and emit served as serverless Python, compile answers 403 with Docker guidance
+- [x] Hosted docs: served under `/docs` of the same project (`https://pythsol.vercel.app/docs`), Starlight `base: /docs`
+- [x] `pythsol.com` and `www.pythsol.com` are attached to the project — they go live as soon as the user points DNS (A `@` → `76.76.21.21`, CNAME `www` → `cname.vercel-dns.com`); the domain name itself is not registered yet
 - [x] Hosted full-compile playground: staged on Render (`deploy/Dockerfile`, `starter` plan) — creation is blocked on a payment card in the Render dashboard
 - [x] `Vec[T, N]`, fixed-width data enums, PDA lamport moves
 - [x] Local playground: check, emit, and compile on loopback
@@ -36,19 +37,34 @@ A short pointer is `AGENTS.md` at the repo root.
 
 ## Hosting
 
-Live as of 2026-11-01:
+Live as of 2026-11-01 — **one Vercel project, one domain**:
 
-- Docs site (Starlight build): https://pythsol-docs-rehmandakat67-3497.vercel.app
-- Playground, browser **check** and **emit** (serverless; no compile):
-  https://pythsol-playground.vercel.app — `/healthz` reports `"compile": false`
-  and the compile button hides itself.
-- Full-compile container playground: **Render** — blocked on a payment card at
-  <https://dashboard.render.com/billing>; the create-service script is
+| Path | What runs there |
+|---|---|
+| `/` | Landing page (`landing.html`) |
+| `/playground` | Editor: check + show C (serverless Python) |
+| `/docs`, `/docs/...` | Starlight docs build (`web/docs`, `base: /docs`) |
+| `/v1/check`, `/v1/emit` | Browser diagnostics / generated C, IDL, client |
+| `/v1/compile` | 403 with Docker guidance (compile needs the SBF toolchain) |
+| `/healthz`, `/examples*` | Health, init templates |
+
+- Live URL until DNS: `https://pythsol.vercel.app`
+- Production domains attached: `pythsol.com`, `www.pythsol.com` — the name
+  is **not registered yet**. After the user buys it: A `@` → `76.76.21.21`,
+  CNAME `www` → `cname.vercel-dns.com`; TLS is automatic.
+- The single Vercel project is `pythsol` (the older `pythsol-docs` and
+  `pythsol-playground` projects were deleted after the merge). Deploy the
+  whole site with `Spikes/tools/stage-vercel-one.ps1` then
+  `vercel deploy target\vercel_stage --prod --yes --scope
+  rehmandakat67-3497 --name pythsol`. New deployments need the SSO
+  protection toggle only once per project (`Spikes/tools/unprotect-pythsol.ps1`).
+- Full-compile container playground: **Render** — blocked on a payment card
+  at <https://dashboard.render.com/billing>; the create-service script is
   `Spikes/tools/render-service.ps1` (type `web_service`, repo
   `https://github.com/PythSol/pythsol`, branch `main`, Dockerfile
   `deploy/Dockerfile`, health check `/healthz`, plan `starter`).
 
-Deploy notes and traps for these targets: `docs/guides/hosting.md`.
+Deploy notes and traps: `docs/guides/hosting.md`.
 
 Rebuilding:
 
