@@ -16,8 +16,9 @@ export default defineConfig({
       components: {
         Header: "./src/components/Header.astro",
         SiteTitle: "./src/components/SiteTitle.astro",
+        ThemeSelect: "./src/components/ThemeSelect.astro",
       },
-      expressiveCode: { themes: ["github-light"] },
+      expressiveCode: { themes: ["github-light", "github-dark"] },
       editLink: { baseUrl: "https://github.com/PythSol/pythsol/edit/main/web/docs/" },
       lastUpdated: true,
       sidebar: [

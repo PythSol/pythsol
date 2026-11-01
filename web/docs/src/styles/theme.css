@@ -1,12 +1,13 @@
 /*
- * Light palette from web/shared-tokens/tokens.json (ADR-0008).
- * The same values are applied when the OS asks for a dark page.
+ * Palette from web/shared-tokens/tokens.json (ADR-0008).
+ * Light is the brand default. Dark is a real palette now, not a repaint:
+ * the same tokens flip under [data-theme="dark"] and under
+ * prefers-color-scheme when the user has not picked a theme ("auto").
  * Yellow is a marker, not body text. Python blue is the link color.
  * Solana purple and mint are small accents only.
  */
 :root,
-:root[data-theme="light"],
-:root[data-theme="dark"] {
+:root[data-theme="light"] {
   color-scheme: light;
   --bg: #ffffff;
   --bg-subtle: #f5f8fc;
@@ -20,6 +21,9 @@
   --on-accent: #1b2430;
   --solana-purple: #9945ff;
   --solana-mint: #14f195;
+  /* Inline-code chips: ~20% deeper than the old gray. */
+  --chip-bg: #e6edf6;
+  --chip-border: #cdd8e5;
   --sl-color-bg: var(--bg);
   --sl-color-bg-nav: var(--bg-subtle);
   --sl-color-bg-sidebar: var(--bg-subtle);
@@ -27,6 +31,87 @@
   --sl-color-text: var(--text);
   --sl-color-text-accent: var(--primary);
   --sl-color-bg-accent: var(--primary);
+  --sl-color-black: #ffffff;
+  --sl-color-white: var(--text);
+  --sl-color-gray-1: var(--bg-subtle);
+  --sl-color-gray-2: #eef3f9;
+  --sl-color-gray-3: var(--border);
+  --sl-color-gray-4: #a9b4c4;
+  --sl-color-gray-5: #7d8798;
+  --sl-color-gray-6: var(--text-muted);
+  --sl-color-gray-7: var(--text);
+}
+
+:root[data-theme="dark"],
+:root[data-theme="auto"] {
+  color-scheme: dark;
+  --bg: #12151d;
+  --bg-subtle: #171b25;
+  --surface-code: #1a1f2b;
+  --text: #e7ecf5;
+  --text-muted: #9aa6ba;
+  --border: #2a3242;
+  --primary: #7fa9d8;
+  --primary-strong: #a4c6e8;
+  --accent: #ffd43b;
+  --on-accent: #14171f;
+  --solana-purple: #b47aff;
+  --solana-mint: #2ee6a8;
+  --chip-bg: #232b3c;
+  --chip-border: #39445a;
+  --sl-color-bg: var(--bg);
+  --sl-color-bg-nav: var(--bg-subtle);
+  --sl-color-bg-sidebar: var(--bg-subtle);
+  --sl-color-hairline: var(--border);
+  --sl-color-text: var(--text);
+  --sl-color-text-accent: var(--primary);
+  --sl-color-bg-accent: var(--primary);
+  --sl-color-black: #0d1017;
+  --sl-color-white: var(--text);
+  --sl-color-gray-1: #1a1f2b;
+  --sl-color-gray-2: #202634;
+  --sl-color-gray-3: #2a3242;
+  --sl-color-gray-4: #454f63;
+  --sl-color-gray-5: #5b667c;
+  --sl-color-gray-6: #aab4c6;
+  --sl-color-gray-7: #e7ecf5;
+}
+
+/* While "auto", follow the OS: dark tokens win only under the media query. */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="auto"] {
+    color-scheme: dark;
+    --bg: #12151d;
+    --bg-subtle: #171b25;
+    --surface-code: #1a1f2b;
+    --text: #e7ecf5;
+    --text-muted: #9aa6ba;
+    --border: #2a3242;
+    --primary: #7fa9d8;
+    --primary-strong: #a4c6e8;
+    --accent: #ffd43b;
+    --on-accent: #14171f;
+    --solana-purple: #b47aff;
+    --solana-mint: #2ee6a8;
+    --chip-bg: #232b3c;
+    --chip-border: #39445a;
+    --sl-color-bg: var(--bg);
+    --sl-color-bg-nav: var(--bg-subtle);
+    --sl-color-bg-sidebar: var(--bg-subtle);
+    --sl-color-hairline: var(--border);
+    --sl-color-text: var(--text);
+    --sl-color-text-accent: var(--primary);
+    --sl-color-bg-accent: var(--primary);
+    --sl-color-black: #0d1017;
+    --sl-color-white: var(--text);
+    --sl-color-gray-1: #1a1f2b;
+    --sl-color-gray-2: #202634;
+    --sl-color-gray-3: #2a3242;
+    --sl-color-gray-4: #454f63;
+    --sl-color-gray-5: #5b667c;
+    --sl-color-gray-6: #aab4c6;
+    --sl-color-gray-7: #e7ecf5;
+  }
 }
 
 .site-title {
@@ -34,9 +119,9 @@
 }
 
 /*
- * Header matches the marketing navbar (site.css): white, a Python blue
- * hairline underneath. Scope to PageFrame's outer bar (`.page > .header`);
- * the inner Header component carries its own layout styles.
+ * Header matches the marketing navbar: white (page bg) with a Python blue
+ * hairline in light. Scope to PageFrame's outer bar; the inner Header
+ * component carries its own layout styles.
  */
 .page > .header {
   background: var(--bg);
@@ -55,3 +140,40 @@
   background-clip: text;
   color: transparent;
 }
+
+/* Icon-only theme toggle (ThemeSelect override). */
+.ps-theme {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--sl-color-gray-6);
+  cursor: pointer;
+  font-size: 1rem;
+}
+.ps-theme:hover { color: var(--sl-color-text-accent); }
+.ps-theme svg { width: 1.25rem; height: 1.25rem; }
+
+/*
+ * Sidebar discipline: stronger group labels and current-item depth.
+ */
+.sidebar .top-level > details > summary,
+.sidebar .top-level > a {
+  font-weight: 700;
+  color: var(--sl-color-text);
+  letter-spacing: 0.02em;
+}
+.sidebar-content a[aria-current="page"] {
+  box-shadow: inset 0 0 0 1px var(--sl-color-gray-3);
+}
+/* Inline code chips: deeper bg + hairline, both themes. */
+.sl-markdown-content code:not(.ec-line) {
+  background: var(--chip-bg);
+  border: 1px solid var(--chip-border);
+  border-radius: 5px;
+  padding: 0.12em 0.35em;
+}
+/* Expressive Code line and block chrome adapt via its own dark theme. */

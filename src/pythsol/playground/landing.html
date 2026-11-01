@@ -12,12 +12,27 @@
     <link rel="stylesheet" href="/site.css" />
   </head>
   <body>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <g id="i-write"><path d="M4 20h16M12.5 3.5l4 4L8 16l-4.5 1L4.5 12z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g id="i-shield"><path d="M12 3l7 3v5c0 4.4-3 8-7 10-4-2-7-5.6-7-10V6z M9.2 11.5l2 2 3.6-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g id="i-code"><path d="M8.5 7L4 12l4.5 5M15.5 7L20 12l-4.5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g id="i-box"><path d="M12 3l8 4.2v9.6L12 21l-8-4.2V7.2zM12 11.5L20 7.2M12 11.5L4 7.2M12 11.5V21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g id="i-idl"><path d="M14 3H6v18h12V7zM14 3v4h4M9 12h6M9 15.5h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g id="i-test"><path d="M9 3v6.2L5 17a2.6 2.6 0 0 0 2.3 4h9.4A2.6 2.6 0 0 0 19 17l-4-7.8V3M8 3h8M7.5 14h9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g id="i-tools"><path d="M14.7 6.3a4 4 0 0 0-5.3 5L4 16.8V20h3.2l5.5-5.4a4 4 0 0 0 5-5.3L15 12l-3-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g id="i-chain"><path d="M10 14l4-4M8 12l-2.6 2.6a3.4 3.4 0 0 0 4.8 4.8L12.8 17M16 12l2.6-2.6a3.4 3.4 0 0 0-4.8-4.8L11.2 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g id="i-arrow"><path d="M4 12h15m-5-5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
+      </defs>
+    </svg>
+
     <nav>
       <a class="mark" href="/"><span class="po">Pyth</span><span class="so">Sol</span></a>
       <a class="item" href="/docs">Docs</a>
       <a class="item" href="/playground">Playground</a>
-      <a class="item" href="https://github.com/PythSol/pythsol">GitHub</a>
+      <a class="item" href="https://github.com/PythSol/pythsol" target="_blank" rel="noopener">GitHub</a>
     </nav>
+
     <section class="hero">
       <div class="wrap">
         <h1>Write Solana programs in Python.</h1>
@@ -33,10 +48,47 @@
         <p class="cmd"><code>pip install git+https://github.com/PythSol/pythsol.git</code> then <code>pythsol init my-program</code></p>
       </div>
     </section>
+
     <main class="wrap">
-      <div class="split">
+      <section class="reveal panel">
+        <h2>From .py to .so, checked at every step</h2>
+        <div class="pipeline">
+          <div class="stage">
+            <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-write"/></svg>
+            <h3>Write</h3>
+            <p class="note"><code>.py</code> with typed accounts, seeds, and errors.</p>
+          </div>
+          <svg class="pipe" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
+          <div class="stage">
+            <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-shield"/></svg>
+            <h3>Check</h3>
+            <p class="note"><code>PSxxxx</code> diagnostics with file, line, column.</p>
+          </div>
+          <svg class="pipe" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
+          <div class="stage">
+            <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-code"/></svg>
+            <h3>Emit C</h3>
+            <p class="note">Real C with runtime checks — read it in the playground.</p>
+          </div>
+          <svg class="pipe" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
+          <div class="stage">
+            <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-box"/></svg>
+            <h3>Build .so</h3>
+            <p class="note">Native SBF via Solana clang, cached and byte-identical.</p>
+          </div>
+          <svg class="pipe" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
+          <div class="stage">
+            <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-idl"/></svg>
+            <h3>Ship</h3>
+            <p class="note">Anchor-style IDL + a solders client, generated.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="split reveal">
         <section>
           <h3>counter.py — you write</h3>
+          <div class="chrome"><span></span><span></span><span></span><b>counter.py</b></div>
           <pre>@instruction
 def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
     """Add `by` to the count; only the stored authority may call this."""
@@ -45,6 +97,7 @@ def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
         </section>
         <section>
           <h3>counter.c — the compiler writes</h3>
+          <div class="chrome"><span></span><span></span><span></span><b>counter.c</b></div>
           <pre>static uint64_t pyf_increment(RtCtx *rt) {
     if (rt->data_len != 8u) {
         rt_fail_log(1u, "counter.py", 49u, "instruction data length is wrong");
@@ -82,9 +135,11 @@ def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
         them — accounts role-checked, discriminators verified, arithmetic
         overflow guarded, and each failure attributed to a source line.
       </p>
+
       <h2>What PythSol gives you</h2>
-      <div class="cards">
+      <div class="cards reveal">
         <section class="card">
+          <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-shield"/></svg>
           <h3>Checked, not executed</h3>
           <p class="note">
             The site parses your AST and type-checks accounts, seeds, and
@@ -92,6 +147,7 @@ def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
           </p>
         </section>
         <section class="card">
+          <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-code"/></svg>
           <h3>Native, not WASM</h3>
           <p class="note">
             clang targets the Solana SBF backend directly, so the artifact is a
@@ -99,19 +155,54 @@ def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
           </p>
         </section>
         <section class="card">
-          <h3>The workflow included</h3>
+          <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-idl"/></svg>
+          <h3>IDL + client included</h3>
           <p class="note">
-            LiteSVM tests, deploy, faucet, wallet, verify, profiling, and a
-            generated solders client ship with the CLI — no extra glue.
+            Every build emits an Anchor-style IDL and a solders client — read
+            both in the playground's result tabs.
+          </p>
+        </section>
+        <section class="card">
+          <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-test"/></svg>
+          <h3>LiteSVM tests</h3>
+          <p class="note">
+            <code>pythsol init</code> writes a pytest suite that runs the real
+            bytecode in-process with LiteSVM.
+          </p>
+        </section>
+        <section class="card">
+          <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-tools"/></svg>
+          <h3>Workflow tools</h3>
+          <p class="note">
+            Faucet, deploy, wallet, verify, and profiling ship in the CLI —
+            no extra glue is needed.
+          </p>
+        </section>
+        <section class="card">
+          <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chain"/></svg>
+          <h3>Solana-native types</h3>
+          <p class="note">
+            PDAs with seeds, token and ATA CPI guards, lamport moves, and data
+            enums are part of the language, not an afterthought.
           </p>
         </section>
       </div>
+
+      <h2>Programs to learn from</h2>
+      <div class="ribbon reveal">
+        <a href="/docs/tutorial-counter">counter</a>
+        <a href="/docs/language">ledger</a>
+        <a href="/docs/tutorial-vault">vault</a>
+        <a href="/docs/tutorial-escrow">escrow</a>
+        <a class="soft" href="/playground">try them in the playground</a>
+      </div>
+
       <h2>Pick your road</h2>
-      <div class="steps">
+      <div class="steps reveal">
         <section class="step">
           <h3>Try ideas in the browser</h3>
           <a href="/playground">Open the Playground</a>
-          <p class="note">Check types, seeds, and lamports flow; read the generated C.</p>
+          <p class="note">Check types, seeds, and lamports flow; read the generated C, IDL, and client.</p>
         </section>
         <section class="step">
           <h3>Build locally, deploy to Devnet</h3>
@@ -122,10 +213,25 @@ def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
     </main>
     <footer>
       PythSol 0.1.0 — the typed-Python subset for Solana.
-      <a href="https://github.com/PythSol/pythsol">Source</a> ·
+      <a href="https://github.com/PythSol/pythsol" target="_blank" rel="noopener">Source</a> ·
       <a href="/docs/changelog">Changelog</a> ·
       <a href="/docs/roadmap">Roadmap</a> ·
       <a href="/docs">Docs</a>.
     </footer>
+    <script>
+      if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        const ob = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("in");
+              ob.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.12 });
+        document.querySelectorAll(".reveal").forEach(function (el) { ob.observe(el); });
+      } else {
+        document.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("in"); });
+      }
+    </script>
   </body>
 </html>
