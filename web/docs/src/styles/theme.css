@@ -1,0 +1,34 @@
+/*
+ * Light palette from web/shared-tokens/tokens.json (ADR-0008).
+ * The same values are applied when the OS asks for a dark page.
+ * Yellow is a marker, not body text. Python blue is the link color.
+ * Solana purple and mint are small accents only.
+ */
+:root,
+:root[data-theme="light"],
+:root[data-theme="dark"] {
+  color-scheme: light;
+  --bg: #ffffff;
+  --bg-subtle: #f5f8fc;
+  --surface-code: #f3f6fa;
+  --text: #1b2430;
+  --text-muted: #4a5668;
+  --border: #d5dde8;
+  --primary: #306998;
+  --primary-strong: #255077;
+  --accent: #ffd43b;
+  --on-accent: #1b2430;
+  --solana-purple: #9945ff;
+  --solana-mint: #14f195;
+  --sl-color-bg: var(--bg);
+  --sl-color-bg-nav: var(--bg-subtle);
+  --sl-color-bg-sidebar: var(--bg-subtle);
+  --sl-color-hairline: var(--border);
+  --sl-color-text: var(--text);
+  --sl-color-text-accent: var(--primary);
+  --sl-color-bg-accent: var(--primary);
+}
+
+.site-title {
+  box-shadow: inset 0 -2px 0 var(--solana-mint);
+}

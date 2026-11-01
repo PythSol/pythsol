@@ -1,0 +1,26 @@
+{
+  "name": "pythsol",
+  "displayName": "PythSol",
+  "description": "Diagnostics from pythsol check --json. Not published.",
+  "version": "0.1.0",
+  "publisher": "pythsol",
+  "private": true,
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Programming Languages", "Linters"],
+  "main": "./extension.js",
+  "activationEvents": ["onLanguage:python"],
+  "contributes": {
+    "configuration": {
+      "title": "PythSol",
+      "properties": {
+        "pythsol.executable": {
+          "type": "string",
+          "default": "pythsol",
+          "description": "PythSol executable used for check --json."
+        }
+      }
+    }
+  }
+}
