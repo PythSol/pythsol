@@ -247,6 +247,20 @@ test or a real host.
   `Pyth` yellow `--accent`, `Sol` mint→purple gradient, click → `/`.
 - `astro.config.mjs` pins `site: "https://www.pythsol.com"`,
   `base: "/docs"`, `trailingSlash: "never"`. Keep those when editing.
+- Starlight's **gray scale is directional per mode** (learned the hard
+  way, 2026-11-01): stock light ramps gray-1 darkest (`#23262f`) →
+  gray-7 lightest (`#f6f7f9`); stock dark ramps gray-1 lightest
+  (`#edeef3`) → gray-6 darkest (`#23262f`). Components read raw grays
+  (sidebar links `gray-2`, TOC + footer meta `gray-3`, active pill =
+  bg `--sl-color-text-accent` + text `--sl-color-text-invert`), so never
+  remap grays to brand roles in `theme.css` — mirror the stock ramp
+  instead and set `--sl-color-text-invert` (`#fff` light / `#14171f`
+  dark) plus `--sl-color-hairline-light/-shade` and
+  `--sl-color-bg-inline-code` per block. The active-pill label also needs
+  an explicit `.sidebar-content a[aria-current="page"]{color:…invert}`
+  rule; a generic sidebar-link color rule out-specifies the pill and eats
+  its label. Round-3 checks live in `Spikes/python/dbg_check_docs_css.py`
+  (built) and `dbg_check_live_css.py` (live).
 
 **When you add a language feature**
 

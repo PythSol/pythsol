@@ -33,13 +33,22 @@
   --sl-color-bg-accent: var(--primary);
   --sl-color-black: #ffffff;
   --sl-color-white: var(--text);
-  --sl-color-gray-1: var(--bg-subtle);
-  --sl-color-gray-2: #eef3f9;
-  --sl-color-gray-3: var(--border);
-  --sl-color-gray-4: #a9b4c4;
-  --sl-color-gray-5: #7d8798;
-  --sl-color-gray-6: var(--text-muted);
-  --sl-color-gray-7: var(--text);
+  /*
+   * Grays: Starlight's per-mode stock ramp. Components read raw grays
+   * (light theme: gray-1 darkest ... gray-7 lightest), so the order of
+   * lightness here is a contract, not a style choice.
+   */
+  --sl-color-gray-1: #23262f;
+  --sl-color-gray-2: #353841;
+  --sl-color-gray-3: #555962;
+  --sl-color-gray-4: #888c96;
+  --sl-color-gray-5: #c1c3c8;
+  --sl-color-gray-6: #edeef3;
+  --sl-color-gray-7: #f6f7f9;
+  --sl-color-text-invert: #ffffff;
+  --sl-color-bg-inline-code: var(--chip-bg);
+  --sl-color-hairline-light: var(--border);
+  --sl-color-hairline-shade: var(--border);
 }
 
 :root[data-theme="dark"],
@@ -68,13 +77,21 @@
   --sl-color-bg-accent: var(--primary);
   --sl-color-black: #0d1017;
   --sl-color-white: var(--text);
-  --sl-color-gray-1: #1a1f2b;
-  --sl-color-gray-2: #202634;
-  --sl-color-gray-3: #2a3242;
-  --sl-color-gray-4: #454f63;
-  --sl-color-gray-5: #5b667c;
-  --sl-color-gray-6: #aab4c6;
-  --sl-color-gray-7: #e7ecf5;
+  /*
+   * Grays: Starlight's dark ramp runs the other way (gray-1 lightest ...
+   * gray-6 darkest). The lightness order is the per-mode contract.
+   */
+  --sl-color-gray-1: #edeef3;
+  --sl-color-gray-2: #c1c3c8;
+  --sl-color-gray-3: #888c96;
+  --sl-color-gray-4: #555962;
+  --sl-color-gray-5: #353841;
+  --sl-color-gray-6: #23262f;
+  --sl-color-gray-7: #f6f7f9;
+  --sl-color-text-invert: #14171f;
+  --sl-color-bg-inline-code: var(--chip-bg);
+  --sl-color-hairline-light: var(--border);
+  --sl-color-hairline-shade: var(--border);
 }
 
 /* While "auto", follow the OS: dark tokens win only under the media query. */
@@ -104,13 +121,17 @@
     --sl-color-bg-accent: var(--primary);
     --sl-color-black: #0d1017;
     --sl-color-white: var(--text);
-    --sl-color-gray-1: #1a1f2b;
-    --sl-color-gray-2: #202634;
-    --sl-color-gray-3: #2a3242;
-    --sl-color-gray-4: #454f63;
-    --sl-color-gray-5: #5b667c;
-    --sl-color-gray-6: #aab4c6;
-    --sl-color-gray-7: #e7ecf5;
+    --sl-color-gray-1: #edeef3;
+    --sl-color-gray-2: #c1c3c8;
+    --sl-color-gray-3: #888c96;
+    --sl-color-gray-4: #555962;
+    --sl-color-gray-5: #353841;
+    --sl-color-gray-6: #23262f;
+    --sl-color-gray-7: #f6f7f9;
+    --sl-color-text-invert: #14171f;
+    --sl-color-bg-inline-code: var(--chip-bg);
+    --sl-color-hairline-light: var(--border);
+    --sl-color-hairline-shade: var(--border);
   }
 }
 
@@ -150,7 +171,7 @@
   justify-content: center;
   background: none;
   border: none;
-  color: var(--sl-color-gray-6);
+  color: var(--text-muted);
   cursor: pointer;
   font-size: 1rem;
 }
@@ -166,39 +187,41 @@
   color: var(--sl-color-text);
   letter-spacing: 0.02em;
 }
-.sidebar-content a[aria-current="page"] {
-  box-shadow: inset 0 0 0 1px var(--sl-color-gray-3);
-}
 /*
- * Link contrast (user-visible in both themes): Starlight paints sidebar
- * links and right-hand TOC entries with deliberately faint grays. We
- * repaint with the muted-text token, accent on hover/current.
+ * Link contrast. The palette above now follows Starlight's per-mode gray
+ * semantics, so sidebar and TOC stock colors read correctly as shipped.
+ * Explicit rules stay only where Starlight's own rules collide with ours.
  */
-.sidebar-content a {
-  color: var(--sl-color-gray-6);
-  font-weight: 500;
-}
 .sidebar-content a:hover {
   color: var(--sl-color-text-accent);
 }
-.sidebar-content a[aria-current="page"] {
-  color: var(--sl-color-text-accent);
-  font-weight: 600;
+/* Active pill: Starlight paints the background with the accent; the label
+   must be the invert color or it disappears against the blue. */
+.sidebar-content a[aria-current="page"],
+.sidebar-content a[aria-current="page"]:hover {
+  color: var(--sl-color-text-invert);
 }
-.right-sidebar-panel :where(a) {
+/* Footer meta: "Edit page" and "Last updated" otherwise render gray-3. */
+.meta {
   color: var(--text-muted);
-  font-weight: 500;
 }
-.right-sidebar-panel :where(a:hover) {
+.meta a {
   color: var(--sl-color-text-accent);
 }
-.right-sidebar-panel :where(a[aria-current="true"]) {
+.meta a:hover {
   color: var(--sl-color-text-accent);
+}
+/* Pagination: the small "Previous / Next" label above the page title. */
+.pagination-links :where(a) > span {
+  color: var(--text-muted);
+}
+.pagination-links :where(a) > span :where(.link-title) {
+  color: var(--text);
   font-weight: 600;
 }
-/* Muted body notes stay readable in dark. */
-:root[data-theme="dark"] .right-sidebar-panel :where(a) {
-  color: #a6b3c9;
+.pagination-links :where(a:hover) > span,
+.pagination-links :where(a:hover) > span :where(.link-title) {
+  color: var(--sl-color-text-accent);
 }
 /* Inline code chips: deeper bg + hairline, both themes. */
 .sl-markdown-content code:not(.ec-line) {
