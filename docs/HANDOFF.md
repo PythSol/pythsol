@@ -230,6 +230,13 @@ test or a real host.
   routing table, the stage script's UI-file list, and the source file
   itself. `favicon.svg` is served through `_UI_FILES`; forget it there
   and the stage ships without it.
+- The landing command box must stay installable: version 0.1.0 is NOT on
+  PyPI, so the box teaches
+  `pip install git+https://github.com/PythSol/pythsol.git` (wheel verified
+  locally). Change it to the plain `pip install pythsol` line only in the
+  same commit that really publishes to PyPI. The playground result pane
+  keeps C / IDL / Client tabs in sync with `/v1/emit`'s payload keys
+  (`c`, `idl`, `client`) — update the tabs if those keys change.
 - Starlight **0.42.7** declares overrides only in config
   (`astro.config.mjs` → `starlight({ components: { Header: …, SiteTitle:
   … } })`). Dropping files into `src/components/` does nothing, and the

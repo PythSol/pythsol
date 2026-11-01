@@ -28,13 +28,7 @@ body {
   background: var(--bg-subtle);
   border-bottom: 1px solid var(--border);
 }
-.mark {
-  margin: 0;
-  font-size: 20px;
-  letter-spacing: -0.03em;
-  box-shadow: inset 0 -3px 0 var(--mint);
-}
-.mark span { color: var(--purple); font-weight: 650; }
+/* The brand mark styles live in site.css (`nav .mark`). */
 header p { margin: 0; color: var(--muted); flex: 1; }
 .tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 button, select { font: inherit; }
@@ -83,6 +77,28 @@ main {
   gap: 16px;
   padding: 16px 20px 28px;
 }
+.tabs {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin: 0 0 8px;
+}
+.tab {
+  background: #fff;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tab.on {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+}
+.tab.copy { margin-left: auto; }
 section h3 {
   margin: 0 0 8px;
   font-size: 13px;

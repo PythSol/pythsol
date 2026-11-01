@@ -13,13 +13,14 @@
       <a class="mark" href="/"><span class="po">Pyth</span><span class="so">Sol</span></a>
       <a class="item" href="/docs">Docs</a>
       <a class="item" href="/playground" aria-current="page">Playground</a>
+      <a class="item" href="https://github.com/PythSol/pythsol">GitHub</a>
     </nav>
     <header class="tools-bar">
       <p>Nothing on this page runs your Python.</p>
       <div class="tools">
         <label>Example <select id="example"></select></label>
         <button id="check" type="button">Check</button>
-        <button id="emit" class="quiet" type="button">Show C</button>
+        <button id="emit" class="quiet" type="button" title="Generate C, IDL, and client">Emit</button>
         <button id="compile" type="button">Compile .so</button>
       </div>
     </header>
@@ -30,11 +31,19 @@
       </section>
       <section>
         <h3>Result — compiler output</h3>
+        <div class="tabs" id="tabs" hidden>
+          <button class="tab" id="tab-c" type="button" aria-pressed="true">C</button>
+          <button class="tab" id="tab-idl" type="button" aria-pressed="false">IDL</button>
+          <button class="tab" id="tab-client" type="button" aria-pressed="false">Client</button>
+          <button class="tab copy" id="copy" type="button">Copy</button>
+        </div>
         <pre id="out" aria-live="polite">Check, show the C, or compile.</pre>
       </section>
     </main>
     <footer>
-      <code>pythsol serve --public</code> checks and emits only. Compile is available on loopback, or with <code>--allow-compile</code>.
+      Nothing here runs your Python. Building a real <code>.so</code> needs the SBF
+      toolchain on your machine — install the CLI and run <code>pythsol build</code>
+      (see <a href="/docs/quickstart">Quickstart</a>).
     </footer>
     <script src="/app.js"></script>
   </body>
