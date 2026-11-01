@@ -3,57 +3,92 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>PythSol — Solana programs in typed Python</title>
-    <meta name="description" content="Write Solana programs in a typed Python subset. PythSol compiles to native SBF bytecode with an Anchor-style IDL and a solders client." />
+    <title>PythSol — Write Solana programs in Python</title>
+    <meta
+      name="description"
+      content="PythSol compiles a typed Python subset to native SBF bytecode with an Anchor-style IDL and a solders client. Nothing here runs your code."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="/site.css" />
   </head>
   <body>
     <nav>
-      <a class="mark" href="/">Pyth<span>Sol</span></a>
+      <a class="mark" href="/"><span class="po">Pyth</span><span class="so">Sol</span></a>
       <a class="item" href="/docs">Docs</a>
       <a class="item" href="/playground">Playground</a>
+      <a class="item" href="https://github.com/PythSol/pythsol">GitHub</a>
     </nav>
     <section class="hero">
       <div class="wrap">
-        <h1>Write Solana programs in typed Python.</h1>
+        <h1>Write Solana programs in Python.</h1>
         <p>
-          PythSol checks a strict Python subset, lowers it to C, and compiles
-          native SBF bytecode plus an Anchor-style IDL and a solders client —
-          from one <code>pythsol build</code>. Nothing here ever runs your code.
+          PythSol checks a typed Python subset, lowers it to C, and compiles
+          native SBF bytecode plus an Anchor-style IDL and a solders client.
+          Nothing here runs your code.
         </p>
         <div class="actions">
           <a href="/playground">Open the Playground</a>
-          <a class="quiet" href="/docs">Read the Docs</a>
-          <a class="quiet" href="/docs/quickstart">Quickstart</a>
+          <a class="quiet" href="/docs/quickstart">Read the Quickstart</a>
         </div>
+        <p class="cmd"><code>pip install pythsol</code> then <code>pythsol init my-program</code></p>
       </div>
     </section>
     <main class="wrap">
       <div class="split">
         <section>
-          <h2>You write Python</h2>
-          <pre>def handler(ctx: Context, payer: Signer, amount: u64) -> u64:
-    vault = make_pda(&quot;vault&quot;, payer.key)
-    require!(amount &gt;= 1000)
-    move_lamports(from=vault, to=payer.key, lamports=amount)
-    return 0</pre>
+          <h3>counter.py — you write</h3>
+          <pre>@instruction
+def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
+    """Add `by` to the count; only the stored authority may call this."""
+    require(counter.authority == authority.key, CounterError.Unauthorized)
+    counter.count += by</pre>
         </section>
         <section>
-          <h2>You get a Solana program</h2>
-          <pre>pythsol build program.py
-out/program.so        native SBF bytecode
-out/idl.json          Anchor-style IDL
-out/pythsol_client.py solders client
-out/manifest.json     build manifest</pre>
+          <h3>counter.c — the compiler writes</h3>
+          <pre>static uint64_t pyf_increment(RtCtx *rt) {
+    if (rt->data_len != 8u) {
+        rt_fail_log(1u, "counter.py", 49u, "instruction data length is wrong");
+        return 1u;
+    }
+    uint64_t dp_by = 0u;
+    rt_ld_u64(rt->data, 0u, &dp_by);
+    if (!rt_owner_eq(acc_counter, rt->program_id)) {
+        rt_fail_log(1003u, ...);
+        return 1003u;
+    }
+    if (!rt_disc_eq(acc_counter->data, RT_DISC_COUNTER)) {
+        rt_fail_log(1005u, ...);
+        return 1005u;
+    }
+    if (!(rt_key_eq((const SolPubkey *)
+                    (acc_counter->data + 8u), acc_authority->key))) {
+        rt_fail_log(ERR_COUNTERERROR_UNAUTHORIZED, ...);
+        return ERR_COUNTERERROR_UNAUTHORIZED;
+    }
+    uint64_t rt_t2 = 0u;
+    rt_ld_u64(acc_counter->data, 40u, &rt_t2);
+    uint64_t rt_t3;
+    uint64_t rt_t4 = rt_checked_add_u64(rt_t2, dp_by, &rt_t3);
+    if (rt_t4 != RT_OK) {
+        rt_fail_log(rt_t4, "counter.py", 52u, "checked add (u64)");
+        return rt_t4;
+    }
+    rt_st_u64(acc_counter->data, 40u, rt_t3);</pre>
         </section>
       </div>
+      <p class="note">
+        Both chunks are real: the four Python lines above are pulled from
+        <code>examples/counter</code> and the C is what our compiler emits for
+        them — accounts role-checked, discriminators verified, arithmetic
+        overflow guarded, and each failure attributed to a source line.
+      </p>
       <h2>What PythSol gives you</h2>
       <div class="cards">
         <section class="card">
           <h3>Checked, not executed</h3>
           <p class="note">
-            The parser reads your AST and the type checker proves accounts,
-            seeds, and lamports — your Python never gets executed by the site.
+            The site parses your AST and type-checks accounts, seeds, and
+            lamports — your Python is never executed by the playground.
           </p>
         </section>
         <section class="card">
@@ -64,10 +99,10 @@ out/manifest.json     build manifest</pre>
           </p>
         </section>
         <section class="card">
-          <h3>Workflow included</h3>
+          <h3>The workflow included</h3>
           <p class="note">
-            LiteSVM tests, deploy, faucet, wallet, verify, and a generated
-            client ship with the CLI — no extra glue to write.
+            LiteSVM tests, deploy, faucet, wallet, verify, profiling, and a
+            generated solders client ship with the CLI — no extra glue.
           </p>
         </section>
       </div>
@@ -76,12 +111,12 @@ out/manifest.json     build manifest</pre>
         <section class="step">
           <h3>Try ideas in the browser</h3>
           <a href="/playground">Open the Playground</a>
-          <p class="note">Check types, seeds, and lamports flow; view the generated C.</p>
+          <p class="note">Check types, seeds, and lamports flow; read the generated C.</p>
         </section>
         <section class="step">
           <h3>Build locally, deploy to Devnet</h3>
           <a href="/docs/quickstart">Follow the Quickstart</a>
-          <p class="note"><code>pipx install pythsol</code>, then <code>pythsol init my-program</code>.</p>
+          <p class="note"><code>pythsol build</code>, then <code>pythsol deploy</code>.</p>
         </section>
       </div>
     </main>

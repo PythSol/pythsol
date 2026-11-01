@@ -32,3 +32,25 @@
 .site-title {
   box-shadow: inset 0 -2px 0 var(--solana-mint);
 }
+
+/*
+ * Header matches the marketing navbar (site.css): white, a Python blue
+ * hairline underneath, and the same brandmark weight.
+ */
+.header {
+  background: var(--bg);
+  border-bottom: 3px solid var(--primary);
+  box-shadow: none;
+}
+.brandmark {
+  font-size: 1.25rem;
+  line-height: var(--sl-nav-height);
+  box-shadow: inset 0 -3px 0 var(--solana-mint);
+}
+.brandmark .po { color: var(--accent); }
+.brandmark .so {
+  background: linear-gradient(90deg, var(--solana-mint) 0%, var(--solana-purple) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

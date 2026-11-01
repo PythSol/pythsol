@@ -1,0 +1,53 @@
+---
+/*
+ * Override of Starlight's default Header: same layout as the stock header,
+ * but the right side carries plain text links to the marketing site —
+ * Playground — and GitHub — instead of (unused) social icons. SiteTitle
+ * is also overridden (branmark → "/").
+ */
+import Search from "virtual:starlight/components/Search";
+import SiteTitle from "virtual:starlight/components/SiteTitle";
+import ThemeSelect from "virtual:starlight/components/ThemeSelect";
+import LanguageSelect from "virtual:starlight/components/LanguageSelect";
+
+import config from "virtual:starlight/user-config";
+
+const shouldRenderSearch =
+    config.pagefind || config.components.Search !== "@astrojs/starlight/components/Search.astro";
+---
+
+<div class="header">
+    <div class="title-wrapper sl-flex">
+        <SiteTitle />
+    </div>
+    <div class="sl-flex print:hidden">
+        {shouldRenderSearch && <Search />}
+    </div>
+    <div class="sl-hidden md:sl-flex print:hidden right-group">
+        <nav class="pythsol-links" aria-label="PythSol site links">
+            <a href="/playground">Playground</a>
+            <a href="https://github.com/PythSol/pythsol">GitHub</a>
+        </nav>
+        <ThemeSelect />
+        <LanguageSelect />
+    </div>
+</div>
+
+<style>
+    @layer starlight.core {
+        .pythsol-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .pythsol-links a {
+            color: var(--sl-color-gray-6);
+            font-weight: 600;
+            text-decoration: none;
+            font-size: var(--sl-text-sm);
+        }
+        .pythsol-links a:hover {
+            color: var(--sl-color-text-accent);
+        }
+    }
+</style>

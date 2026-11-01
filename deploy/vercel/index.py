@@ -27,6 +27,7 @@ _UI_FILES: dict[str, str] = {
     "app.css": "text/css; charset=utf-8",
     "site.css": "text/css; charset=utf-8",
     "app.js": "text/javascript; charset=utf-8",
+    "favicon.svg": "image/svg+xml",
 }
 
 _PAGE_ROUTES: dict[str, str] = {

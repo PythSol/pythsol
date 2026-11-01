@@ -18,6 +18,13 @@ guidance by design), `/docs/...` Starlight (rebuilt with `base: /docs`).
 Domains `pythsol.com` and `www.pythsol.com` are attached to the project but
 the domain name is not registered yet; DNS records for it are in the hosting
 guide. Source of these deploys: `github.com/PythSol/pythsol` branch `main`.
+**Production deploy path: local CLI staging** (`Spikes/tools/
+stage-vercel-one.ps1` then `vercel deploy target\vercel_stage --prod ...
+--name pythsol`). The project is git-linked with framework `python`, but a
+repo-root git build has no entrypoint (the tree is a monorepo) and fails at
+build without touching the alias — do not rely on push-to-deploy yet; fix
+only by giving Vercel a real root build (or moving the site into a subdir
+with `rootDirectory`).
 Render (full compile container) is staged in `Spikes/tools/render-service.ps1`
 and blocked on a dashboard payment card. The Vercel Python runtime serves one
 entrypoint (`deploy/vercel/index.py`, exact `def app(environ, start_response)`

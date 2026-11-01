@@ -5,7 +5,7 @@ import starlight from "@astrojs/starlight";
 // from src/styles/theme.css. Tokens live in web/shared-tokens/tokens.json.
 export default defineConfig({
   // Hosted under one domain: https://pythsol.com serves /docs from this build.
-  site: "https://pythsol.com",
+  site: "https://www.pythsol.com",
   base: "/docs",
   trailingSlash: "never",
   integrations: [
@@ -13,6 +13,10 @@ export default defineConfig({
       title: "PythSol",
       description: "Write Solana programs in a typed Python subset, compiled to native SBF.",
       customCss: ["./src/styles/theme.css"],
+      components: {
+        Header: "./src/components/Header.astro",
+        SiteTitle: "./src/components/SiteTitle.astro",
+      },
       expressiveCode: { themes: ["github-light"] },
       editLink: { baseUrl: "https://github.com/PythSol/pythsol/edit/main/web/docs/" },
       lastUpdated: true,
