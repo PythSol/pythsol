@@ -35,9 +35,10 @@
 
 /*
  * Header matches the marketing navbar (site.css): white, a Python blue
- * hairline underneath, and the same brandmark weight.
+ * hairline underneath. Scope to PageFrame's outer bar (`.page > .header`);
+ * the inner Header component carries its own layout styles.
  */
-.header {
+.page > .header {
   background: var(--bg);
   border-bottom: 3px solid var(--primary);
   box-shadow: none;
