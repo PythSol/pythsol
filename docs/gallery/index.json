@@ -1,0 +1,42 @@
+[
+  {
+    "id": "counter",
+    "title": "Counter",
+    "summary": "One PDA. initialize stores the authority. increment adds a u64 when the signer matches.",
+    "level": "start",
+    "concepts": ["account", "pda", "require", "error"],
+    "sourcePath": "examples/counter/programs/counter.py",
+    "playgroundUrl": "/examples/counter",
+    "tests": "passing"
+  },
+  {
+    "id": "ledger",
+    "title": "Ledger",
+    "summary": "FixedArray of four u64 slots, a deposit, an if/else apply, and a for-range fill.",
+    "level": "next",
+    "concepts": ["FixedArray", "if", "for"],
+    "sourcePath": "examples/ledger/programs/ledger.py",
+    "playgroundUrl": "/examples/ledger",
+    "tests": "passing"
+  },
+  {
+    "id": "vault",
+    "title": "Vault",
+    "summary": "Lamport PDA. deposit uses system_transfer. close returns the lamports to the authority.",
+    "level": "next",
+    "concepts": ["Seeds", "HasOne", "CloseTo", "system_transfer"],
+    "sourcePath": "examples/vault/programs/vault.py",
+    "playgroundUrl": "/examples/vault",
+    "tests": "passing"
+  },
+  {
+    "id": "escrow",
+    "title": "Escrow",
+    "summary": "One lamport deal. make funds the PDA, take pays the maker and closes to the taker, cancel closes to the maker.",
+    "level": "next",
+    "concepts": ["Seeds", "CloseTo", "system_transfer"],
+    "sourcePath": "examples/escrow/programs/escrow.py",
+    "playgroundUrl": "/examples/escrow",
+    "tests": "passing"
+  }
+]

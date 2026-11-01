@@ -23,9 +23,14 @@ uv.lock
 
 # --- Build outputs ---
 target/
-tmp/
 out/
+graphify-out/
 coverage.xml
+
+# --- Web docs toolchain (Node) ---
+node_modules/
+web/**/dist/
+web/**/.astro/
 artifacts/
 *.log
 
