@@ -219,6 +219,28 @@ test or a real host.
   not really 0600; tests spy chmod and check mode only when `os.name != "nt"`.
   Secret prints only with `--show-secret`.
 
+**Site and deployed docs**
+
+- Production deploys are CLI uploads of `target\vercel_stage`
+  (`Spikes/tools/stage-vercel-one.ps1`, then `vercel deploy --prod --name
+  pythsol`). The repo-root git build has no entrypoint, so push-to-deploy
+  fails without touching the production alias. Do not recreate the
+  deleted `pythsol-docs` / `pythsol-playground` projects.
+- Stage changes touch three places together: `deploy/vercel/index.py`
+  routing table, the stage script's UI-file list, and the source file
+  itself. `favicon.svg` is served through `_UI_FILES`; forget it there
+  and the stage ships without it.
+- Starlight **0.42.7** declares overrides only in config
+  (`astro.config.mjs` → `starlight({ components: { Header: …, SiteTitle:
+  … } })`). Dropping files into `src/components/` does nothing, and the
+  `links` config key is unrecognized in this version (use the forked
+  `Header.astro` for nav links). The docs brandmark (`web/docs/src/
+  components/SiteTitle.astro`) and the marketing navbar
+  (`src/pythsol/playground/site.css`) must visually stay the same mark:
+  `Pyth` yellow `--accent`, `Sol` mint→purple gradient, click → `/`.
+- `astro.config.mjs` pins `site: "https://www.pythsol.com"`,
+  `base: "/docs"`, `trailingSlash: "never"`. Keep those when editing.
+
 **When you add a language feature**
 
 Follow `docs/guides/recipes.md`: subset known callable, typecheck, model,

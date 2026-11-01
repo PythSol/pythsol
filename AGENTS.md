@@ -27,10 +27,12 @@ agent memory: `npx -y @insforge/cli memory ...` list/recall/remember.
 # Hosting — live site
 
 `https://www.pythsol.com` verified live 2026-11-01 (200 OK,
-title "PythSol — Solana programs in typed Python"). Domain registered
+title "PythSol — Write Solana programs in Python"). Domain registered
 at NameCheap, zone on Cloudflare (may/tadeo.ns.cloudflare.com), apex
 A -> 216.198.79.1, www CNAME -> 4ef91b6d76096047.vercel-dns-017.com.
-Host: Vercel project `pythsol` (team rehmandakat67-3497), auto-deploys
-from GitHub `PythSol/pythsol` main; InsForge is the backend, not the
-host. Do not advertise other URLs as live. Item 4 in docs/HANDOFF.md
-line ~91 refers to this host and URL.
+Host: Vercel project `pythsol` (team rehmandakat67-3497); InsForge is
+the backend, not the host. Production deploys are CLI staging
+(`Spikes/tools/stage-vercel-one.ps1` then `vercel deploy target\vercel_stage
+--prod --name pythsol`); the repo-root git build has no entrypoint, so
+push-to-deploy does not touch the site. Do not advertise other URLs as
+live. Host/URL details: docs/HANDOFF.md "Left to build" item 4.
