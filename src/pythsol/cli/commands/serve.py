@@ -19,11 +19,18 @@ _LOOPBACK = {"127.0.0.1", "localhost", "::1"}
     is_flag=True,
     help="Allow a non-loopback host. Check and emit only; compile stays off.",
 )
-def serve(host: str, port: int, public: bool) -> None:
+@click.option(
+    "--allow-compile",
+    is_flag=True,
+    help="With --public, also serve POST /v1/compile. Clang sees only "
+    "compiler-generated C, never visitor source. Off by default.",
+)
+def serve(host: str, port: int, public: bool, allow_compile: bool) -> None:
     """Serve the playground. Check and emit parse source. They do not run it.
 
     Without ``--public`` the process accepts only loopback and can compile.
-    ``--public`` is the hostable mode: any host, no clang.
+    ``--public`` is the hostable mode: any host, no clang until you also
+    pass ``--allow-compile``.
     """
     if host not in _LOOPBACK and not public:
         click.echo(
@@ -32,11 +39,12 @@ def serve(host: str, port: int, public: bool) -> None:
         )
         sys.exit(2)
     try:
-        httpd = bind(host, port, public=public)
+        httpd = bind(host, port, public=public, allow_compile=allow_compile)
     except OSError as exc:
         click.echo(f"error: {exc}", err=True)
         sys.exit(1)
-    click.echo(f"playground: http://{host}:{port}/")
+    mode = "check+emit+compile" if ((not public) or allow_compile) else "check+emit"
+    click.echo(f"playground: http://{host}:{port}/ ({mode})")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

@@ -158,3 +158,32 @@ def test_public_mode_checks_and_refuses_compile() -> None:
     finally:
         httpd.shutdown()
         thread.join(timeout=5)
+
+
+def test_public_mode_compile_is_an_explicit_opt_in() -> None:
+    """`--allow-compile` re-enables /v1/compile on a public bind."""
+    httpd = bind("127.0.0.1", 0, RateLimiter(30), public=True, allow_compile=True)
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    host, port = httpd.server_address
+    base = f"http://{host}:{port}"
+    try:
+        status, health = _get(base + "/healthz")
+        assert status == 200
+        assert json.loads(health)["compile"] is True
+        compiled, artifact = _post(
+            base + "/v1/compile",
+            {"source": COUNTER, "filename": "counter.py"},
+            timeout=180,
+        )
+        # 200 with real SBF tools on this machine; 400 (PS4010 family) when
+        # the toolchain is missing — either way the endpoint must be open.
+        assert compiled != 403
+        if compiled == 200:
+            raw = base64.b64decode(str(artifact["so_base64"]))
+            assert raw.startswith(b"\x7fELF")
+        else:
+            assert artifact["ok"] is False
+    finally:
+        httpd.shutdown()
+        thread.join(timeout=5)

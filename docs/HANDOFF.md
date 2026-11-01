@@ -27,8 +27,10 @@ The public site, served by `pythsol serve` on `127.0.0.1:8765`:
 | `/site.css`, `/app.css`, `/app.js` | Assets. CSS is a file. Inline `<style>` is blocked by CSP `default-src 'self'`. |
 
 `pythsol serve --public --host 0.0.0.0` is the hostable mode: check and emit
-only. Compile stays off. A longer Starlight site lives in `web/docs` (`npm run
-build` → `web/docs/dist`).
+only. Compile stays off until you also pass `--allow-compile` (the hosted
+opt-in; clang sees only compiler-generated C). `deploy/Dockerfile` plus
+`docs/guides/hosting.md` is the public deploy path. A longer Starlight site
+lives in `web/docs` (`npm run build` → `web/docs/dist`).
 
 Theme: light only. Python blue `#306998`, yellow `#FFD43B`, Solana purple
 `#9945FF` and mint `#14F195` as small accents. Tokens:
@@ -84,8 +86,10 @@ test or a real host.
    Do not invent a gallery of stubs. The escrow example moves **lamports**,
    not SPL tokens. Token CPI lives on the token fixture / `token_transfer`.
 4. **Hosted docs / playground on the public internet** — local site works.
-   Deploying needs a host the user owns. Do not fake a URL. Do not open
-   `/v1/compile` on `--public`.
+   Deploy configs exist (`deploy/Dockerfile`, `fly.toml`, `render.yaml`,
+   `docs/guides/hosting.md`) and `--allow-compile` opts a public server into
+   compile. A live URL needs a host the user owns. Do not fake a URL.
+   Default stays: no `/v1/compile` on `--public` unless the flag is passed.
 5. **In-browser SBF / WASM clang / second IR / docs i18n** — Phase 11, not
    scheduled. Starlight warns that the `i18n` collection is empty. That is
    expected.

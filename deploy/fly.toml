@@ -1,0 +1,26 @@
+# Fly.io deploy. `flyctl launch --copy-config` picks this up; rename the app.
+# Docs: docs/guides/hosting.md
+app = "pythsol-playground"
+primary_region = "ams"
+
+[build]
+  dockerfile = "deploy/Dockerfile"
+
+[env]
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 8
+    hard_limit = 20
+
+[vm]
+  size = "shared-cpu-1x"
+  memory = "1gb"

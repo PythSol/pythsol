@@ -1,0 +1,12 @@
+# Render.com deploy. `render blueprint create` + connect the repo.
+# Docs: docs/guides/hosting.md
+services:
+  - type: web
+    name: pythsol-playground
+    runtime: docker
+    dockerfilePath: ./deploy/Dockerfile
+    plan: starter # image is ~1.2 GB; free tier may not fit it
+    healthCheckPath: /healthz
+    envVars:
+      - key: PORT
+        value: 8080

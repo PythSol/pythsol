@@ -31,6 +31,7 @@ PythSol follows Keep a Changelog; before 1.0 every breaking change is listed und
 - Data enums mix `Name = index` with `Name: u64`. The wire form is the tag byte plus the payload width reserved for every variant, so the next field does not move. `.value` reads and writes that scalar and aborts with 1011 when the tag has no payload. A data enum is an account field, not an instruction argument.
 - `system_transfer` from a program PDA debits that account and credits the destination directly (`rt_move_lamports`). The System program's Transfer instruction refuses an account that carries data. A transfer from a `Signer` is still a System CPI.
 - Docs scaffold: `web/docs` (Astro 7.4.4, Starlight 0.42.7), light-only `web/shared-tokens/tokens.json`, `docs/gallery/index.json` for counter, ledger, vault, and escrow, short guides under `docs/guides/`, and `contrib/vscode` which maps `pythsol check --json` into editor diagnostics. No Lighthouse score, no hosted playground, and no package publish in this change.
+- Hosted-playground deploy path: `pythsol serve --allow-compile` opts a public bind into `POST /v1/compile` (clang sees only compiler-generated C; the endpoint is 403 without the flag). `deploy/Dockerfile` pins Anza platform-tools v1.58 by sha256, strips the Rust toolchain, runs as a non-root user and honours `PORT`; `deploy/fly.toml` and `deploy/render.yaml` are one-command blueprints; `docs/guides/hosting.md` covers Fly, Render, a plain VPS, and the static Starlight docs.
 
 ## [0.1.0] — 2026-10-30
 ### Added

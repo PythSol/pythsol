@@ -22,8 +22,10 @@ Write Solana programs in **typed Python**, compiled to native SBF bytecode — n
 > reserved scalar (`Fill: u64`), so later fields stay put. A
 > `system_transfer` from a program PDA moves lamports directly. Still ahead:
 > unbounded `Vec[T]`, in-browser SBF compile, and translated docs. Host the
-> static site from `web/docs/dist` after `npm run build`. Host check and emit
-> with `pythsol serve --public`. Compile stays on loopback. The checklist is
+> static site from `web/docs/dist` after `npm run build`. Host the full
+> playground (check + emit + compile) with Docker — see
+> `docs/guides/hosting.md` (also `/v1/compile` behind `--allow-compile`).
+> Without that flag a public server checks and emits only. The checklist is
 > `docs/STATUS.md`. This tree is version 0.1.0 and is not a release.
 
 Source of truth: `docs/spec/PRD.md` (scope) + `docs/spec/TRD.md` (how).
@@ -132,7 +134,9 @@ The binary ABI conventions are pinned in
 | … | SPL Token, Token-2022, and ATA CPIs | **done** |
 | … | multi-file programs (sibling modules, parsed not executed) | **done** |
 | … | `Vec[T, N]`, fixed-width data enums, PDA lamport move | **done** |
-| … | unbounded `Vec[T]`, hosted playground, public compile service | later |
+| … | hosted playground deploy configs (Docker/Fly/Render, `--allow-compile`) | **done** |
+| … | browser-side devnet deploy button | later |
+| … | unbounded `Vec[T]`, in-browser WASM clang | later |
 
 ## License
 

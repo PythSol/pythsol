@@ -294,16 +294,19 @@ def bind(
     limiter: RateLimiter | None = None,
     *,
     public: bool = False,
+    allow_compile: bool = False,
 ) -> ThreadingHTTPServer:
     """Listen on loopback. ``public`` allows another host and turns compile off.
 
     Check and emit only parse source. Compile runs clang, so a public bind
-    does not offer it.
+    does not offer it unless ``allow_compile`` says so explicitly. With the
+    opt-in, clang still only ever sees compiler-generated C, never source
+    the visitor wrote in C.
     """
     if host not in _LOOPBACK and not public:
         raise ValueError("the playground binds to loopback only")
     handler: Callable[..., BaseHTTPRequestHandler] = make_handler(
         limiter or RateLimiter(),
-        compile_enabled=not public,
+        compile_enabled=(not public) or allow_compile,
     )
     return ThreadingHTTPServer((host, port), handler)

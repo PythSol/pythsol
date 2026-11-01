@@ -1,0 +1,25 @@
+# Keep the build context to what the container installs.
+.venv/
+venv/
+.git/
+.github/
+target/
+out/
+graphify-out/
+artifacts/
+coverage.xml
+*.log
+
+# Local unpacked platform tools — never ship to the image.
+Spikes/tools/
+Spikes/target/
+
+# Node toolchain and docs build outputs.
+node_modules/
+web/**/dist/
+web/**/.astro/
+
+# Source trees the image does not need.
+tests/
+contrib/
+web/

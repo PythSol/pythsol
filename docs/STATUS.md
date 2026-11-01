@@ -13,7 +13,8 @@ A short pointer is `AGENTS.md` at the repo root.
 - [x] `pythsol test`, build cache, wallet, faucet, deploy, port, verify, profile
 - [x] `Vec[T, N]`, fixed-width data enums, PDA lamport moves
 - [x] Local playground: check, emit, and compile on loopback
-- [x] Public playground: `pythsol serve --public` checks and emits, and does not compile
+- [x] Public playground: `pythsol serve --public` checks and emits, and does not compile until `--allow-compile`
+- [x] Hosted deploy configs: `deploy/Dockerfile` (sha256-pinned platform-tools), Fly.io and Render blueprints, guide `docs/guides/hosting.md`
 - [x] Playground layout follows the TypeSol split (source, then compiler output) in a light Python and Solana palette. See `docs/comparison-typesol.md`
 - [x] Docs site builds with `npm run build` in `web/docs` (static files in `dist/`)
 - [x] Windows is a supported developer machine for the compiler and LiteSVM
@@ -34,4 +35,4 @@ A short pointer is `AGENTS.md` at the repo root.
 
 Static docs: from `web/docs`, run `npm install` and `npm run build`. Serve the `dist/` directory.
 
-Playground on a server: `pythsol serve --public --host 0.0.0.0 --port 8765`. That process parses source. It does not run user code and it does not call clang. Compile stays on a machine where you run `pythsol serve` without `--public`.
+Playground on a server: `pythsol serve --public --host 0.0.0.0 --port 8765`. That process parses source. It does not run user code. Compile is off on a public bind unless you also pass `--allow-compile` — clang then runs on compiler-generated C only. `deploy/Dockerfile` packages the server with the sha256-pinned Anza platform-tools; guide: `docs/guides/hosting.md`.
