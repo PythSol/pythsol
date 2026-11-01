@@ -40,8 +40,19 @@ pythsol = "pythsol.cli.main:main"
 # Spec-draft naming: keep `pysol` working because PRD/TRD examples say `pysol build`.
 pysol = "pythsol.cli.main:main"
 
+[project.entry-points.pytest11]
+pythsol = "pythsol.testing.plugin"
+
 [tool.hatch.build.targets.wheel]
 # Src layout: auto-detected by hatchling (src/pythsol).
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/pythsol/playground/index.html" = "pythsol/playground/index.html"
+"src/pythsol/playground/playground.html" = "pythsol/playground/playground.html"
+"src/pythsol/playground/docs.html" = "pythsol/playground/docs.html"
+"src/pythsol/playground/site.css" = "pythsol/playground/site.css"
+"src/pythsol/playground/app.js" = "pythsol/playground/app.js"
+"src/pythsol/playground/app.css" = "pythsol/playground/app.css"
 
 [tool.ruff]
 line-length = 100

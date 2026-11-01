@@ -8,6 +8,7 @@ from pathlib import Path
 
 import click
 
+from pythsol.compiler.modules import read_sibling_modules
 from pythsol.compiler.pipeline import emit_program
 
 
@@ -34,11 +35,17 @@ def emit_c(program: Path, out: Path | None, as_json: bool) -> None:
     """Generate C from a PythSol program (no SBF toolchain needed)."""
     try:
         source_text = program.read_text(encoding="utf-8", errors="replace")
+        modules, module_files = read_sibling_modules(program)
     except OSError as os_error:
         click.echo(f"error: cannot read {program}: {os_error}", err=True)
         sys.exit(2)
 
-    generated = emit_program(source_text, program)
+    generated = emit_program(
+        source_text,
+        program,
+        modules=modules,
+        module_files=module_files,
+    )
     if not generated.ok:
         for diagnostic in generated.diagnostics:
             click.echo(diagnostic.render(), err=True)

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PythSol — write Solana programs in Python</title>
+    <link rel="stylesheet" href="/site.css" />
+  </head>
+  <body>
+    <nav>
+      <a class="mark" href="/">Pyth<span>Sol</span></a>
+      <a class="item" href="/docs">Docs</a>
+      <a class="item" href="/playground">Playground</a>
+    </nav>
+    <header class="hero">
+      <h1>Write Solana programs in Python.</h1>
+      <p>
+        PythSol compiles a typed Python subset to a native SBF program and an
+        Anchor-style IDL. It does not run your Python, and it does not generate Rust.
+      </p>
+      <div class="actions">
+        <a href="/docs">Get started</a>
+        <a class="quiet" href="/playground">Open the playground</a>
+      </div>
+    </header>
+    <div class="wrap">
+      <div class="split">
+        <section>
+          <h2>program.py</h2>
+          <pre>def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
+    require(counter.authority == authority.key, CounterError.Unauthorized)
+    counter.count += by</pre>
+        </section>
+        <section>
+          <h2>What the compiler writes</h2>
+          <div class="steps">
+            <article class="step"><strong>Signer.</strong> The authority must have signed.</article>
+            <article class="step"><strong>Mut.</strong> The account must be writable, owned, and the right size.</article>
+            <article class="step"><strong>u64.</strong> Arguments are length-checked and read little-endian.</article>
+            <article class="step"><strong>require.</strong> A failure returns 6000 + index and the source line.</article>
+            <article class="step"><strong>+=</strong> Integer math is checked. Overflow aborts.</article>
+            <article class="step"><strong>IDL.</strong> The same model writes the IDL and a client.</article>
+          </div>
+        </section>
+      </div>
+      <h2>Four commands</h2>
+      <div class="commands">
+        <article class="command"><strong>pythsol init</strong><p class="note">Writes pysol.toml, a program, and a LiteSVM test.</p></article>
+        <article class="command"><strong>pythsol test</strong><p class="note">Builds the program and runs it in LiteSVM.</p></article>
+        <article class="command"><strong>pythsol build</strong><p class="note">Writes the .so, the IDL, the generated C, and a client.</p></article>
+        <article class="command"><strong>pythsol deploy</strong><p class="note">Runs solana program deploy. Mainnet needs --yes.</p></article>
+      </div>
+      <div class="cards">
+        <article class="card"><h3>Docs</h3><p>Install, the language, and the CLI.</p><a href="/docs">Read the docs</a></article>
+        <article class="card"><h3>Playground</h3><p>Check a program and read the C. Compile stays on this machine.</p><a href="/playground">Try it</a></article>
+        <article class="card"><h3>Examples</h3><p>Counter, ledger, vault, and escrow.</p><a href="/playground">Open an example</a></article>
+      </div>
+      <p class="note">This is not a published package and not a token. Version 0.1.0. Compute-unit comparisons against Anchor are not claimed here.</p>
+    </div>
+    <footer>Python blue and yellow. Solana mint and purple are accents. Light theme only.</footer>
+  </body>
+</html>

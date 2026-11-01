@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Playground — PythSol</title>
+    <link rel="stylesheet" href="/site.css" />
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <nav>
+      <a class="mark" href="/">Pyth<span>Sol</span></a>
+      <a class="item" href="/docs">Docs</a>
+      <a class="item" href="/playground" aria-current="page">Playground</a>
+    </nav>
+    <header class="tools-bar">
+      <p>Nothing on this page runs your Python.</p>
+      <div class="tools">
+        <label>Example <select id="example"></select></label>
+        <button id="check" type="button">Check</button>
+        <button id="emit" class="quiet" type="button">Show C</button>
+        <button id="compile" type="button">Compile .so</button>
+      </div>
+    </header>
+    <main>
+      <section>
+        <h3>program.py — you write</h3>
+        <textarea id="source" spellcheck="false" aria-label="Program source"></textarea>
+      </section>
+      <section>
+        <h3>Result — compiler output</h3>
+        <pre id="out" aria-live="polite">Check, show the C, or compile.</pre>
+      </section>
+    </main>
+    <footer>
+      <code>pythsol serve --public</code> checks and emits only. Compile stays on loopback.
+    </footer>
+    <script src="/app.js"></script>
+  </body>
+</html>

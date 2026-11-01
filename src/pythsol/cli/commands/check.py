@@ -9,6 +9,7 @@ from pathlib import Path
 import click
 
 from pythsol.compiler.front import check_source
+from pythsol.compiler.modules import read_sibling_modules
 
 
 @click.command(name="check")
@@ -28,11 +29,17 @@ def check(program: Path, as_json: bool) -> None:
     """Type-check a program with the PythSol front-end (no SBF toolchain)."""
     try:
         source = program.read_text(encoding="utf-8", errors="replace")
+        modules, module_files = read_sibling_modules(program)
     except OSError as err:
         click.echo(f"error: cannot read {program}: {err}", err=True)
         sys.exit(2)
-    diagnostics = check_source(source, file=str(program))
-    diagnostics.sort(key=lambda d: (d.line, d.col, d.code))
+    diagnostics = check_source(
+        source,
+        file=str(program),
+        modules=modules,
+        module_files=module_files,
+    )
+    diagnostics.sort(key=lambda d: (d.file, d.line, d.col, d.code))
     if as_json:
         payload = {
             "ok": not diagnostics,
