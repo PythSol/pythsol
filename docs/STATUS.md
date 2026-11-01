@@ -11,6 +11,9 @@ A short pointer is `AGENTS.md` at the repo root.
 - [x] Native SBF `.so`, IDL, and solders client from `pythsol build`
 - [x] LiteSVM tests for counter, ledger, vault, escrow, and the purse fixture
 - [x] `pythsol test`, build cache, wallet, faucet, deploy, port, verify, profile
+- [x] Hosted playground, browser check and emit: deployed to Vercel (`https://pythsol-playground.vercel.app`), check and emit served as serverless Python, compile answers 403 with Docker guidance
+- [x] Hosted docs: deployed to Vercel (`https://pythsol-docs-rehmandakat67-3497.vercel.app`)
+- [x] Hosted full-compile playground: staged on Render (`deploy/Dockerfile`, `starter` plan) — creation is blocked on a payment card in the Render dashboard
 - [x] `Vec[T, N]`, fixed-width data enums, PDA lamport moves
 - [x] Local playground: check, emit, and compile on loopback
 - [x] Public playground: `pythsol serve --public` checks and emits, and does not compile until `--allow-compile`
@@ -32,6 +35,22 @@ A short pointer is `AGENTS.md` at the repo root.
 - [ ] Lighthouse score for the docs site
 
 ## Hosting
+
+Live as of 2026-11-01:
+
+- Docs site (Starlight build): https://pythsol-docs-rehmandakat67-3497.vercel.app
+- Playground, browser **check** and **emit** (serverless; no compile):
+  https://pythsol-playground.vercel.app — `/healthz` reports `"compile": false`
+  and the compile button hides itself.
+- Full-compile container playground: **Render** — blocked on a payment card at
+  <https://dashboard.render.com/billing>; the create-service script is
+  `Spikes/tools/render-service.ps1` (type `web_service`, repo
+  `https://github.com/PythSol/pythsol`, branch `main`, Dockerfile
+  `deploy/Dockerfile`, health check `/healthz`, plan `starter`).
+
+Deploy notes and traps for these targets: `docs/guides/hosting.md`.
+
+Rebuilding:
 
 Static docs: from `web/docs`, run `npm install` and `npm run build`. Serve the `dist/` directory.
 

@@ -6,10 +6,21 @@ program, and host a light-themed site like https://typesol.com/ (landing,
 docs, playground). TypeSol is TypeScript. This project is Python. Do not
 copy TypeSol's compute-unit table, token, or dark theme.
 
-Today's date in the last session was 2026-10-31. Version is **0.1.0**.
+Today's date in the last session was 2026-11-01. Version is **0.1.0**.
 CHANGELOG stays **Unreleased**. IDL spec stays **0.1.0**. Do not cut a
 release or publish to PyPI unless the user gives credentials and an explicit
 publish order.
+
+Live since 2026-11-01 (see `docs/guides/hosting.md` for URL truth and deploy
+traps): docs at `https://pythsol-docs-rehmandakat67-3497.vercel.app`,
+playground check/emit at `https://pythsol-playground.vercel.app` (compile
+returns 403 with Docker guidance — that is by design, `healthz` reports it).
+Source of these deploys: `github.com/PythSol/pythsol` branch `main`. Render
+(full compile container) is staged in `Spikes/tools/render-service.ps1` and
+blocked on a dashboard payment card. The Vercel Python runtime serves one
+entrypoint (`deploy/vercel/index.py`, exact `def app(environ, start_response)`
+signature) and routes all paths to it; legacy `api/*.py` files and legacy
+`routes` are kept only as reference for other hosts.
 
 ## Goal
 
@@ -85,11 +96,14 @@ test or a real host.
    only programs that `check` and, if they move lamports, run in LiteSVM.
    Do not invent a gallery of stubs. The escrow example moves **lamports**,
    not SPL tokens. Token CPI lives on the token fixture / `token_transfer`.
-4. **Hosted docs / playground on the public internet** — local site works.
-   Deploy configs exist (`deploy/Dockerfile`, `fly.toml`, `render.yaml`,
-   `docs/guides/hosting.md`) and `--allow-compile` opts a public server into
-   compile. A live URL needs a host the user owns. Do not fake a URL.
-   Default stays: no `/v1/compile` on `--public` unless the flag is passed.
+4. **Full-compile playground on Render** — docs + check/emit are live on
+   Vercel (see above). Render is blocked on the account billing card at
+   `https://dashboard.render.com/billing`; once added, run
+   `Spikes/tools/render-service.ps1` (repo URL
+   `https://github.com/PythSol/pythsol`, Dockerfile `deploy/Dockerfile`,
+   health `/healthz`, plan `starter`). Do not fake a URL while it is down.
+   Compile.policy stays: no `/v1/compile` on `--public` unless
+   `--allow-compile`; the Vercel endpoints answer 403 with guidance.
 5. **In-browser SBF / WASM clang / second IR / docs i18n** — Phase 11, not
    scheduled. Starlight warns that the `i18n` collection is empty. That is
    expected.
@@ -106,6 +120,10 @@ test or a real host.
 9. **Starlight vs CLI docs** — `pythsol serve` `/docs` is
    `src/pythsol/playground/docs.html`. The long site is `web/docs`. Keep both
    honest and in sync when language facts change.
+10. **Deploy-to-Devnet button** — user-approved direction after go-live:
+    playground "Deploy" action that runs the bpf_loader upgradeable flow
+    client-side via solana web3.js (program + IDL), pointing at Devnet RPC,
+    with the wallet in the browser. Build this after Render goes live.
 
 ## How later agents mismatch (read this and the work stays short)
 

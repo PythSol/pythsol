@@ -40,3 +40,7 @@ Spikes/tools/
 # --- OS ---
 .DS_Store
 Thumbs.db
+
+# --- InsForge (linked backend; .insforge/project.json holds an admin API key) ---
+.env.local
+.insforge/
