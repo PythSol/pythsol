@@ -43,9 +43,9 @@ RUN set -eux; \
            /opt/platform-tools/sdk/aarch64-linux-musl; \
     /opt/platform-tools/llvm/bin/clang --version
 
-# The package itself (src/ + pyproject.toml).
+# The package itself (src/ + pyproject.toml); click comes from dependencies.
 COPY . /build
-RUN pip install --no-deps /build && rm -rf /build
+RUN pip install /build && rm -rf /build
 
 # Cache dir must be writable by the runtime user.
 RUN mkdir -p /var/cache/pythsol /tmp/pythsol-serve \
