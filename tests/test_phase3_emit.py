@@ -3,8 +3,9 @@
 The fragments below pin the exact lowering the LiteSVM acceptance suite
 (``tests/test_phase3_litesvm.py``) proved end-to-end: role checks, PDA
 verification, the System create_account CPI (with the account scan), the
-stored account discriminator, ``require`` → 6000 and checked arithmetic →
-1009, with true source line numbers. If an emitter change turns these red,
+stored account discriminator, ``require`` → 6000 and checked arithmetic that
+logs the helper's return code, with true source line numbers. If an emitter
+change turns these red,
 update both this file *and* re-run the LiteSVM suite before committing.
 """
 
@@ -88,13 +89,14 @@ _GOLDEN_FRAGMENTS: tuple[str, ...] = (
     # --- non-init lowering: size + discriminator guards ---
     'rt_fail_log(1004u, "counter.py", 49u, "size mismatch: counter");',
     "if (!rt_disc_eq(acc_counter->data, RT_DISC_COUNTER)) {",
-    # --- body lowering: require -> 6000, checked add -> 1009 ---
+    # --- body lowering: require -> 6000, checked add logs the helper's code ---
     "if (!(rt_key_eq((const SolPubkey *)(const void *)(acc_counter->data + 8u),"
     " acc_authority->key))) {",
     'rt_fail_log(ERR_COUNTERERROR_UNAUTHORIZED, "counter.py", 51u,'
     ' "require failed: CounterError.Unauthorized");',
-    "if (rt_checked_add_u64(rt_t2, dp_by, &rt_t3)) {",
-    'rt_fail_log(1009u, "counter.py", 52u, "checked add (u64)");',
+    "uint64_t rt_t4 = rt_checked_add_u64(rt_t2, dp_by, &rt_t3);",
+    "if (rt_t4 != RT_OK) {",
+    'rt_fail_log(rt_t4, "counter.py", 52u, "checked add (u64)");',
     "rt_ld_u64(acc_counter->data, 40u, &rt_t2);",
     "rt_st_u64(acc_counter->data, 40u, rt_t3);",
     # --- dispatch table + entrypoint ---
@@ -128,4 +130,4 @@ def test_increment_handler_lowers_without_init_logic(
     # ...but keeps the mutating role check + checked arithmetic.
     assert "writable required: counter" in increment_body
     assert "rt_checked_add_u64" in increment_body
-    assert '1009u, "counter.py", 52u' in increment_body
+    assert 'rt_fail_log(rt_t4, "counter.py", 52u, "checked add (u64)")' in increment_body

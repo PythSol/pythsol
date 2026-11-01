@@ -30,18 +30,19 @@ def _tools_anywhere() -> bool:
     from pythsol.compiler.diagnostics import PysolError
 
     try:
-        toolchain.locate_platform_tools(None)
-        return True
+        found = toolchain.locate_platform_tools(None)
     except PysolError:
-        sdk = Path(__file__).parents[1] / "Spikes" / "tools" / "platform-tools-1.58"
-        if not sdk.is_dir():
-            return False
-        os.environ.setdefault("PYTHSOL_SBF_SDK", str(sdk))
-        try:
-            toolchain.locate_platform_tools(None)
-            return True
-        except PysolError:
-            return False
+        found = None
+    if found is not None:
+        return True
+    sdk = Path(__file__).parents[1] / "Spikes" / "tools" / "platform-tools-1.58"
+    if not sdk.is_dir():
+        return False
+    os.environ.setdefault("PYTHSOL_SBF_SDK", str(sdk))
+    try:
+        return toolchain.locate_platform_tools(None) is not None
+    except PysolError:
+        return False
 
 
 def _sha256(path: Path) -> str:

@@ -6,8 +6,8 @@ Covers (TRD §18 Phase 3, minus the toolchain-dependent parts):
 * the counter's Borsh layout (49 bytes, exact field offsets);
 * custom error codes (6000 + index, declared member values kept as docs);
 * ``idl.build_idl``/``validate_idl`` and deterministic ``idl_json``;
-* negatives: phase-4 types (u128) rejected with PS4001 and ``Init[...]``
-  missing its bump/payer rejected with PS5003.
+* u128 fields and data parameters lower (``rt_st_u128`` / ``rt_ld_u128``);
+  ``Init[...]`` missing its bump or payer is rejected with PS5003.
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ from pathlib import Path
 
 import pytest
 
-from pythsol.compiler.diagnostics import PS4001, PS5003, Diagnostic
+from pythsol.compiler.diagnostics import PS5003, Diagnostic
 from pythsol.compiler.idl import build_idl, idl_json, validate_idl
 from pythsol.compiler.model import (
     ACCOUNT_DATA_OFFSET,
@@ -212,7 +212,7 @@ def _assert_has(gen: object, code: str, fragment: str) -> Diagnostic:
     return matches[0]  # type: ignore[return-value]
 
 
-def test_u128_account_field_is_rejected_with_ps4001(tmp_path: Path) -> None:
+def test_u128_account_field_lowers(tmp_path: Path) -> None:
     source = (
         "from pythsol import Mut, account, instruction, u64, u128\n"
         "\n"
@@ -223,17 +223,18 @@ def test_u128_account_field_is_rejected_with_ps4001(tmp_path: Path) -> None:
         "\n"
         "@instruction\n"
         "def touch(acc: Mut[Big]) -> None:\n"
+        "    acc.big = 1\n"
         "    acc.small = 1\n"
     )
     path = tmp_path / "big.py"
     path.write_text(source, encoding="utf-8", newline="\n")
     gen = emit_program(source, path)
-    assert not gen.ok
-    diagnostic = _assert_has(gen, PS4001, "field `big` has an unsupported type `u128`")
-    assert diagnostic.line == 5  # the u128 annotation line
+    assert gen.ok, "\n".join(diag.render() for diag in gen.diagnostics)
+    assert "RT_SIZE_BIG 32u" in gen.c_text  # disc 8 + u128 16 + u64 8
+    assert "rt_st_u128" in gen.c_text
 
 
-def test_u128_instruction_param_is_rejected_with_ps4001(tmp_path: Path) -> None:
+def test_u128_instruction_param_lowers(tmp_path: Path) -> None:
     source = (
         "from pythsol import Mut, account, instruction, u64, u128\n"
         "\n"
@@ -248,9 +249,9 @@ def test_u128_instruction_param_is_rejected_with_ps4001(tmp_path: Path) -> None:
     path = tmp_path / "small.py"
     path.write_text(source, encoding="utf-8", newline="\n")
     gen = emit_program(source, path)
-    assert not gen.ok
-    diagnostic = _assert_has(gen, PS4001, "data parameter `big` has unsupported type `u128`")
-    assert diagnostic.line == 8
+    assert gen.ok, "\n".join(diag.render() for diag in gen.diagnostics)
+    assert "if (rt->data_len != 16u)" in gen.c_text
+    assert "rt_ld_u128(rt->data, 0u, &dp_big);" in gen.c_text
 
 
 def test_init_without_bump_is_rejected_with_ps5003(tmp_path: Path) -> None:

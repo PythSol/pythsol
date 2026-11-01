@@ -71,16 +71,19 @@ def _tc() -> Any:
     from pythsol.compiler.diagnostics import PysolError
 
     try:
+        found = toolchain.locate_platform_tools(None)
+    except PysolError:
+        found = None
+    if found is not None:
+        return found
+    sdk = Path(__file__).parents[1] / "Spikes" / "tools" / "platform-tools-1.58"
+    if not sdk.is_dir():
+        return None
+    os.environ.setdefault("PYTHSOL_SBF_SDK", str(sdk))
+    try:
         return toolchain.locate_platform_tools(None)
     except PysolError:
-        sdk = Path(__file__).parents[1] / "Spikes" / "tools" / "platform-tools-1.58"
-        if not sdk.is_dir():
-            return None
-        os.environ.setdefault("PYTHSOL_SBF_SDK", str(sdk))
-        try:
-            return toolchain.locate_platform_tools(None)
-        except PysolError:
-            return None
+        return None
 
 
 @pytest.fixture(scope="module")
