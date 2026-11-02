@@ -28,6 +28,9 @@ _UI_FILES: dict[str, str] = {
     "site.css": "text/css; charset=utf-8",
     "app.js": "text/javascript; charset=utf-8",
     "favicon.svg": "image/svg+xml",
+    "favicon.ico": "image/x-icon",
+    "favicon-32.png": "image/png",
+    "apple-touch-icon.png": "image/png",
 }
 
 _PAGE_ROUTES: dict[str, str] = {

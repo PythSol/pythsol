@@ -53,6 +53,10 @@ pythsol = "pythsol.testing.plugin"
 "src/pythsol/playground/site.css" = "pythsol/playground/site.css"
 "src/pythsol/playground/app.js" = "pythsol/playground/app.js"
 "src/pythsol/playground/app.css" = "pythsol/playground/app.css"
+"src/pythsol/playground/favicon.svg" = "pythsol/playground/favicon.svg"
+"src/pythsol/playground/favicon.ico" = "pythsol/playground/favicon.ico"
+"src/pythsol/playground/favicon-32.png" = "pythsol/playground/favicon-32.png"
+"src/pythsol/playground/apple-touch-icon.png" = "pythsol/playground/apple-touch-icon.png"
 
 [tool.ruff]
 line-length = 100

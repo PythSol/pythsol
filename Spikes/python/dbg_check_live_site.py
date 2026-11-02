@@ -1,13 +1,35 @@
 """Verify the live homepage and playground carry the redesign markers."""
 from __future__ import annotations
 
+import time
+import urllib.error
 import urllib.request
+
+BASE = "https://www.pythsol.com"
+
+
+def _fetch(path: str) -> bytes:
+    """Read a live URL, retrying the transient resets/timeouts this host sees."""
+    last: Exception | None = None
+    for attempt in range(3):
+        req = urllib.request.Request(BASE + path, headers={"User-Agent": "pythsol-check/1"})
+        try:
+            return urllib.request.urlopen(req, timeout=60).read()
+        except urllib.error.HTTPError:
+            raise
+        except (TimeoutError, ConnectionError, urllib.error.URLError) as exc:
+            last = exc
+            time.sleep(1.5 * (attempt + 1))
+    assert last is not None
+    raise last
 
 
 def get(path: str) -> str:
-    base = "https://www.pythsol.com"
-    req = urllib.request.Request(base + path, headers={"User-Agent": "pythsol-check/1"})
-    return urllib.request.urlopen(req, timeout=60).read().decode("utf-8", "replace")
+    return _fetch(path).decode("utf-8", "replace")
+
+
+def get_bytes(path: str) -> bytes:
+    return _fetch(path)
 
 
 landing = get("/")
@@ -15,6 +37,10 @@ landing_checks: list[str] = [
     "hero-grid",
     "hero-viz",
     "viz-status",
+    'href="/favicon.ico"',
+    'href="/favicon.svg?v=2"',
+    'href="/favicon-32.png"',
+    'href="/apple-touch-icon.png"',
     "not on PyPI yet",
     "checked at every step",
     "counter.c — excerpt",
@@ -153,6 +179,13 @@ if not same_width:
     print("  P and S letter widths differ")
 for m in fav_missing:
     print("  missing:", m)
+
+ico = get_bytes("/favicon.ico")
+png32 = get_bytes("/favicon-32.png")
+apple = get_bytes("/apple-touch-icon.png")
+print("favicon ico:", "OK" if ico.startswith(b"\x00\x00\x01\x00") else "PROBLEM")
+print("favicon png:", "OK" if png32.startswith(b"\x89PNG") else "PROBLEM")
+print("apple touch icon:", "OK" if apple.startswith(b"\x89PNG") else "PROBLEM")
 
 # The docs copy must be byte-identical to the route copy it shadows.
 try:

@@ -51,6 +51,9 @@ cases = [
     ("/", b"", "GET"),
     ("/playground", b"", "GET"),
     ("/favicon.svg", b"", "GET"),
+    ("/favicon.ico", b"", "GET"),
+    ("/favicon-32.png", b"", "GET"),
+    ("/apple-touch-icon.png", b"", "GET"),
     ("/docs", b"", "GET"),
     ("/docs/quickstart", b"", "GET"),
     ("/v1/check", json.dumps({"source": src, "filename": "c.py"}).encode(), "POST"),
@@ -62,6 +65,12 @@ for path, body, method in cases:
 
 st, raw, _ = run("/")
 st, fav, _ = run("/favicon.svg")
+st, ico, _ = run("/favicon.ico")
+st, png32, _ = run("/favicon-32.png")
+st, apple, _ = run("/apple-touch-icon.png")
 print("landing headline OK:", b"Write Solana programs in Python." in raw)
 print("landing gradient span OK:", b'class="so"' in raw)
 print("favicon svg OK:", fav.startswith(b"<svg"))
+print("favicon ico OK:", ico.startswith(b"\x00\x00\x01\x00"))
+print("favicon png OK:", png32.startswith(b"\x89PNG"))
+print("apple touch icon OK:", apple.startswith(b"\x89PNG"))

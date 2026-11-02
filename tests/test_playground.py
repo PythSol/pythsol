@@ -76,6 +76,12 @@ def test_playground_check_emit_and_rejects_secrets(playground: str) -> None:
     css_status, css = _get(playground + "/app.css")
     assert css_status == 200
     assert b"--blue: #306998" in css
+    fav_status, fav = _get(playground + "/favicon.svg")
+    assert fav_status == 200
+    assert b">P</text>" in fav and b">S</text>" in fav
+    ico_status, ico = _get(playground + "/favicon.ico")
+    assert ico_status == 200
+    assert ico.startswith(b"\x00\x00\x01\x00")
     ok, body = _post(playground + "/v1/check", {"source": COUNTER, "filename": "counter.py"})
     assert ok == 200
     assert body["ok"] is True

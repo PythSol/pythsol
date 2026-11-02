@@ -11,6 +11,11 @@ checks = [
     "not on PyPI yet",
     'href="/playground"',
     'href="/docs/quickstart"',
+    # Favicon formats + cache-busted SVG link
+    'href="/favicon.ico"',
+    'href="/favicon.svg?v=2"',
+    'href="/favicon-32.png"',
+    'href="/apple-touch-icon.png"',
     # Pipeline walkthrough
     'class="pipeline"',
     "checked at every step",

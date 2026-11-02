@@ -228,8 +228,10 @@ test or a real host.
   deleted `pythsol-docs` / `pythsol-playground` projects.
 - Stage changes touch three places together: `deploy/vercel/index.py`
   routing table, the stage script's UI-file list, and the source file
-  itself. `favicon.svg` is served through `_UI_FILES`; forget it there
-  and the stage ships without it.
+  itself. The favicon files (`favicon.svg`, `favicon.ico`,
+  `favicon-32.png`, `apple-touch-icon.png`) are served through
+  `_UI_FILES`; forget any there and the stage ships without it. They are
+  also force-included in the wheel so `pythsol serve` can serve them.
 - The landing command box must stay installable: version 0.1.0 is NOT on
   PyPI, so the box teaches
   `pip install git+https://github.com/PythSol/pythsol.git` (wheel verified

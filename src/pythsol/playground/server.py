@@ -230,6 +230,18 @@ def make_handler(
                     content_type="text/javascript; charset=utf-8",
                 )
                 return
+            if path == "/favicon.svg":
+                _send(self, 200, _asset("favicon.svg"), content_type="image/svg+xml")
+                return
+            if path == "/favicon.ico":
+                _send(self, 200, _asset("favicon.ico"), content_type="image/x-icon")
+                return
+            if path == "/favicon-32.png":
+                _send(self, 200, _asset("favicon-32.png"), content_type="image/png")
+                return
+            if path == "/apple-touch-icon.png":
+                _send(self, 200, _asset("apple-touch-icon.png"), content_type="image/png")
+                return
             if path == "/healthz":
                 _send(self, 200, {"ok": True, "compile": compile_enabled})
                 return
