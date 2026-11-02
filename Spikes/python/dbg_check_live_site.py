@@ -47,6 +47,12 @@ landing_checks: list[str] = [
     'class="mock-browser"',
     "www.pythsol.com/playground",
     'id="copy-qs"',
+    'class="cmd-card"',
+    'id="copy-install"',
+    'id="install-cmds"',
+    'class="cmd-text"',
+    "pythsol init my-program",
+    "pip install git+https://github.com/PythSol/pythsol.git",
     'class="viz-artifacts"',
     'class="ln"',
     'href="#i-github"',
@@ -116,6 +122,9 @@ site_checks = [
     ".tile-counter",  # example icon tiles
     ".mock-browser",  # browser chrome on the teaser
     ".copy-cmd",  # quickstart copy affordance
+    ".cmd-card",  # hero install commands
+    ".cmd-pre",
+    ".cmd-line",
 ]
 missing_site = [c for c in site_checks if c not in site]
 print("site.css:", "all present" if not missing_site else "MISSING")

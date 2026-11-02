@@ -61,10 +61,13 @@
             <a href="/playground">Open the Playground <svg class="cta-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg></a>
             <a class="quiet" href="/docs/quickstart">Read the Quickstart</a>
           </div>
-          <p class="cmd">
-            <code>pip install git+https://github.com/PythSol/pythsol.git</code>
-            then <code>pythsol init my-program</code>
-          </p>
+          <div class="cmd-card">
+            <div class="chrome">
+              <span></span><span></span><span></span><b>shell</b>
+              <button class="copy-cmd" id="copy-install" type="button" title="Copy install commands"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-copy"/></svg><span class="lbl">Copy</span></button>
+            </div>
+            <pre class="cmd-pre" id="install-cmds" aria-label="Install commands"><span class="cmd-line"><span class="pr" aria-hidden="true">$</span><code class="cmd-text">pip install git+https://github.com/PythSol/pythsol.git</code></span><span class="cmd-line"><span class="pr" aria-hidden="true">$</span><code class="cmd-text">pythsol init my-program</code></span></pre>
+          </div>
           <p class="note">Straight from the repository — PythSol is not on PyPI yet.</p>
         </div>
 
@@ -372,7 +375,7 @@ def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
         <h2><svg class="h2-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-terminal"/></svg>Local development</h2>
         <div class="qs-grid">
           <div>
-            <h3 class="pane-label">Six commands from a fresh checkout</h3>
+            <h3 class="pane-label">Eight commands from a fresh checkout</h3>
             <div class="cmd-shell">
               <div class="chrome"><span></span><span></span><span></span><b>terminal</b><button class="copy-cmd" id="copy-qs" type="button"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-copy"/></svg><span class="lbl">Copy</span></button></div>
               <pre id="qs-cmds">git clone https://github.com/PythSol/pythsol
@@ -561,14 +564,16 @@ pythsol build</pre>
         document.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("in"); });
       }
 
-      /* Copy the quickstart block; the label confirms, then restores. */
-      var copyQs = document.getElementById("copy-qs");
-      if (copyQs) {
-        copyQs.addEventListener("click", async function () {
-          var label = copyQs.querySelector(".lbl");
-          var commands = document.getElementById("qs-cmds").textContent.trim();
+      /* Copy buttons: the label confirms, then restores. */
+      function wireCopy(buttonId, readText) {
+        var button = document.getElementById(buttonId);
+        if (!button) {
+          return;
+        }
+        button.addEventListener("click", async function () {
+          var label = button.querySelector(".lbl") || button;
           try {
-            await navigator.clipboard.writeText(commands);
+            await navigator.clipboard.writeText(readText());
             label.textContent = "Copied";
           } catch (err) {
             label.textContent = "Select & copy";
@@ -578,6 +583,19 @@ pythsol build</pre>
           }, 1600);
         });
       }
+
+      /* Hero install card copies both commands, without the prompt marks. */
+      wireCopy("copy-install", function () {
+        var lines = document.querySelectorAll("#install-cmds .cmd-text");
+        return Array.prototype.map.call(lines, function (line) {
+          return line.textContent;
+        }).join("\n");
+      });
+
+      /* Quickstart block copies the visible command list. */
+      wireCopy("copy-qs", function () {
+        return document.getElementById("qs-cmds").textContent.trim();
+      });
     </script>
   </body>
 </html>
