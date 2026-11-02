@@ -36,6 +36,21 @@ landing_checks: list[str] = [
     "/docs/security",
     "/docs/architecture",
     'target="_blank"',
+    # Visuals added this round
+    'class="bytebar"',
+    "RT_SIZE_COUNTER",
+    'class="seg seg-auth"',
+    'class="artifacts reveal"',
+    "manifest.json",
+    'class="h2-mark"',
+    'class="tile tile-counter"',
+    'class="mock-browser"',
+    "www.pythsol.com/playground",
+    'id="copy-qs"',
+    'class="viz-artifacts"',
+    'class="ln"',
+    'href="#i-github"',
+    'class="cta-ico"',
 ]
 missing = [c for c in landing_checks if c not in landing]
 print("landing:", "all present" if not missing else "MISSING")
@@ -53,6 +68,12 @@ pg_checks = [
     "aria-live=\"polite\"",
     '<script src="/app.js"></script>',
     'href="/app.css"',
+    # Action icons added this round
+    'class="lbl"',
+    'href="#i-check"',
+    'href="#i-rotate"',
+    'href="#i-copy"',
+    'class="nav-ico"',
 ]
 missing_pg = [c for c in pg_checks if c not in pg]
 print("playground:", "all present" if not missing_pg else "MISSING")
@@ -67,6 +88,10 @@ css_checks = [
     "pre.on-diag",
     "pre.on-err",
     ".tabs[hidden] { display: none; }",  # hidden attribute must win over flex
+    "button[hidden] { display: none; }",  # compile button hides on the host
+    # Icons added this round
+    "button .ico",
+    ".pane-head .ico",
 ]
 missing_css = [c for c in css_checks if c not in css]
 print("app.css:", "all present" if not missing_css else "MISSING")
@@ -80,6 +105,17 @@ site_checks = [
     "foot-grid",
     "plus li::before",
     "flex-wrap",  # nav wrap for narrow screens
+    # Visuals and motion added this round
+    ".hero::before",  # dot grid + brand washes
+    "@keyframes line-in",  # hero code stagger
+    "pipe-nudge",  # pipeline flow arrows
+    "prefers-reduced-motion",  # motion is opt-in
+    ".bytebar",  # Counter account byte map
+    ".seg-auth",
+    ".artifacts",  # build artifact shelf
+    ".tile-counter",  # example icon tiles
+    ".mock-browser",  # browser chrome on the teaser
+    ".copy-cmd",  # quickstart copy affordance
 ]
 missing_site = [c for c in site_checks if c not in site]
 print("site.css:", "all present" if not missing_site else "MISSING")

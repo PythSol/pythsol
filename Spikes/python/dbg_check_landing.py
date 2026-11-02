@@ -49,6 +49,28 @@ checks = [
     # Reveal animation kept
     "IntersectionObserver",
     'class="reveal',
+    # Visuals added this round
+    'class="bytebar"',
+    'aria-label="Counter account layout',
+    "RT_SIZE_COUNTER",
+    'class="seg seg-auth"',
+    'class="artifacts reveal"',
+    "manifest.json",
+    'class="h2-mark"',
+    'class="tile tile-counter"',
+    'class="tile tile-ledger"',
+    'class="tile tile-vault"',
+    'class="tile tile-escrow"',
+    'class="mock-browser"',
+    "www.pythsol.com/playground",
+    'id="copy-qs"',
+    'id="qs-cmds"',
+    'class="viz-artifacts"',
+    'class="ok-ico"',
+    'class="ln"',
+    'href="#i-github"',
+    'class="nav-ico"',
+    'class="cta-ico"',
 ]
 ok = all(c in h for c in checks)
 print("landing sections all present:", ok)

@@ -229,7 +229,7 @@ h2 { margin: 32px 0 8px; }
 .hero-viz pre {
   border-top: 0;
   border-radius: 0;
-  font-size: 12px;
+  font-size: 11.5px;
   background: #fff;
 }
 .viz-status {
@@ -408,9 +408,256 @@ footer {
   font-size: 13px;
   border-top: 1px solid var(--border);
 }
+
+/* ---------- Icons, marks, and motion ---------- */
+.sprite { position: absolute; }
+.h2-mark {
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+  vertical-align: -4px;
+  color: var(--blue);
+}
+.nav-ico {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: -3px;
+}
+nav a.item { display: inline-flex; align-items: center; }
+footer .ico {
+  width: 14px;
+  height: 14px;
+  margin-right: 7px;
+  vertical-align: -2px;
+}
+
+/* Hero texture: dot grid plus two faint brand washes, faded out at the base */
+.hero { position: relative; }
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(620px 260px at 10% 0%, rgba(48, 105, 152, 0.1), transparent 70%),
+    radial-gradient(480px 220px at 92% 6%, rgba(153, 69, 255, 0.07), transparent 70%),
+    radial-gradient(circle, rgba(27, 36, 48, 0.14) 1px, transparent 1.3px);
+  background-size: auto, auto, 22px 22px;
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.35) 60%, transparent 96%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.35) 60%, transparent 96%);
+}
+.hero-grid { position: relative; }
+.hero-viz {
+  border-radius: 10px;
+  box-shadow: 0 24px 48px -30px rgba(27, 36, 48, 0.45);
+}
+
+/* Hero code: lines settle in once, in reading order */
+.hero-viz pre .ln { display: block; }
+@media (prefers-reduced-motion: no-preference) {
+  .hero-viz pre .ln {
+    opacity: 0;
+    transform: translateX(-6px);
+    animation: line-in 0.45s ease forwards;
+  }
+  .hero-viz pre .ln:nth-child(1) { animation-delay: 0.12s; }
+  .hero-viz pre .ln:nth-child(2) { animation-delay: 0.21s; }
+  .hero-viz pre .ln:nth-child(3) { animation-delay: 0.3s; }
+  .hero-viz pre .ln:nth-child(4) { animation-delay: 0.39s; }
+  .hero-viz pre .ln:nth-child(5) { animation-delay: 0.48s; }
+  .pipeline .pipe use { animation: pipe-nudge 2.8s ease-in-out infinite; }
+  .pipeline .pipe:nth-of-type(2) use { animation-delay: 0.35s; }
+  .pipeline .pipe:nth-of-type(3) use { animation-delay: 0.7s; }
+  .pipeline .pipe:nth-of-type(4) use { animation-delay: 1.05s; }
+  .stage:hover { transform: translateY(-2px); }
+  .card:hover { transform: translateY(-2px); }
+  .example:hover { transform: translateY(-2px); }
+  .actions a:hover .cta-ico { transform: translateX(3px); }
+}
+@keyframes line-in {
+  to { opacity: 1; transform: none; }
+}
+@keyframes pipe-nudge {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+
+.viz-status b { display: inline-flex; align-items: center; gap: 6px; }
+.viz-status .ok-ico { width: 15px; height: 15px; color: #1a7f4b; }
+.viz-artifacts { display: inline-flex; gap: 6px; }
+.viz-artifacts code {
+  font-size: 11.5px;
+  padding: 1px 7px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  color: var(--blue-strong);
+}
+
+/* Stage, card, and example hover lift (color always, motion only when allowed) */
+.stage,
+.card,
+.example {
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+.stage:hover,
+.card:hover,
+.example:hover {
+  border-color: #b9c7d8;
+  box-shadow: 0 14px 28px -22px rgba(27, 36, 48, 0.45);
+}
+.actions a { display: inline-flex; align-items: center; gap: 8px; }
+.actions .cta-ico { width: 16px; height: 16px; transition: transform 0.16s ease; }
+
+/* Byte map of the Counter account (offsets from the emitted C) */
+.bytes { margin: 18px 0 6px; }
+.bytebar {
+  display: flex;
+  height: 46px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+.seg {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 600 11.5px/1 ui-monospace, Consolas, monospace;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.seg + .seg { border-left: 1px solid var(--border); }
+.seg-disc { flex: 8 1 0; background: #e8edf4; color: #3c4a5c; }
+.seg-auth { flex: 32 1 0; background: #e6f8ee; color: #14603c; }
+.seg-count { flex: 8 1 0; background: #fff4cc; color: #6b511a; }
+.seg-bump { flex: 1 1 0; background: #efe6ff; }
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.legend .key { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+  border: 1px solid rgba(27, 36, 48, 0.15);
+}
+.sw-disc { background: #e8edf4; }
+.sw-auth { background: #e6f8ee; }
+.sw-count { background: #fff4cc; }
+.sw-bump { background: #efe6ff; }
+.legend .total { margin-left: auto; }
+.legend .total code { font-size: 12px; }
+.bytes .note { margin: 10px 0 0; }
+
+/* Artifact shelf: what pythsol build writes */
+.art-label { margin-top: 20px; }
+.artifacts {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+.artifact {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #fff;
+  padding: 10px 12px;
+  min-width: 0;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.artifact:hover {
+  border-color: #b9c7d8;
+  box-shadow: 0 10px 20px -18px rgba(27, 36, 48, 0.45);
+}
+.artifact .pic { display: block; margin-bottom: 6px; color: var(--blue); }
+.artifact b {
+  display: block;
+  font: 600 12.5px/1.3 ui-monospace, Consolas, monospace;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.artifact span { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* Mini browser chrome above the playground teaser */
+.mock-browser {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  min-width: 0;
+}
+.mock-browser .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  flex: none;
+}
+.mock-browser .url {
+  margin-left: 8px;
+  font: 500 11.5px/1 ui-monospace, Consolas, monospace;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Example tiles (per-program accent) */
+.ex-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.tile {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border: 1px solid rgba(27, 36, 48, 0.08);
+}
+.tile svg { width: 17px; height: 17px; }
+.tile-counter { background: #fff4cc; color: #8a5a0a; }
+.tile-ledger { background: #e7f0f8; color: var(--blue-strong); }
+.tile-vault { background: #e6f8ee; color: #14603c; }
+.tile-escrow { background: #efe6ff; color: #6b2fb3; }
+
+/* Quickstart terminal with a copy affordance */
+.cmd-shell .chrome { border: 1px solid var(--border); border-bottom: 0; }
+.cmd-shell pre { border-radius: 0 0 10px 10px; }
+.copy-cmd {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--blue-strong);
+  font: 600 12px/1 "Segoe UI", sans-serif;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.copy-cmd .ico { width: 13px; height: 13px; }
+.copy-cmd:hover { border-color: var(--blue); }
+.copy-cmd:focus-visible { outline: 2px solid var(--blue-strong); outline-offset: 2px; }
+
 @media (max-width: 860px) {
   .hero-grid, .try, .qs-grid, .trust-grid { grid-template-columns: 1fr; }
   .foot-grid { grid-template-columns: 1fr 1fr; }
+  .artifacts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 800px) {
   .split, .cards, .steps, .examples { grid-template-columns: 1fr; }
@@ -418,7 +665,11 @@ footer {
   .pipeline { grid-template-columns: 1fr; }
   .pipe { transform: rotate(90deg); margin: 2px auto; }
   .hero-grid { padding: 40px 20px 26px; }
+  .bytebar { height: 40px; }
+  .seg { font-size: 10.5px; }
 }
 @media (max-width: 480px) {
   .foot-grid { grid-template-columns: 1fr; }
+  .artifacts { grid-template-columns: 1fr 1fr; }
+  .legend .total { margin-left: 0; }
 }

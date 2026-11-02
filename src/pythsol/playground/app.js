@@ -75,16 +75,17 @@ document.getElementById("copy").addEventListener("click", async () => {
     return;
   }
   const copy = document.getElementById("copy");
+  const label = copy.querySelector(".lbl") || copy;
   try {
     await navigator.clipboard.writeText(cursor);
-    copy.textContent = "Copied";
+    label.textContent = "Copied";
     setTimeout(() => {
-      copy.textContent = "Copy";
+      label.textContent = "Copy";
     }, 1200);
   } catch (err) {
-    copy.textContent = "Copy failed";
+    label.textContent = "Copy failed";
     setTimeout(() => {
-      copy.textContent = "Copy";
+      label.textContent = "Copy";
     }, 1600);
     show(cursor + "\n\n(Copy failed — select the text above.)", "on-info");
   }
@@ -116,10 +117,11 @@ function flash(id, label) {
   if (!button) {
     return;
   }
-  const original = button.textContent;
-  button.textContent = label;
+  const span = button.querySelector(".lbl") || button;
+  const original = span.textContent;
+  span.textContent = label;
   setTimeout(() => {
-    button.textContent = original;
+    span.textContent = original;
   }, 1400);
 }
 
