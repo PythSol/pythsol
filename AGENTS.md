@@ -6,8 +6,8 @@ Read that before compiler, playground, or docs work. Version stays 0.1.0.
 Use `.venv\Scripts\python.exe`. PowerShell: `;` not `&&`. Do not reformat
 `src/pythsol/compiler/emit.py`. Theme is light (Python blue / yellow, Solana
 mint / purple accents). TypeSol is inspiration; do not copy their CU table
-or token. The favicon is a letterform-only `p`+`S` (no background plate);
-two identical copies live in `src/pythsol/playground/favicon.svg` and
+or token. The favicon is a letterform-only `P`+`S` (both cap height, no
+background plate); two identical copies live in `src/pythsol/playground/favicon.svg` and
 `web/docs/public/favicon.svg` — after editing either, copy the file to the
 other and run `npm run build` in `web\docs` before staging.
 

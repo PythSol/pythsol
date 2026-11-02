@@ -261,8 +261,8 @@ test or a real host.
   components/SiteTitle.astro`) and the marketing navbar
   (`src/pythsol/playground/site.css`) must visually stay the same mark:
   `Pyth` yellow `--accent`, `Sol` mint→purple gradient, click → `/`. The
-  docs header also carries the p+S letterform mark (same artwork as the
-  favicon); it is inline SVG with gradient ids `pythsol-ps-pg` /
+  docs header also carries the P+S letterform mark (both cap height, same
+  artwork as the favicon); it is inline SVG with gradient ids `pythsol-ps-pg` /
   `pythsol-ps-sg`.
 - `astro.config.mjs` pins `site: "https://www.pythsol.com"`,
   `base: "/docs"`, `trailingSlash: "never"`. Keep those when editing.

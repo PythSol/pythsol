@@ -131,11 +131,13 @@ print("site.css:", "all present" if not missing_site else "MISSING")
 for m in missing_site:
     print("  missing:", m)
 
-# Favicon: letterform-only pS — no background plate anywhere in the file.
+# Favicon: letterform-only PS — no background plate anywhere in the file.
 fav = get("/favicon.svg")
 fav_have = [
     'viewBox="0 0 32 32"',  # letterform spec, not the old 64 plate canvas
-    "#ffd43b",  # Python yellow start (p)
+    ">P</text>",  # uppercase P and S, both cap height
+    ">S</text>",
+    "#ffd43b",  # Python yellow start (P)
     "#e8a20c",  # amber end: contrast on a white tab strip
     "#14f195",  # Solana mint (S)
     "#9945ff",  # Solana purple (S)
@@ -143,9 +145,12 @@ fav_have = [
 ]
 fav_missing = [c for c in fav_have if c not in fav]
 plate_gone = "<rect" not in fav
-print("favicon:", "all present" if not fav_missing and plate_gone else "PROBLEM")
+same_width = fav.count('textLength="14.6"') == 2
+print("favicon:", "all present" if not fav_missing and plate_gone and same_width else "PROBLEM")
 if not plate_gone:
     print("  plate <rect> still present")
+if not same_width:
+    print("  P and S letter widths differ")
 for m in fav_missing:
     print("  missing:", m)
 

@@ -11,7 +11,7 @@
     </linearGradient>
   </defs>
   <g
-    transform="translate(41.1 11) scale(14)"
+    transform="translate(21.9 14.5) scale(14.72)"
     font-family="'Segoe UI', Arial, 'Helvetica Neue', sans-serif"
     font-weight="900"
     font-size="24"
@@ -20,7 +20,7 @@
     stroke-linejoin="round"
     paint-order="stroke"
   >
-    <text x="2.2" y="23" textLength="13" lengthAdjust="spacingAndGlyphs" fill="url(#pythsol-mark-pg)">p</text>
-    <text x="12.9" y="23" textLength="15.6" lengthAdjust="spacingAndGlyphs" fill="url(#pythsol-mark-sg)">S</text>
+    <text x="1.8" y="24.1" textLength="14.6" lengthAdjust="spacingAndGlyphs" fill="url(#pythsol-mark-pg)">P</text>
+    <text x="14.2" y="24.1" textLength="14.6" lengthAdjust="spacingAndGlyphs" fill="url(#pythsol-mark-sg)">S</text>
   </g>
 </svg>
