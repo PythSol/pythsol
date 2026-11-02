@@ -237,6 +237,19 @@ test or a real host.
   same commit that really publishes to PyPI. The playground result pane
   keeps C / IDL / Client tabs in sync with `/v1/emit`'s payload keys
   (`c`, `idl`, `client`) — update the tabs if those keys change.
+- Site art is hand-written inline SVG/CSS: sprite icons (`<use href="#i-…">`),
+  hero texture, the Counter byte map, build-artifact shelf, browser chrome,
+  and example tiles. No stock images, external fonts, or new asset files
+  (the stage script's file list is explicit). Motion sits behind
+  `prefers-reduced-motion: no-preference`. Keep shipped pages free of
+  `style=` attributes: `pythsol serve` sends CSP `default-src 'self'`, so
+  the byte-map proportions live in `.seg-*` classes, not per-element custom
+  properties. The byte map must match emitted C: disc 0–8, authority 8–40,
+  count 40–48 (`rt_ld_u64(..., 40u, ...)`), bump 48,
+  `RT_SIZE_COUNTER 49`.
+- `button[hidden] { display: none; }` and `.tabs[hidden] { display: none; }`
+  are required: author `display: inline-flex` / `flex` beats the UA hidden
+  rule, so the Compile button or output tabs would otherwise reappear.
 - Starlight **0.42.7** declares overrides only in config
   (`astro.config.mjs` → `starlight({ components: { Header: …, SiteTitle:
   … } })`). Dropping files into `src/components/` does nothing, and the
@@ -244,7 +257,10 @@ test or a real host.
   `Header.astro` for nav links). The docs brandmark (`web/docs/src/
   components/SiteTitle.astro`) and the marketing navbar
   (`src/pythsol/playground/site.css`) must visually stay the same mark:
-  `Pyth` yellow `--accent`, `Sol` mint→purple gradient, click → `/`.
+  `Pyth` yellow `--accent`, `Sol` mint→purple gradient, click → `/`. The
+  docs header also carries the p+S letterform mark (same artwork as the
+  favicon); it is inline SVG with gradient ids `pythsol-ps-pg` /
+  `pythsol-ps-sg`.
 - `astro.config.mjs` pins `site: "https://www.pythsol.com"`,
   `base: "/docs"`, `trailingSlash: "never"`. Keep those when editing.
 - Starlight's **gray scale is directional per mode** (learned the hard
