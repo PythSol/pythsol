@@ -246,7 +246,10 @@ test or a real host.
   the byte-map proportions live in `.seg-*` classes, not per-element custom
   properties. The byte map must match emitted C: disc 0–8, authority 8–40,
   count 40–48 (`rt_ld_u64(..., 40u, ...)`), bump 48,
-  `RT_SIZE_COUNTER 49`.
+  `RT_SIZE_COUNTER 49`. Standalone brand exports live in `brand/`
+  (`pythsol-mark.svg` and `pythsol-mark-512.png`); the 32px favicon pair
+  remains the source of truth for the letterform, so update the mark when
+  the favicon changes.
 - `button[hidden] { display: none; }` and `.tabs[hidden] { display: none; }`
   are required: author `display: inline-flex` / `flex` beats the UA hidden
   rule, so the Compile button or output tabs would otherwise reappear.
