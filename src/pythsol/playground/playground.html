@@ -4,6 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Playground — PythSol</title>
+    <meta
+      name="description"
+      content="Check typed Python against the PythSol front-end and read the generated C, IDL, and client. Nothing on this page runs your program."
+    />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="/site.css" />
     <link rel="stylesheet" href="/app.css" />
@@ -22,22 +26,30 @@
         <button id="check" type="button">Check</button>
         <button id="emit" class="quiet" type="button" title="Generate C, IDL, and client">Emit</button>
         <button id="compile" type="button">Compile .so</button>
+        <button id="reset" class="quiet" type="button">Reset sample</button>
       </div>
     </header>
     <main>
-      <section>
-        <h3>program.py — you write</h3>
+      <section class="pane">
+        <div class="pane-head">
+          <h3>program.py — you write</h3>
+          <span class="hint">Ctrl+Enter checks</span>
+        </div>
         <textarea id="source" spellcheck="false" aria-label="Program source"></textarea>
       </section>
-      <section>
-        <h3>Result — compiler output</h3>
+      <section class="pane">
+        <div class="pane-head">
+          <h3>Result — compiler output</h3>
+        </div>
         <div class="tabs" id="tabs" hidden>
-          <button class="tab" id="tab-c" type="button" aria-pressed="true">C</button>
-          <button class="tab" id="tab-idl" type="button" aria-pressed="false">IDL</button>
-          <button class="tab" id="tab-client" type="button" aria-pressed="false">Client</button>
+          <div class="tablist" role="tablist" aria-label="Compiler outputs">
+            <button class="tab" id="tab-c" type="button" role="tab" aria-selected="true" aria-controls="out">C</button>
+            <button class="tab" id="tab-idl" type="button" role="tab" aria-selected="false" aria-controls="out">IDL</button>
+            <button class="tab" id="tab-client" type="button" role="tab" aria-selected="false" aria-controls="out">Client</button>
+          </div>
           <button class="tab copy" id="copy" type="button">Copy</button>
         </div>
-        <pre id="out" aria-live="polite">Check, show the C, or compile.</pre>
+        <pre id="out" role="region" aria-label="Compiler output" tabindex="0" aria-live="polite">Check, show the C, or compile.</pre>
       </section>
     </main>
     <footer>

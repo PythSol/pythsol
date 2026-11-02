@@ -5,16 +5,50 @@ import pathlib
 
 h = pathlib.Path(r"target\vercel_stage\landing.html").read_text(encoding="utf-8")
 checks = [
+    # Hero + install honesty
+    'class="hero-grid"',
+    "hero-viz",
+    "not on PyPI yet",
+    'href="/playground"',
+    'href="/docs/quickstart"',
+    # Pipeline walkthrough
     'class="pipeline"',
-    'class="stage"',
-    'class="ribbon reveal"',
-    'class="chrome"',
-    'id="i-write"',
-    'target="_blank"',
+    "checked at every step",
+    # Real code pair
+    "counter.py",
+    "counter.c — excerpt",
+    "pyf_increment",
+    # Capabilities with where-it-runs tags
+    'class="card"',
+    "tag-web",
+    "tag-cli",
+    # Try in browser mock
+    "Try it in the browser",
+    'class="try-mock"',
+    'href="/docs/playground"',
+    # Example cards with real walk-through links
+    "Learn from working programs",
+    'href="/docs/tutorial-counter"',
+    'href="/docs/tutorial-vault"',
+    'href="/docs/tutorial-escrow"',
+    'href="/docs/language"',
+    'href="/examples/vault"',
+    # Local dev + trust + FAQ
+    "Local development",
+    "pythsol doctor",
+    'href="/docs/cli"',
+    "What PythSol is",
+    "What it isn't",
+    'id="faq"',
+    "pythsol test</code> executes the real program bytecode",
+    # Footer columns
+    "foot-grid",
+    'href="/docs/security"',
+    'href="/docs/architecture"',
+    "target=\"_blank\"",
+    # Reveal animation kept
     "IntersectionObserver",
     'class="reveal',
-    'class="cards reveal"',
-    "Pick your road",
 ]
 ok = all(c in h for c in checks)
 print("landing sections all present:", ok)

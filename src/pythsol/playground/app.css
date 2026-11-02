@@ -11,6 +11,9 @@
   --yellow: #ffd43b;
   --purple: #9945ff;
   --mint: #14f195;
+  --ok: #1a7f4b;
+  --warn: #8a5a0a;
+  --err: #b3462e;
 }
 * { box-sizing: border-box; }
 body {
@@ -29,7 +32,7 @@ body {
   border-bottom: 1px solid var(--border);
 }
 /* The brand mark styles live in site.css (`nav .mark`). */
-header p { margin: 0; color: var(--muted); flex: 1; }
+header p { margin: 0; color: var(--muted); flex: 1; font-size: 14px; }
 .tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 button, select { font: inherit; }
 button {
@@ -38,51 +41,96 @@ button {
   border: 0;
   border-radius: 6px;
   padding: 8px 12px;
+  font-weight: 600;
 }
 button:focus-visible, select:focus-visible {
   outline: 2px solid var(--blue-strong);
   outline-offset: 2px;
 }
 button.quiet { background: #fff; color: var(--blue); border: 1px solid var(--border); }
+button:disabled { opacity: 0.55; cursor: progress; }
 select { padding: 8px; border: 1px solid var(--border); border-radius: 6px; background: #fff; }
-.hero {
-  padding: 28px 20px 8px;
-  background:
-    linear-gradient(#fff, #fff) padding-box,
-    linear-gradient(90deg, var(--yellow), var(--mint)) border-box;
-  border-bottom: 4px solid transparent;
-}
-.hero h2 { margin: 0 0 8px; font-size: 28px; }
-.hero p { margin: 0; max-width: 40rem; color: var(--muted); }
-ol.steps {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin: 16px 0 0;
-  padding: 0;
-  list-style: none;
-}
-ol.steps li {
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
-  border-left: 4px solid var(--yellow);
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 14px;
-}
-ol.steps strong { color: var(--blue-strong); }
+
 main {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  padding: 16px 20px 28px;
+  gap: 18px;
+  padding: 18px 20px 26px;
+  align-items: stretch;
 }
+
+/* Coordinated panes: warm label bar over a quiet code surface.
+   Both panes share one explicit height; the bodies flex, so the tab row
+   in the result pane never makes the columns uneven. */
+.pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: clamp(420px, calc(64vh + 110px), 780px);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+}
+.pane-head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border);
+}
+.pane-head h3 {
+  margin: 0;
+  font-size: 12.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+  font-family: ui-monospace, Consolas, monospace;
+  white-space: nowrap;
+}
+.pane textarea,
+.pane pre {
+  display: block;
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  margin: 0;
+  padding: 12px;
+  border: 0;
+  border-radius: 0;
+  background: var(--surface);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.pane textarea { resize: none; }
+.pane pre { overflow: auto; border-left: 3px solid transparent; }
+textarea:focus-visible,
+.pane pre:focus-visible {
+  outline: 2px solid var(--blue-strong);
+  outline-offset: -2px;
+}
+/* Output states: the glyph-free tint travels with the text, so color is
+   never the only signal ("No problems." and the codes carry the meaning). */
+pre.on-ok { border-left-color: var(--ok); background: #f2f9f4; }
+pre.on-diag { border-left-color: var(--warn); background: #fbf6e8; }
+pre.on-err { border-left-color: var(--err); background: #fdf0ed; }
+pre.on-info { border-left-color: transparent; }
+
 .tabs {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
-  margin: 0 0 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
 }
+.tablist { display: flex; gap: 6px; }
 .tab {
   background: #fff;
   color: var(--muted);
@@ -99,30 +147,14 @@ main {
   border-color: var(--blue);
 }
 .tab.copy { margin-left: auto; }
-section h3 {
-  margin: 0 0 8px;
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-textarea, pre {
-  width: 100%;
-  min-height: 62vh;
-  margin: 0;
-  padding: 12px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface);
-  font-family: ui-monospace, Consolas, monospace;
-  font-size: 13px;
-  line-height: 1.45;
-}
+
 footer {
   padding: 12px 20px 24px;
   color: var(--muted);
   font-size: 13px;
 }
 @media (max-width: 800px) {
-  main, ol.steps { grid-template-columns: 1fr; }
+  main { grid-template-columns: 1fr; padding: 14px 12px 20px; gap: 14px; }
+  .tools-bar { padding: 12px 14px; }
+  .pane { height: clamp(300px, calc(54vh + 96px), 700px); }
 }

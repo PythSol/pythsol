@@ -30,6 +30,8 @@ nav {
   border-bottom: 3px solid var(--blue);
   position: sticky;
   top: 0;
+  z-index: 10;
+  flex-wrap: wrap;
 }
 nav .mark {
   margin: 0;
@@ -200,15 +202,223 @@ h2 { margin: 32px 0 8px; }
 }
 .reveal.in { opacity: 1; transform: none; }
 
+/* Small uppercase label above panes and groups */
+.pane-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+
+/* Hero: copy left, compact real-code visual right */
+.hero { padding: 0; border-bottom: 4px solid transparent; }
+.hero-grid {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 30px;
+  align-items: center;
+  padding: 54px 24px 34px;
+}
+.hero-copy { min-width: 0; }
+.hero .cmd { margin-top: 18px; }
+.hero-viz { margin: 0; min-width: 0; }
+.hero-viz pre {
+  border-top: 0;
+  border-radius: 0;
+  font-size: 12px;
+  background: #fff;
+}
+.viz-status {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  padding: 9px 14px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-top: 0;
+  border-radius: 0 0 10px 10px;
+  font-size: 13px;
+}
+.viz-status b { color: #1a7f4b; }
+.viz-status span { color: var(--muted); }
+.hero-viz figcaption { margin-top: 8px; }
+
+/* Where-it-runs tags */
+.tag {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+  color: var(--blue-strong);
+  white-space: nowrap;
+}
+.tag-web { background: #fff7db; border-color: #ecd98a; color: #6b511a; }
+
+/* Example cards (counter, ledger, vault, escrow) */
+.examples { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+.example {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  min-width: 0;
+}
+.example-head { display: flex; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.example-head h3 { margin: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 6px; }
+.chips code {
+  font-size: 12px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 1px 6px;
+}
+.links { margin: 4px 0 0; display: flex; gap: 16px; }
+.links a { font-weight: 650; }
+
+/* Playground teaser with a faithful static mock */
+.try {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 24px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px;
+  background: var(--bg-subtle);
+  margin-top: 36px;
+}
+.try h2 { margin: 0 0 8px; }
+.try-copy p { color: var(--muted); margin: 0 0 16px; }
+.try-mock { display: grid; gap: 10px; min-width: 0; }
+.mock-pane { background: #fff; border: 1px solid var(--border); border-radius: 10px; min-width: 0; }
+.mock-pane h4 {
+  margin: 0;
+  padding: 8px 12px;
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border);
+  border-radius: 10px 10px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.mock-tabs { display: flex; gap: 6px; padding: 8px 12px 0; }
+.mock-tabs b {
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 2px 8px;
+  color: var(--muted);
+}
+.mock-tabs b.on { background: var(--blue); color: #fff; border-color: var(--blue); }
+.mock-tabs b.ghost { margin-left: auto; border-style: dashed; }
+.mock-code {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 12.5px;
+  padding: 10px 12px 12px;
+  overflow: hidden;
+  white-space: pre;
+  color: var(--text);
+  text-overflow: ellipsis;
+}
+
+/* Quickstart panel */
+.quickstart h2 { margin-top: 4px; }
+.qs-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 18px;
+  align-items: start;
+  margin-top: 10px;
+}
+.qs-grid pre { background: #fff; }
+.qs-facts p { margin: 8px 0; }
+.qs-facts a { font-weight: 650; }
+
+/* Trust: what it is / what it isn't (✓/✗ glyphs keep it color-independent) */
+.trust { background: var(--bg-subtle); }
+.trust-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 8px; }
+.trust h3 { margin: 2px 0 4px; }
+.plus, .minus { list-style: none; padding: 0; margin: 0; }
+.plus li, .minus li { position: relative; padding-left: 26px; margin: 8px 0; font-size: 14px; }
+.plus li::before { content: "\2713  "; position: absolute; left: 2px; color: #1a7f4b; font-weight: 700; }
+.minus li::before { content: "\2717  "; position: absolute; left: 2px; color: #b3462e; font-weight: 700; }
+
+/* FAQ accordion */
+.faq details {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  padding: 12px 16px;
+  margin: 10px 0;
+}
+.faq summary { cursor: pointer; font-weight: 650; }
+.faq details[open] summary { color: var(--blue-strong); }
+.faq .note { margin: 8px 0 2px; }
+
+/* Footer columns */
+.foot-grid {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr 0.8fr 0.8fr;
+  gap: 24px;
+}
+footer h3 {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+footer nav a {
+  display: block;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 3px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+footer nav a:hover,
+footer nav a:focus-visible { color: var(--blue-strong); }
+.foot-brand { font-weight: 800; font-size: 18px; margin: 0 0 6px; }
+.foot-brand .po { color: var(--yellow); }
+.foot-brand .so {
+  background: linear-gradient(90deg, var(--mint) 0%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 footer {
   padding: 16px 24px 32px;
   color: var(--muted);
   font-size: 13px;
   border-top: 1px solid var(--border);
 }
+@media (max-width: 860px) {
+  .hero-grid, .try, .qs-grid, .trust-grid { grid-template-columns: 1fr; }
+  .foot-grid { grid-template-columns: 1fr 1fr; }
+}
 @media (max-width: 800px) {
-  .split, .cards, .steps { grid-template-columns: 1fr; }
+  .split, .cards, .steps, .examples { grid-template-columns: 1fr; }
   .hero h1 { font-size: 30px; }
   .pipeline { grid-template-columns: 1fr; }
   .pipe { transform: rotate(90deg); margin: 2px auto; }
+  .hero-grid { padding: 40px 20px 26px; }
+}
+@media (max-width: 480px) {
+  .foot-grid { grid-template-columns: 1fr; }
 }

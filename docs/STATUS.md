@@ -48,10 +48,9 @@ Live as of 2026-11-01 — **one Vercel project, one domain**:
 | `/v1/compile` | 403 with Docker guidance (compile needs the SBF toolchain) |
 | `/healthz`, `/examples*` | Health, init templates |
 
-- Live URL until DNS: `https://pythsol.vercel.app`
-- Production domains attached: `pythsol.com`, `www.pythsol.com` — the name
-  is **not registered yet**. After the user buys it: A `@` → `76.76.21.21`,
-  CNAME `www` → `cname.vercel-dns.com`; TLS is automatic.
+- Live on **`https://www.pythsol.com`** (verified 2026-11-01: domain at
+  NameCheap, DNS on Cloudflare, `www` CNAME → the Vercel project). The
+  Vercel alias `https://pythsol.vercel.app` still resolves.
 - The single Vercel project is `pythsol` (the older `pythsol-docs` and
   `pythsol-playground` projects were deleted after the merge). Deploy the
   whole site with `Spikes/tools/stage-vercel-one.ps1` then

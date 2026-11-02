@@ -6,8 +6,9 @@
     <title>PythSol — Write Solana programs in Python</title>
     <meta
       name="description"
-      content="PythSol compiles a typed Python subset to native SBF bytecode with an Anchor-style IDL and a solders client. Nothing here runs your code."
+      content="PythSol checks a typed Python subset, lowers it to C, and compiles native SBF bytecode with an Anchor-style IDL and a solders client. Nothing here runs your code."
     />
+    <meta name="theme-color" content="#ffffff" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="/site.css" />
   </head>
@@ -23,6 +24,7 @@
         <g id="i-tools"><path d="M14.7 6.3a4 4 0 0 0-5.3 5L4 16.8V20h3.2l5.5-5.4a4 4 0 0 0 5-5.3L15 12l-3-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
         <g id="i-chain"><path d="M10 14l4-4M8 12l-2.6 2.6a3.4 3.4 0 0 0 4.8 4.8L12.8 17M16 12l2.6-2.6a3.4 3.4 0 0 0-4.8-4.8L11.2 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
         <g id="i-arrow"><path d="M4 12h15m-5-5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g id="i-book"><path d="M5 3h13a1 1 0 0 1 1 1v13.5H5A1.5 1.5 0 0 1 3.5 16V4.5A1.5 1.5 0 0 1 5 3zM3.5 17.5A1.5 1.5 0 0 0 5 19h14M7 7h8M7 10.5h8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
       </defs>
     </svg>
 
@@ -34,60 +36,87 @@
     </nav>
 
     <section class="hero">
-      <div class="wrap">
-        <h1>Write Solana programs in Python.</h1>
-        <p>
-          PythSol checks a typed Python subset, lowers it to C, and compiles
-          native SBF bytecode plus an Anchor-style IDL and a solders client.
-          Nothing here runs your code.
-        </p>
-        <div class="actions">
-          <a href="/playground">Open the Playground</a>
-          <a class="quiet" href="/docs/quickstart">Read the Quickstart</a>
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <h1>Write Solana programs in Python.</h1>
+          <p>
+            PythSol checks a typed Python subset, lowers it to C, and compiles
+            native SBF bytecode — with an Anchor-style IDL, a solders client,
+            and LiteSVM tests. Nothing here runs your code.
+          </p>
+          <div class="actions">
+            <a href="/playground">Open the Playground</a>
+            <a class="quiet" href="/docs/quickstart">Read the Quickstart</a>
+          </div>
+          <p class="cmd">
+            <code>pip install git+https://github.com/PythSol/pythsol.git</code>
+            then <code>pythsol init my-program</code>
+          </p>
+          <p class="note">Straight from the repository — PythSol is not on PyPI yet.</p>
         </div>
-        <p class="cmd"><code>pip install git+https://github.com/PythSol/pythsol.git</code> then <code>pythsol init my-program</code></p>
+
+        <figure class="hero-viz" aria-label="A PythSol instruction and its compiler result">
+          <div class="chrome"><span></span><span></span><span></span><b>counter.py</b></div>
+          <pre class="mini">@instruction
+def initialize(authority: Signer, counter: Init[Counter], bump: u8) -> None:
+    counter.authority = authority.key
+    counter.count = 0
+    counter.bump = bump</pre>
+          <div class="viz-status">
+            <b>✓ 0 diagnostics</b>
+            <span>C · IDL · client generated</span>
+          </div>
+          <figcaption class="note">
+            Real lines from <code>examples/counter</code>: a typed instruction
+            with account roles the compiler can enforce.
+          </figcaption>
+        </figure>
       </div>
     </section>
 
     <main class="wrap">
       <section class="reveal panel">
         <h2>From .py to .so, checked at every step</h2>
+        <p class="note">
+          Each stage draws on the same checked definition of your program — no
+          phase re-parses it with different rules.
+        </p>
         <div class="pipeline">
           <div class="stage">
             <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-write"/></svg>
             <h3>Write</h3>
-            <p class="note"><code>.py</code> with typed accounts, seeds, and errors.</p>
+            <p class="note">Instructions, accounts, errors in one <code>.py</code>. <b>→ program.py</b></p>
           </div>
           <svg class="pipe" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
           <div class="stage">
             <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-shield"/></svg>
             <h3>Check</h3>
-            <p class="note"><code>PSxxxx</code> diagnostics with file, line, column.</p>
+            <p class="note"><code>PSxxxx</code> diagnostics with file, line, column. <b>→ a clean list, or a fix</b></p>
           </div>
           <svg class="pipe" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
           <div class="stage">
             <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-code"/></svg>
             <h3>Emit C</h3>
-            <p class="note">Real C with runtime checks — read it in the playground.</p>
+            <p class="note">Readable C with runtime checks, per source line. <b>→ program.c</b></p>
           </div>
           <svg class="pipe" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
           <div class="stage">
             <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-box"/></svg>
             <h3>Build .so</h3>
-            <p class="note">Native SBF via Solana clang, cached and byte-identical.</p>
+            <p class="note">Native SBF via Solana clang — cached, byte-identical. <b>→ program.so</b></p>
           </div>
           <svg class="pipe" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
           <div class="stage">
             <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-idl"/></svg>
             <h3>Ship</h3>
-            <p class="note">Anchor-style IDL + a solders client, generated.</p>
+            <p class="note">Anchor-style IDL + solders client + manifest. <b>→ your client</b></p>
           </div>
         </div>
       </section>
 
       <div class="split reveal">
         <section>
-          <h3>counter.py — you write</h3>
+          <h3 class="pane-label">You write — from <code>examples/counter/programs/counter.py</code></h3>
           <div class="chrome"><span></span><span></span><span></span><b>counter.py</b></div>
           <pre>@instruction
 def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
@@ -96,28 +125,17 @@ def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
     counter.count += by</pre>
         </section>
         <section>
-          <h3>counter.c — the compiler writes</h3>
-          <div class="chrome"><span></span><span></span><span></span><b>counter.c</b></div>
+          <h3 class="pane-label">The compiler writes</h3>
+          <div class="chrome"><span></span><span></span><span></span><b>counter.c — excerpt</b></div>
           <pre>static uint64_t pyf_increment(RtCtx *rt) {
-    if (rt->data_len != 8u) {
-        rt_fail_log(1u, "counter.py", 49u, "instruction data length is wrong");
-        return 1u;
+    /* (data-length checks: omitted in this excerpt) */
+    /* 2. accounts: 2 role-checked in declared order */
+    RtAccount *acc_authority = &rt->accounts[0u];
+    if (!acc_authority->is_signer) {
+        rt_fail_log(1001u, "counter.py", 49u, "signer required: authority");
+        return 1001u;
     }
-    uint64_t dp_by = 0u;
-    rt_ld_u64(rt->data, 0u, &dp_by);
-    if (!rt_owner_eq(acc_counter, rt->program_id)) {
-        rt_fail_log(1003u, ...);
-        return 1003u;
-    }
-    if (!rt_disc_eq(acc_counter->data, RT_DISC_COUNTER)) {
-        rt_fail_log(1005u, ...);
-        return 1005u;
-    }
-    if (!(rt_key_eq((const SolPubkey *)
-                    (acc_counter->data + 8u), acc_authority->key))) {
-        rt_fail_log(ERR_COUNTERERROR_UNAUTHORIZED, ...);
-        return ERR_COUNTERERROR_UNAUTHORIZED;
-    }
+    /* … writable, owner, size, and discriminator checks follow … */
     uint64_t rt_t2 = 0u;
     rt_ld_u64(acc_counter->data, 40u, &rt_t2);
     uint64_t rt_t3;
@@ -126,60 +144,78 @@ def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
         rt_fail_log(rt_t4, "counter.py", 52u, "checked add (u64)");
         return rt_t4;
     }
-    rt_st_u64(acc_counter->data, 40u, rt_t3);</pre>
+    rt_st_u64(acc_counter->data, 40u, rt_t3);
+    return 0u; /* RT_OK */
+}
         </section>
       </div>
       <p class="note">
-        Both chunks are real: the four Python lines above are pulled from
-        <code>examples/counter</code> and the C is what our compiler emits for
-        them — accounts role-checked, discriminators verified, arithmetic
-        overflow guarded, and each failure attributed to a source line.
+        Both chunks are real: the Python lines are the <code>increment</code>
+        instruction from <code>examples/counter</code>, and the C is what the
+        compiler emits for them — accounts role-checked, discriminator
+        verified, arithmetic overflow guarded, every failure attributed to a
+        source line. Read the full C in the
+        <a href="/playground">playground</a> (Check, then the C tab).
       </p>
 
       <h2>What PythSol gives you</h2>
+      <p class="note">
+        <span class="tag tag-web">on this site</span> runs from the page here;
+        <span class="tag tag-cli">in your terminal</span> needs the
+        <code>pythsol</code> CLI and its toolchain.
+      </p>
       <div class="cards reveal">
         <section class="card">
           <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-shield"/></svg>
+          <span class="tag tag-web">on this site</span>
           <h3>Checked, not executed</h3>
           <p class="note">
             The site parses your AST and type-checks accounts, seeds, and
-            lamports — your Python is never executed by the playground.
+            lamports — your Python is never executed in the browser.
           </p>
         </section>
         <section class="card">
           <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-code"/></svg>
+          <span class="tag tag-cli">in your terminal</span>
           <h3>Native, not WASM</h3>
           <p class="note">
-            clang targets the Solana SBF backend directly, so the artifact is a
-            real deployable program with verifiable bytecode.
+            clang targets the Solana SBF backend directly, so
+            <code>pythsol build</code> produces a real, deployable program with
+            verifiable bytecode.
           </p>
         </section>
         <section class="card">
           <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-idl"/></svg>
+          <span class="tag tag-web">on this site</span>
+          <span class="tag tag-cli">in your terminal</span>
           <h3>IDL + client included</h3>
           <p class="note">
-            Every build emits an Anchor-style IDL and a solders client — read
-            both in the playground's result tabs.
+            Every build emits an Anchor-style IDL and a solders client. Show
+            them in the playground's result tabs, or let
+            <code>pythsol build</code> write them to disk.
           </p>
         </section>
         <section class="card">
           <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-test"/></svg>
+          <span class="tag tag-cli">in your terminal</span>
           <h3>LiteSVM tests</h3>
           <p class="note">
-            <code>pythsol init</code> writes a pytest suite that runs the real
-            bytecode in-process with LiteSVM.
+            <code>pythsol test</code> runs the real bytecode in-process with
+            LiteSVM — no validator, no network, no RPC cost.
           </p>
         </section>
         <section class="card">
           <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-tools"/></svg>
+          <span class="tag tag-cli">in your terminal</span>
           <h3>Workflow tools</h3>
           <p class="note">
-            Faucet, deploy, wallet, verify, and profiling ship in the CLI —
-            no extra glue is needed.
+            Faucet, deploy, wallet, verify, port, and profiling ship in the
+            CLI — no extra glue is needed.
           </p>
         </section>
         <section class="card">
           <svg class="pic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chain"/></svg>
+          <span class="tag tag-web">language</span>
           <h3>Solana-native types</h3>
           <p class="note">
             PDAs with seeds, token and ATA CPI guards, lamport moves, and data
@@ -188,36 +224,246 @@ def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
         </section>
       </div>
 
-      <h2>Programs to learn from</h2>
-      <div class="ribbon reveal">
-        <a href="/docs/tutorial-counter">counter</a>
-        <a href="/docs/language">ledger</a>
-        <a href="/docs/tutorial-vault">vault</a>
-        <a href="/docs/tutorial-escrow">escrow</a>
-        <a class="soft" href="/playground">try them in the playground</a>
+      <section class="try reveal" aria-label="Try it in the browser">
+        <div class="try-copy">
+          <h2>Try it in the browser</h2>
+          <p>
+            No install. Pick an example, run <b>Check</b> for
+            <code>PSxxxx</code> diagnostics with file, line, and column, then
+            open the tabs to read the generated C, the IDL, and the solders
+            client. Nothing on the page runs your Python.
+          </p>
+          <div class="actions">
+            <a href="/playground">Open the Playground</a>
+            <a class="quiet" href="/docs/playground">Playground guide</a>
+          </div>
+        </div>
+        <div class="try-mock" aria-hidden="true">
+          <div class="mock-pane">
+            <h4>program.py — you write</h4>
+            <div class="mock-code">counter.count += by</div>
+          </div>
+          <div class="mock-pane">
+            <h4>Result — compiler output</h4>
+            <div class="mock-tabs">
+              <b class="on">C</b><b>IDL</b><b>Client</b><b class="ghost">Copy</b>
+            </div>
+            <div class="mock-code">rt_fail_log(ERR_COUNTERERROR_UNAUTHORIZED, ...)</div>
+          </div>
+        </div>
+      </section>
+
+      <h2>Learn from working programs</h2>
+      <p class="note">
+        Four examples ship with tests written against the real bytecode — read
+        them locally or follow the walkthroughs.
+      </p>
+      <div class="examples reveal">
+        <section class="example">
+          <div class="example-head">
+            <h3>Counter</h3>
+            <span class="tag tag-web">start here</span>
+          </div>
+          <p class="note">One PDA. initialize stores the authority. increment adds a u64 when the signer matches.</p>
+          <div class="chips">
+            <code>account</code><code>pda</code><code>require</code><code>error</code>
+          </div>
+          <p class="links">
+            <a href="/docs/tutorial-counter">Walkthrough</a>
+            <a href="/examples/counter">Source</a>
+          </p>
+        </section>
+        <section class="example">
+          <div class="example-head">
+            <h3>Ledger</h3>
+            <span class="tag tag-web">FixedArray</span>
+          </div>
+          <p class="note">FixedArray of four u64 slots, a deposit, an if/else apply, and a for-range fill.</p>
+          <div class="chips">
+            <code>FixedArray</code><code>if</code><code>for</code>
+          </div>
+          <p class="links">
+            <a href="/docs/language">Language page</a>
+            <a href="/examples/ledger">Source</a>
+          </p>
+        </section>
+        <section class="example">
+          <div class="example-head">
+            <h3>Vault</h3>
+            <span class="tag tag-web">lamports</span>
+          </div>
+          <p class="note">Lamport PDA. deposit uses system_transfer. close returns the lamports to the authority.</p>
+          <div class="chips">
+            <code>Seeds</code><code>HasOne</code><code>CloseTo</code><code>system_transfer</code>
+          </div>
+          <p class="links">
+            <a href="/docs/tutorial-vault">Walkthrough</a>
+            <a href="/examples/vault">Source</a>
+          </p>
+        </section>
+        <section class="example">
+          <div class="example-head">
+            <h3>Escrow</h3>
+            <span class="tag tag-web">two parties</span>
+          </div>
+          <p class="note">One lamport deal. make funds the PDA, take pays the maker and closes to the taker, cancel closes to the maker.</p>
+          <div class="chips">
+            <code>Seeds</code><code>CloseTo</code><code>system_transfer</code>
+          </div>
+          <p class="links">
+            <a href="/docs/tutorial-escrow">Walkthrough</a>
+            <a href="/examples/escrow">Source</a>
+          </p>
+        </section>
       </div>
 
-      <h2>Pick your road</h2>
-      <div class="steps reveal">
-        <section class="step">
-          <h3>Try ideas in the browser</h3>
-          <a href="/playground">Open the Playground</a>
-          <p class="note">Check types, seeds, and lamports flow; read the generated C, IDL, and client.</p>
-        </section>
-        <section class="step">
-          <h3>Build locally, deploy to Devnet</h3>
-          <a href="/docs/quickstart">Follow the Quickstart</a>
-          <p class="note"><code>pythsol build</code>, then <code>pythsol deploy</code>.</p>
-        </section>
+      <section class="reveal panel quickstart">
+        <h2>Local development</h2>
+        <div class="qs-grid">
+          <div>
+            <h3 class="pane-label">Six commands from a fresh checkout</h3>
+            <pre>git clone https://github.com/PythSol/pythsol
+cd pythsol
+pip install -e ".[test]"
+pythsol init app --template counter
+cd app
+pythsol check programs/app.py
+pythsol test
+pythsol build</pre>
+          </div>
+          <div class="qs-facts">
+            <p class="note"><b>Python 3.11+</b>. Nothing else for <code>check</code> and <code>test</code>.</p>
+            <p class="note"><code>pythsol test</code> runs the built bytecode in LiteSVM, in-process.</p>
+            <p class="note"><code>pythsol build</code> needs the SBF platform tools —
+            <code>pythsol doctor</code> names exactly what is missing on your machine.</p>
+            <p><a href="/docs/quickstart">Full quickstart</a> → <a href="/docs/cli">CLI reference</a></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="reveal panel trust">
+        <div class="trust-grid">
+          <div>
+            <h3>What PythSol is</h3>
+            <ul class="plus">
+              <li>A typed Python subset that a compiler can lower to C and native SBF bytecode.</li>
+              <li>A checker with stable <code>PSxxxx</code> diagnostics that carry file, line, and column.</li>
+              <li>A generator for an Anchor-style IDL, a solders client, and a build manifest.</li>
+              <li>A test runner — real bytecode in LiteSVM, offline and fast.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>What it isn't</h3>
+            <ul class="minus">
+              <li>Not all of Python — no async, no comprehensions, no f-strings, no stdlib imports on-chain.</li>
+              <li>Not an interpreter: the site parses and type-checks, it never executes your Python.</li>
+              <li>No in-browser SBF compile — <code>.so</code> builds run where Solana's clang lives (your machine or Docker).</li>
+              <li>Not on PyPI yet — install from the repository.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <h2 id="faq">Questions worth asking</h2>
+      <div class="faq reveal">
+        <details>
+          <summary>Does this site run my Python?</summary>
+          <p class="note">
+            No. The playground sends your source to a checker that parses it
+            and reports <code>PSxxxx</code> diagnostics. Emitting C is a pure
+            transformation of the checked AST. Compiling to <code>.so</code>
+            happens only on a machine with the SBF tools — loopback
+            <code>pythsol serve</code>, Docker, or your workstation.
+          </p>
+        </details>
+        <details>
+          <summary>What's in the typed subset?</summary>
+          <p class="note">
+            Annotated integers <code>u8</code>–<code>u128</code> and
+            <code>i8</code>–<code>i128</code>, <code>bool</code>,
+            <code>Pubkey</code>, <code>Signer</code>,
+            <code>Mut</code>/<code>Init</code>/<code>Account</code>,
+            <code>FixedArray</code>, <code>Option</code>,
+            <code>FixedString</code>, capacity-carrying
+            <code>Vec[T, N]</code>, unit <code>@enum</code> with
+            <code>match</code>, <code>@struct</code>,
+            <code>@event</code> + <code>emit</code>, plain helpers, and
+            <code>if</code>/<code>while</code>/<code>for</code> over
+            <code>range</code>. Compiler-known calls are
+            <code>require</code>, <code>len</code>, <code>range</code>,
+            <code>emit</code>, <code>system_transfer</code>,
+            <code>token_transfer</code>, <code>token2022_transfer</code>,
+            <code>ata_create</code>, and the width casts. Stdlib and
+            third-party imports are refused. Full details on the
+            <a href="/docs/language">Language page</a>.
+          </p>
+        </details>
+        <details>
+          <summary>What does <code>pythsol build</code> write?</summary>
+          <p class="note">
+            The generated C, the native SBF <code>.so</code>, an Anchor-style
+            IDL, a solders client, and a <code>manifest.json</code> that ties
+            them together. Rebuilds are cached and byte-identical for the same
+            source.
+          </p>
+        </details>
+        <details>
+          <summary>How do tests run without a validator?</summary>
+          <p class="note">
+            <code>pythsol test</code> executes the real program bytecode
+            in-process through LiteSVM — no validator, no RPC, no airdrop. The
+            four shipped examples all pass.
+          </p>
+        </details>
+        <details>
+          <summary>Can I deploy to mainnet?</summary>
+          <p class="note">
+            <code>pythsol deploy</code> defaults to devnet. The CLI refuses
+            mainnet unless you pass <code>--yes</code>, and the faucet never
+            touches it. <code>pythsol verify</code> compares the on-chain
+            bytecode against your local <code>.so</code> by hash.
+          </p>
+        </details>
       </div>
     </main>
+
     <footer>
-      PythSol 0.1.0 — the typed-Python subset for Solana.
-      <a href="https://github.com/PythSol/pythsol" target="_blank" rel="noopener">Source</a> ·
-      <a href="/docs/changelog">Changelog</a> ·
-      <a href="/docs/roadmap">Roadmap</a> ·
-      <a href="/docs">Docs</a>.
+      <div class="foot-grid">
+        <div>
+          <p class="foot-brand"><span class="po">Pyth</span><span class="so">Sol</span> 0.1.0</p>
+          <p class="note">
+            A typed Python subset for Solana programs — checked, lowered to C,
+            compiled to native SBF.
+          </p>
+          <p class="note">Not on PyPI yet.</p>
+        </div>
+        <nav class="foot-col" aria-label="Documentation">
+          <h3>Docs</h3>
+          <a href="/docs/quickstart">Quickstart</a>
+          <a href="/docs/language">Language</a>
+          <a href="/docs/accounts">Accounts</a>
+          <a href="/docs/errors">Errors</a>
+          <a href="/docs/testing">Testing</a>
+        </nav>
+        <nav class="foot-col" aria-label="Build and ship">
+          <h3>Build and ship</h3>
+          <a href="/docs/cli">CLI reference</a>
+          <a href="/docs/client">Client</a>
+          <a href="/docs/troubleshooting">Troubleshooting</a>
+          <a href="/docs/playground">Playground guide</a>
+          <a href="/playground">Open the Playground</a>
+        </nav>
+        <nav class="foot-col" aria-label="Project">
+          <h3>Project</h3>
+          <a href="https://github.com/PythSol/pythsol" target="_blank" rel="noopener">GitHub — source</a>
+          <a href="/docs/architecture">Architecture</a>
+          <a href="/docs/security">Security</a>
+          <a href="/docs/changelog">Changelog</a>
+          <a href="/docs/roadmap">Roadmap</a>
+        </nav>
+      </div>
     </footer>
+
     <script>
       if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         const ob = new IntersectionObserver(function (entries) {
