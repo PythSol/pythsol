@@ -265,6 +265,8 @@ test or a real host.
 - Landing cover + sticky stack (2026-11-02): `.landing-page` scopes the
   full-cover dark hero (`min-height: calc(100svh - var(--nav-h))`), the
   gradient `.hero-accent`, the glass `.landing-nav`, and the scroll cue.
+  The landing nav uses a 1200px inner rail aligned with the hero grid:
+  mark left, Docs/Playground centered, GitHub right; it wraps below 380px.
   The pipeline, Python/C split, and byte map are `.stack-card`s inside
   `.stack-scene`; they pin only at `(min-width: 861px) and (min-height:
   720px)` with motion allowed. The inline controller in `landing.html`

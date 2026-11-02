@@ -62,18 +62,48 @@ nav .mark .so {
 }
 nav a.item { color: var(--muted); text-decoration: none; font-weight: 600; }
 nav a.item:hover, nav a.item[aria-current="page"] { color: var(--blue-strong); }
-/* Landing keeps the dark cover uninterrupted: glass nav over the neon art. */
+/* Landing keeps the dark cover uninterrupted: glass nav over the neon art.
+   The inner rails match the 1200px hero grid, so the mark never floats out
+   on wide screens; links stay centered and GitHub anchors the right side. */
 nav.landing-nav {
+  display: block;
+  padding: 0;
   min-height: var(--nav-h);
   background: rgba(6, 10, 18, 0.78);
   border-bottom: 1px solid rgba(255, 255, 255, 0.16);
   -webkit-backdrop-filter: saturate(140%) blur(14px);
   backdrop-filter: saturate(140%) blur(14px);
 }
-nav.landing-nav .mark { color: #fff; }
+nav.landing-nav .nav-inner {
+  width: min(1200px, 100% - 48px);
+  min-height: var(--nav-h);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 18px;
+}
+nav.landing-nav .nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(20px, 2.4vw, 34px);
+}
+nav.landing-nav .mark { justify-self: start; color: #fff; }
+nav.landing-nav .gh { justify-self: end; }
 nav.landing-nav a.item { color: #c2cedf; }
 nav.landing-nav a.item:hover,
 nav.landing-nav a.item[aria-current="page"] { color: #fff; }
+@media (max-width: 380px) {
+  nav.landing-nav .nav-inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 16px;
+    padding: 10px 0;
+  }
+  nav.landing-nav .nav-links { gap: 16px; }
+}
 .cmd-card {
   max-width: 34rem;
   margin-top: 18px;

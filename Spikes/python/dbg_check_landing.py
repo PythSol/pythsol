@@ -16,6 +16,8 @@ checks = [
     # Full-cover hero + sticky story stack
     'class="landing-page"',
     'class="landing-nav"',
+    'class="nav-inner"',
+    'class="nav-links"',
     'class="hero-accent"',
     'class="scroll-cue"',
     'class="stack-scene"',

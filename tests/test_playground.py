@@ -94,6 +94,8 @@ def test_playground_check_emit_and_rejects_secrets(playground: str) -> None:
     assert b"glow-blue" in site_bg
     assert b'class="landing-page"' in html
     assert b'class="landing-nav"' in html
+    assert b'class="nav-inner"' in html
+    assert b'class="nav-links"' in html
     assert b'class="hero hero-landing"' in html
     assert b'class="hero-accent"' in html
     assert b'class="scroll-cue"' in html
