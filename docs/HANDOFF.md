@@ -262,6 +262,19 @@ test or a real host.
   (`pythsol-mark.svg` and `pythsol-mark-512.png`); the 32px favicon pair
   remains the source of truth for the letterform, so update the mark when
   the favicon changes.
+- Landing cover + sticky stack (2026-11-02): `.landing-page` scopes the
+  full-cover dark hero (`min-height: calc(100svh - var(--nav-h))`), the
+  gradient `.hero-accent`, the glass `.landing-nav`, and the scroll cue.
+  The pipeline, Python/C split, and byte map are `.stack-card`s inside
+  `.stack-scene`; they pin only at `(min-width: 861px) and (min-height:
+  720px)` with motion allowed. The inline controller in `landing.html`
+  sets `--hero-p` / `--stack-p`; under `prefers-reduced-motion: reduce` it
+  removes them, and the cards stay in normal flow. Docs and playground
+  keep the plain light `nav` / `.hero`; landing rules are all scoped.
+  `--stack-top` is the shared pin line (`nav + 20px`) and card spacing is
+  `clamp(28px, 10vh, 100px)` — adjust both with the nav height. Stack
+  checks live in `dbg_check_landing.py`, `dbg_check_live_site.py`, and
+  `tests/test_playground.py`.
 - `button[hidden] { display: none; }` and `.tabs[hidden] { display: none; }`
   are required: author `display: inline-flex` / `flex` beats the UA hidden
   rule, so the Compile button or output tabs would otherwise reappear.

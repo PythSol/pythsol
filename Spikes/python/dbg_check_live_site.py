@@ -44,6 +44,14 @@ landing_checks: list[str] = [
     # Landing-only dark hero + supplied backdrop
     'class="hero hero-landing"',
     'href="/hero-bg.webp"',
+    # Full-cover hero + sticky story stack
+    'class="landing-page"',
+    'class="landing-nav"',
+    'class="hero-accent"',
+    'class="scroll-cue"',
+    'class="stack-scene"',
+    'class="panel stack-card"',
+    "--stack-p",
     "not on PyPI yet",
     "checked at every step",
     "counter.c — excerpt",
@@ -156,6 +164,14 @@ site_checks = [
     ".cmd-line",
     ".hero.hero-landing",  # dark backdrop scoped to the landing hero
     'url("/hero-bg.webp")',  # supplied neon art
+    ".landing-nav",  # glass nav over the cover
+    ".hero-accent",  # gradient "Python."
+    ".stack-scene",  # sticky story stack
+    ".stack-card",  # pinned story cards
+    "position: sticky",  # stack pins on desktop
+    "top: var(--stack-top)",  # shared pin line below the nav
+    "--stack-p",  # scroll progress supplied by landing.html
+    "min-height: calc(100svh - var(--nav-h))",  # full-cover hero
     "body::before",  # site-wide ambient canvas layer
     'url("/site-bg.svg")',  # generated vector backdrop
 ]

@@ -81,11 +81,27 @@ def test_playground_check_emit_and_rejects_secrets(playground: str) -> None:
     assert site_css_status == 200
     assert b"body::before" in site_css
     assert b'url("/site-bg.svg")' in site_css
+    assert b".landing-nav" in site_css
+    assert b".hero-accent" in site_css
+    assert b".stack-scene" in site_css
+    assert b".stack-card" in site_css
+    assert b"top: var(--stack-top)" in site_css
+    assert b"min-height: calc(100svh - var(--nav-h))" in site_css
+    assert b"--stack-p" in site_css
     site_bg_status, site_bg = _get(playground + "/site-bg.svg")
     assert site_bg_status == 200
     assert site_bg.startswith(b"<svg")
     assert b"glow-blue" in site_bg
+    assert b'class="landing-page"' in html
+    assert b'class="landing-nav"' in html
     assert b'class="hero hero-landing"' in html
+    assert b'class="hero-accent"' in html
+    assert b'class="scroll-cue"' in html
+    assert b'class="stack-scene"' in html
+    assert b'class="panel stack-card"' in html
+    assert b'class="split stack-card"' in html
+    assert b'class="bytes stack-card"' in html
+    assert b"--stack-p" in html
     assert b'href="/hero-bg.webp"' in html
     hero_status, hero_bg = _get(playground + "/hero-bg.webp")
     assert hero_status == 200

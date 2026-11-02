@@ -11,6 +11,8 @@
   --yellow: #ffd43b;
   --purple: #9945ff;
   --mint: #14f195;
+  --nav-h: 64px;
+  --stack-top: calc(var(--nav-h) + 20px);
 }
 * { box-sizing: border-box; }
 html { background: var(--bg); }
@@ -60,6 +62,18 @@ nav .mark .so {
 }
 nav a.item { color: var(--muted); text-decoration: none; font-weight: 600; }
 nav a.item:hover, nav a.item[aria-current="page"] { color: var(--blue-strong); }
+/* Landing keeps the dark cover uninterrupted: glass nav over the neon art. */
+nav.landing-nav {
+  min-height: var(--nav-h);
+  background: rgba(6, 10, 18, 0.78);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  backdrop-filter: saturate(140%) blur(14px);
+}
+nav.landing-nav .mark { color: #fff; }
+nav.landing-nav a.item { color: #c2cedf; }
+nav.landing-nav a.item:hover,
+nav.landing-nav a.item[aria-current="page"] { color: #fff; }
 .cmd-card {
   max-width: 34rem;
   margin-top: 18px;
@@ -105,6 +119,7 @@ nav a.item:hover, nav a.item[aria-current="page"] { color: var(--blue-strong); }
   border: 1px solid var(--border);
 }
 .wrap { max-width: 980px; margin: 0 auto; padding: 28px 24px 48px; }
+.wrap.landing-main { max-width: 1080px; }
 .split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -222,6 +237,49 @@ h2 { margin: 32px 0 8px; }
 }
 .reveal.in { opacity: 1; transform: none; }
 
+/* Sticky story stack: pipeline -> code pair -> account layout. On desktop
+   each card pins and the next slides over it; scroll progress is set on the
+   card by landing.html as --stack-p. */
+.stack-scene { position: relative; padding: 8px 0 4px; scroll-margin-top: calc(var(--nav-h) + 12px); }
+.stack-card { position: relative; z-index: 1; }
+.stack-card + .stack-card { margin-top: 18px; }
+.stack-card.split,
+.stack-card.bytes {
+  padding: 18px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 26px 60px -46px rgba(27, 36, 48, 0.45);
+}
+.stack-card.bytes { margin: 0; }
+.stack-card.split { gap: 14px; }
+.stack-card.panel { border-radius: 16px; }
+.stack-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #0b1220;
+  opacity: 0;
+  pointer-events: none;
+}
+@media (min-width: 861px) and (min-height: 720px) and (prefers-reduced-motion: no-preference) {
+  .stack-scene { padding-bottom: 16vh; }
+  .stack-card {
+    position: sticky;
+    top: var(--stack-top);
+    transform-origin: 50% 0;
+    transform: translate3d(0, calc(var(--stack-p, 0) * -22px), 0) scale(calc(1 - var(--stack-p, 0) * 0.05));
+    box-shadow: 0 30px 70px -48px rgba(20, 34, 52, 0.55);
+    will-change: transform;
+  }
+  .stack-card + .stack-card { margin-top: clamp(28px, 10vh, 100px); }
+  .stack-card::after { opacity: calc(var(--stack-p, 0) * 0.22); }
+  .stack-card:nth-child(1) { z-index: 1; }
+  .stack-card:nth-child(2) { z-index: 2; }
+  .stack-card:nth-child(3) { z-index: 3; }
+}
+
 /* Small uppercase label above panes and groups */
 .pane-label {
   font-size: 12.5px;
@@ -309,6 +367,90 @@ h2 { margin: 32px 0 8px; }
 .hero.hero-landing .hero-viz figcaption {
   color: #b6c3d6;
   text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
+}
+
+/* Full-cover landing hero: the neon art fills the first viewport below the
+   glass nav, with the headline scaled up to carry the cover. */
+.hero.hero-landing {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: calc(100vh - var(--nav-h));
+  min-height: calc(100svh - var(--nav-h));
+  padding: clamp(36px, 6vh, 76px) 24px clamp(44px, 7vh, 88px);
+}
+.hero.hero-landing .hero-grid {
+  width: 100%;
+  max-width: 1200px;
+  padding: 0;
+  gap: clamp(28px, 4.5vw, 68px);
+}
+.hero.hero-landing h1 {
+  max-width: 12ch;
+  margin: 0 0 18px;
+  font-size: clamp(46px, 5.4vw, 78px);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+.hero-accent {
+  background: linear-gradient(95deg, var(--yellow) 0%, var(--mint) 78%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@media (forced-colors: active) {
+  .hero-accent {
+    background: none;
+    color: CanvasText;
+    -webkit-text-fill-color: CanvasText;
+  }
+}
+.hero.hero-landing .hero-copy > p:first-of-type {
+  max-width: 36rem;
+  font-size: clamp(16px, 1.35vw, 19px);
+  line-height: 1.55;
+}
+.hero.hero-landing .actions { margin-top: 26px; }
+.hero.hero-landing .cmd-card { margin-top: 22px; max-width: 36rem; }
+.hero.hero-landing .hero-viz pre { font-size: 12px; }
+
+/* Scroll cue at the base of the cover */
+.scroll-cue {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  gap: 8px;
+  margin-top: clamp(16px, 3vh, 30px);
+  color: #aebbd0;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.scroll-cue svg { width: 16px; height: 16px; color: var(--mint); }
+.scroll-cue:hover { color: #fff; }
+@media (prefers-reduced-motion: no-preference) {
+  html.landing-page { scroll-behavior: smooth; }
+  .scroll-cue svg { animation: cue-bob 1.8s ease-in-out infinite; }
+}
+@keyframes cue-bob {
+  0%, 100% { transform: translateY(-2px); }
+  50% { transform: translateY(3px); }
+}
+
+/* Scroll-linked cover parallax: the copy lifts and dims as the page moves on. */
+@media (min-width: 861px) and (prefers-reduced-motion: no-preference) {
+  .hero.hero-landing .hero-copy {
+    transform: translate3d(0, calc(var(--hero-p, 0) * -46px), 0);
+    opacity: calc(1 - var(--hero-p, 0) * 0.42);
+  }
+  .hero.hero-landing .hero-viz {
+    transform: translate3d(0, calc(var(--hero-p, 0) * -26px), 0);
+  }
+  .hero.hero-landing {
+    background-position: 0 0, 0 0, center calc(50% + var(--hero-p, 0) * 5%);
+  }
 }
 
 /* Where-it-runs tags */
@@ -727,6 +869,16 @@ footer .ico {
       url("/hero-bg.webp") 66% 24% / cover no-repeat,
       #060a12;
   }
+  .hero.hero-landing {
+    min-height: auto;
+    padding: 34px 20px 44px;
+  }
+  .hero.hero-landing .hero-grid { padding: 0; }
+  .hero.hero-landing h1 {
+    max-width: 15ch;
+    font-size: clamp(42px, 11vw, 58px);
+  }
+  .scroll-cue { display: none; }
 }
 @media (max-width: 800px) {
   .split, .cards, .steps, .examples { grid-template-columns: minmax(0, 1fr); }

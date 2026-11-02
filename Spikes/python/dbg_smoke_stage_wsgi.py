@@ -74,7 +74,22 @@ st, apple, _ = run("/apple-touch-icon.png")
 st, hero_bg, _ = run("/hero-bg.webp")
 st, site_bg, _ = run("/site-bg.svg")
 st, docs_bg, docs_hdrs = run("/docs/site-bg.svg")
-print("landing headline OK:", b"Write Solana programs in Python." in raw)
+headline_ok = b"Write Solana programs in" in raw and (
+    b'<span class="hero-accent">Python.</span>' in raw
+)
+stack_ok = all(
+    marker in raw
+    for marker in (
+        b'class="landing-page"',
+        b'class="landing-nav"',
+        b'class="scroll-cue"',
+        b'class="stack-scene"',
+        b'class="panel stack-card"',
+        b"--stack-p",
+    )
+)
+print("landing headline OK:", headline_ok)
+print("landing cover/stack OK:", stack_ok)
 print("landing gradient span OK:", b'class="so"' in raw)
 print("landing hero bg OK:", b'class="hero hero-landing"' in raw and b'href="/hero-bg.webp"' in raw)
 print("favicon svg OK:", fav.startswith(b"<svg"))

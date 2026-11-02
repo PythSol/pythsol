@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="landing-page">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -45,7 +45,7 @@
       </defs>
     </svg>
 
-    <nav>
+    <nav class="landing-nav">
       <a class="mark" href="/"><span class="po">Pyth</span><span class="so">Sol</span></a>
       <a class="item" href="/docs">Docs</a>
       <a class="item" href="/playground">Playground</a>
@@ -55,7 +55,7 @@
     <section class="hero hero-landing">
       <div class="hero-grid">
         <div class="hero-copy">
-          <h1>Write Solana programs in Python.</h1>
+          <h1>Write Solana programs in <span class="hero-accent">Python.</span></h1>
           <p>
             PythSol checks a typed Python subset, lowers it to C, and compiles
             native SBF bytecode — with an Anchor-style IDL, a solders client,
@@ -88,10 +88,15 @@
           </figcaption>
         </figure>
       </div>
+      <a class="scroll-cue" href="#how" aria-label="Scroll to the compiler pipeline">
+        <span>Scroll to the pipeline</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
     </section>
 
-    <main class="wrap">
-      <section class="reveal panel">
+    <main class="wrap landing-main">
+      <div class="stack-scene" id="how">
+      <section class="panel stack-card">
         <h2><svg class="h2-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-code"/></svg>From .py to .so, checked at every step</h2>
         <p class="note">
           Each stage draws on the same checked definition of your program — no
@@ -130,7 +135,7 @@
         </div>
       </section>
 
-      <div class="split reveal">
+      <div class="split stack-card">
         <section>
           <h3 class="pane-label">You write — from <code>examples/counter/programs/counter.py</code></h3>
           <div class="chrome"><span></span><span></span><span></span><b>counter.py</b></div>
@@ -166,7 +171,7 @@ def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
         </section>
       </div>
 
-      <figure class="bytes reveal">
+      <figure class="bytes stack-card">
         <figcaption class="pane-label">The counter account, as increment reads it</figcaption>
         <div
           class="bytebar"
@@ -190,6 +195,7 @@ def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
           loads <code>count</code>, and <code>RT_OFF_COUNTER_BUMP</code> is 48.
         </p>
       </figure>
+      </div>
 
       <p class="note">
         Both chunks are real: the Python lines are the <code>increment</code>
@@ -567,6 +573,62 @@ pythsol build</pre>
       } else {
         document.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("in"); });
       }
+
+      /* Scroll-linked cover + sticky card stack. The CSS handles sticky only on
+         desktop; JS only supplies progress, and does nothing under reduced motion. */
+      (function () {
+        var hero = document.querySelector(".hero-landing");
+        var scene = document.querySelector(".stack-scene");
+        if (!hero || !scene) {
+          return;
+        }
+        var cards = Array.prototype.slice.call(scene.querySelectorAll(".stack-card"));
+        var desktop = window.matchMedia("(min-width: 861px) and (min-height: 720px)");
+        var motion = window.matchMedia("(prefers-reduced-motion: no-preference)");
+        var ticking = false;
+
+        function clamp01(value) {
+          return value < 0 ? 0 : value > 1 ? 1 : value;
+        }
+
+        function update() {
+          ticking = false;
+          if (motion.matches && desktop.matches) {
+            var heroRect = hero.getBoundingClientRect();
+            var cover = clamp01(-heroRect.top / Math.max(1, heroRect.height));
+            hero.style.setProperty("--hero-p", cover.toFixed(3));
+          } else {
+            hero.style.removeProperty("--hero-p");
+          }
+          if (!cards.length || !motion.matches || !desktop.matches) {
+            cards.forEach(function (card) { card.style.removeProperty("--stack-p"); });
+            return;
+          }
+          var top = parseFloat(window.getComputedStyle(cards[0]).top) || 0;
+          for (var i = 0; i < cards.length - 1; i++) {
+            var nextTop = cards[i + 1].getBoundingClientRect().top;
+            var cardHeight = Math.max(1, cards[i].offsetHeight);
+            var overlap = (top + cardHeight - nextTop) / cardHeight;
+            cards[i].style.setProperty("--stack-p", clamp01(overlap).toFixed(3));
+          }
+          cards[cards.length - 1].style.removeProperty("--stack-p");
+        }
+
+        function schedule() {
+          if (!ticking) {
+            ticking = true;
+            window.requestAnimationFrame(update);
+          }
+        }
+
+        window.addEventListener("scroll", schedule, { passive: true });
+        window.addEventListener("resize", schedule);
+        if (motion.addEventListener) {
+          motion.addEventListener("change", schedule);
+          desktop.addEventListener("change", schedule);
+        }
+        update();
+      })();
 
       /* Copy buttons: the label confirms, then restores. */
       function wireCopy(buttonId, readText) {

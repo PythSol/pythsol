@@ -13,6 +13,16 @@ checks = [
     "not on PyPI yet",
     'href="/playground"',
     'href="/docs/quickstart"',
+    # Full-cover hero + sticky story stack
+    'class="landing-page"',
+    'class="landing-nav"',
+    'class="hero-accent"',
+    'class="scroll-cue"',
+    'class="stack-scene"',
+    'class="panel stack-card"',
+    'class="split stack-card"',
+    'class="bytes stack-card"',
+    "--stack-p",
     # Favicon formats + cache-busted SVG link
     'href="/favicon.ico"',
     'href="/favicon.svg?v=2"',
