@@ -41,6 +41,9 @@ landing_checks: list[str] = [
     'href="/favicon.svg?v=2"',
     'href="/favicon-32.png"',
     'href="/apple-touch-icon.png"',
+    # Landing-only dark hero + supplied backdrop
+    'class="hero hero-landing"',
+    'href="/hero-bg.webp"',
     "not on PyPI yet",
     "checked at every step",
     "counter.c — excerpt",
@@ -151,6 +154,8 @@ site_checks = [
     ".cmd-card",  # hero install commands
     ".cmd-pre",
     ".cmd-line",
+    ".hero.hero-landing",  # dark backdrop scoped to the landing hero
+    'url("/hero-bg.webp")',  # supplied neon art
 ]
 missing_site = [c for c in site_checks if c not in site]
 print("site.css:", "all present" if not missing_site else "MISSING")
@@ -183,9 +188,16 @@ for m in fav_missing:
 ico = get_bytes("/favicon.ico")
 png32 = get_bytes("/favicon-32.png")
 apple = get_bytes("/apple-touch-icon.png")
+hero_bg = get_bytes("/hero-bg.webp")
 print("favicon ico:", "OK" if ico.startswith(b"\x00\x00\x01\x00") else "PROBLEM")
 print("favicon png:", "OK" if png32.startswith(b"\x89PNG") else "PROBLEM")
 print("apple touch icon:", "OK" if apple.startswith(b"\x89PNG") else "PROBLEM")
+print(
+    "hero bg webp:",
+    "OK" if hero_bg.startswith(b"RIFF") and hero_bg[8:12] == b"WEBP" else "PROBLEM",
+    len(hero_bg),
+    "bytes",
+)
 
 # The docs copy must be byte-identical to the route copy it shadows.
 try:

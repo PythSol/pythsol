@@ -6,8 +6,10 @@ import pathlib
 h = pathlib.Path(r"target\vercel_stage\landing.html").read_text(encoding="utf-8")
 checks = [
     # Hero + install honesty
+    'class="hero hero-landing"',
     'class="hero-grid"',
     "hero-viz",
+    'href="/hero-bg.webp"',
     "not on PyPI yet",
     'href="/playground"',
     'href="/docs/quickstart"',

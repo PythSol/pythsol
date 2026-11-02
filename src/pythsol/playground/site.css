@@ -97,7 +97,7 @@ nav a.item:hover, nav a.item[aria-current="page"] { color: var(--blue-strong); }
 .wrap { max-width: 980px; margin: 0 auto; padding: 28px 24px 48px; }
 .split {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 16px;
 }
 pre, code {
@@ -256,6 +256,50 @@ h2 { margin: 32px 0 8px; }
 .viz-status b { color: #1a7f4b; }
 .viz-status span { color: var(--muted); }
 .hero-viz figcaption { margin-top: 8px; }
+
+/* Landing hero: the supplied neon art as a scrimmed backdrop.
+   Docs keeps the plain .hero, so every rule here needs hero-landing. */
+.hero.hero-landing {
+  position: relative;
+  isolation: isolate;
+  color: #fff;
+  background:
+    linear-gradient(90deg, rgba(6, 10, 18, 0.95) 0%, rgba(6, 10, 18, 0.9) 30%, rgba(6, 10, 18, 0.62) 60%, rgba(6, 10, 18, 0.42) 100%),
+    linear-gradient(180deg, rgba(6, 10, 18, 0.55) 0%, rgba(6, 10, 18, 0.15) 42%, rgba(6, 10, 18, 0.62) 100%),
+    url("/hero-bg.webp") center / cover no-repeat,
+    #060a12;
+}
+.hero.hero-landing::before { display: none; }
+.hero.hero-landing::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--yellow), var(--mint));
+}
+.hero.hero-landing h1 {
+  color: #fff;
+  text-shadow: 0 2px 22px rgba(0, 0, 0, 0.55);
+}
+.hero.hero-landing p { color: #c7d3e4; }
+.hero.hero-landing p.note { color: #a9b8cd; }
+.hero.hero-landing .actions a.quiet {
+  background: rgba(6, 10, 18, 0.45);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.55);
+}
+.hero.hero-landing .actions a.quiet:hover {
+  background: rgba(6, 10, 18, 0.7);
+  border-color: #fff;
+}
+.hero.hero-landing .hero-viz pre { color: var(--text); }
+.hero.hero-landing .hero-viz {
+  box-shadow: 0 30px 60px -34px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+.hero.hero-landing .hero-viz figcaption {
+  color: #b6c3d6;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
+}
 
 /* Where-it-runs tags */
 .tag {
@@ -664,12 +708,18 @@ footer .ico {
 .copy-cmd:focus-visible { outline: 2px solid var(--blue-strong); outline-offset: 2px; }
 
 @media (max-width: 860px) {
-  .hero-grid, .try, .qs-grid, .trust-grid { grid-template-columns: 1fr; }
+  .hero-grid, .try, .qs-grid, .trust-grid { grid-template-columns: minmax(0, 1fr); }
   .foot-grid { grid-template-columns: 1fr 1fr; }
   .artifacts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .hero.hero-landing {
+    background:
+      linear-gradient(180deg, rgba(6, 10, 18, 0.92) 0%, rgba(6, 10, 18, 0.82) 55%, rgba(6, 10, 18, 0.92) 100%),
+      url("/hero-bg.webp") 66% 24% / cover no-repeat,
+      #060a12;
+  }
 }
 @media (max-width: 800px) {
-  .split, .cards, .steps, .examples { grid-template-columns: 1fr; }
+  .split, .cards, .steps, .examples { grid-template-columns: minmax(0, 1fr); }
   .hero h1 { font-size: 30px; }
   .pipeline { grid-template-columns: 1fr; }
   .pipe { transform: rotate(90deg); margin: 2px auto; }

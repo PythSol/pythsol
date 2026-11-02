@@ -46,6 +46,7 @@ The public site, served by `pythsol serve` on `127.0.0.1:8765`:
 | `/docs` | Short docs that ship with the CLI |
 | `/playground` | Editor: Check, Show C, Compile .so |
 | `/site.css`, `/app.css`, `/app.js` | Assets. CSS is a file. Inline `<style>` is blocked by CSP `default-src 'self'`. |
+| `/hero-bg.webp` | Landing-only hero backdrop (optimized 1920px WebP). |
 
 `pythsol serve --public --host 0.0.0.0` is the hostable mode: check and emit
 only. Compile stays off until you also pass `--allow-compile` (the hosted
@@ -229,9 +230,9 @@ test or a real host.
 - Stage changes touch three places together: `deploy/vercel/index.py`
   routing table, the stage script's UI-file list, and the source file
   itself. The favicon files (`favicon.svg`, `favicon.ico`,
-  `favicon-32.png`, `apple-touch-icon.png`) are served through
-  `_UI_FILES`; forget any there and the stage ships without it. They are
-  also force-included in the wheel so `pythsol serve` can serve them.
+  `favicon-32.png`, `apple-touch-icon.png`) and `hero-bg.webp` are served
+  through `_UI_FILES`; forget any there and the stage ships without it. They
+  are also force-included in the wheel so `pythsol serve` can serve them.
 - The landing command box must stay installable: version 0.1.0 is NOT on
   PyPI, so the box teaches
   `pip install git+https://github.com/PythSol/pythsol.git` (wheel verified
@@ -241,8 +242,11 @@ test or a real host.
   (`c`, `idl`, `client`) — update the tabs if those keys change.
 - Site art is hand-written inline SVG/CSS: sprite icons (`<use href="#i-…">`),
   hero texture, the Counter byte map, build-artifact shelf, browser chrome,
-  and example tiles. No stock images, external fonts, or new asset files
-  (the stage script's file list is explicit). Motion sits behind
+  and example tiles. The one raster asset is `hero-bg.webp`, the supplied
+  neon art used only behind `.hero-landing` (preloaded, scrimmed, with the
+  light dot grid disabled there); it is served through `_UI_FILES` and
+  force-included in the wheel. No stock images, external fonts, or other new
+  asset files (the stage script's file list is explicit). Motion sits behind
   `prefers-reduced-motion: no-preference`. Keep shipped pages free of
   `style=` attributes: `pythsol serve` sends CSP `default-src 'self'`, so
   the byte-map proportions live in `.seg-*` classes, not per-element custom

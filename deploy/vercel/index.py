@@ -31,6 +31,7 @@ _UI_FILES: dict[str, str] = {
     "favicon.ico": "image/x-icon",
     "favicon-32.png": "image/png",
     "apple-touch-icon.png": "image/png",
+    "hero-bg.webp": "image/webp",
 }
 
 _PAGE_ROUTES: dict[str, str] = {

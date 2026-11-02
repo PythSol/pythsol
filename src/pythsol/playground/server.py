@@ -202,7 +202,10 @@ def make_handler(
 
         def do_GET(self) -> None:
             path = urlparse(self.path).path
-            if path in {"/", "/index.html"}:
+            if path == "/":
+                _send(self, 200, _asset("landing.html"), content_type="text/html; charset=utf-8")
+                return
+            if path == "/index.html":
                 _send(self, 200, _asset("index.html"), content_type="text/html; charset=utf-8")
                 return
             if path in {"/playground", "/playground.html"}:
@@ -241,6 +244,9 @@ def make_handler(
                 return
             if path == "/apple-touch-icon.png":
                 _send(self, 200, _asset("apple-touch-icon.png"), content_type="image/png")
+                return
+            if path == "/hero-bg.webp":
+                _send(self, 200, _asset("hero-bg.webp"), content_type="image/webp")
                 return
             if path == "/healthz":
                 _send(self, 200, {"ok": True, "compile": compile_enabled})

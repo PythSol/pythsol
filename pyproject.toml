@@ -57,6 +57,7 @@ pythsol = "pythsol.testing.plugin"
 "src/pythsol/playground/favicon.ico" = "pythsol/playground/favicon.ico"
 "src/pythsol/playground/favicon-32.png" = "pythsol/playground/favicon-32.png"
 "src/pythsol/playground/apple-touch-icon.png" = "pythsol/playground/apple-touch-icon.png"
+"src/pythsol/playground/hero-bg.webp" = "pythsol/playground/hero-bg.webp"
 
 [tool.ruff]
 line-length = 100

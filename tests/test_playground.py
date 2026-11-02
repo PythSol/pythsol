@@ -73,9 +73,15 @@ def test_playground_check_emit_and_rejects_secrets(playground: str) -> None:
     docs_status, docs = _get(playground + "/docs")
     assert docs_status == 200
     assert b"Quick start" in docs
+    assert b"hero-landing" not in docs
     css_status, css = _get(playground + "/app.css")
     assert css_status == 200
     assert b"--blue: #306998" in css
+    assert b'class="hero hero-landing"' in html
+    assert b'href="/hero-bg.webp"' in html
+    hero_status, hero_bg = _get(playground + "/hero-bg.webp")
+    assert hero_status == 200
+    assert hero_bg.startswith(b"RIFF") and hero_bg[8:12] == b"WEBP"
     fav_status, fav = _get(playground + "/favicon.svg")
     assert fav_status == 200
     assert b">P</text>" in fav and b">S</text>" in fav
