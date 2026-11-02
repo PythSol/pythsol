@@ -266,7 +266,9 @@ test or a real host.
   full-cover dark hero (`min-height: calc(100svh - var(--nav-h))`), the
   gradient `.hero-accent`, the glass `.landing-nav`, and the scroll cue.
   The landing nav uses a 1200px inner rail aligned with the hero grid:
-  mark left, Docs/Playground centered, GitHub right; it wraps below 380px.
+  mark left, Docs/Playground/$PS centered, X + GitHub right. Below 620px
+  the social labels collapse to icons; below 340px the links drop to a
+  second row (mark + icons, then Docs/Playground/$PS).
   The pipeline, Python/C split, and byte map are `.stack-card`s inside
   `.stack-scene`; they pin only at `(min-width: 861px) and (min-height:
   720px)` with motion allowed. The inline controller in `landing.html`
@@ -277,6 +279,23 @@ test or a real host.
   `clamp(28px, 10vh, 100px)` — adjust both with the nav height. Stack
   checks live in `dbg_check_landing.py`, `dbg_check_live_site.py`, and
   `tests/test_playground.py`.
+- Landing roadmap (2026-11-02): `#roadmap` ("What ships next.") sits
+  between the trust panel and the token card. It is milestone-ordered, not
+  calendar-based: `.milestone.done/.now/.next/.later` set the dot colors,
+  and `aria-current="step"` marks the in-progress item. Add or reorder
+  `<li class="milestone …">` rows only — do not introduce dates or
+  quarter labels. The nav center rail now reads Docs / Playground /
+  Roadmap / $PS; below 480px it drops to a second row under the mark and
+  social icons.
+- Landing token panel (2026-11-02): `#token` ("This is our token.") sits
+  after the trust panel and before the FAQ. `#token-ca` holds the mint;
+  the inline script unlocks `#copy-ca` only when the text is a 32–44 char
+  base58 address (`[1-9A-HJ-NP-Za-km-z]`), so replacing "Coming soon"
+  with the Pump.fun mint is the only edit needed for copying to work.
+  Then point `.token-buy` at `https://pump.fun/coin/<mint>` instead of the
+  Pump.fun home page. The nav X link is a placeholder (`https://x.com/`)
+  until the profile is live; update its href, aria-label, and title
+  together. Copy-funding copy must stay honest: fees pay development.
 - `button[hidden] { display: none; }` and `.tabs[hidden] { display: none; }`
   are required: author `display: inline-flex` / `flex` beats the UA hidden
   rule, so the Compile button or output tabs would otherwise reappear.

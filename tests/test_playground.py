@@ -96,6 +96,11 @@ def test_playground_check_emit_and_rejects_secrets(playground: str) -> None:
     assert b'class="landing-nav"' in html
     assert b'class="nav-inner"' in html
     assert b'class="nav-links"' in html
+    assert b'class="nav-end"' in html
+    assert b'id="i-x"' in html
+    assert b'href="https://x.com/"' in html
+    assert b'href="#token"' in html
+    assert b'href="#roadmap"' in html
     assert b'class="hero hero-landing"' in html
     assert b'class="hero-accent"' in html
     assert b'class="scroll-cue"' in html
@@ -103,6 +108,17 @@ def test_playground_check_emit_and_rejects_secrets(playground: str) -> None:
     assert b'class="panel stack-card"' in html
     assert b'class="split stack-card"' in html
     assert b'class="bytes stack-card"' in html
+    assert b'class="reveal panel token" id="token"' in html
+    assert b'class="reveal panel roadmap" id="roadmap"' in html
+    assert b'class="milestone now"' in html
+    assert b'aria-current="step"' in html
+    assert b'id="token-ca"' in html
+    assert b'id="copy-ca"' in html
+    assert b'href="https://pump.fun"' in html
+    assert b"Fees fund development" in html
+    assert b".token-grid" in site_css
+    assert b".milestones" in site_css
+    assert b"nav.landing-nav .nav-end" in site_css
     assert b"--stack-p" in html
     assert b'href="/hero-bg.webp"' in html
     hero_status, hero_bg = _get(playground + "/hero-bg.webp")

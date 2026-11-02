@@ -49,6 +49,11 @@ landing_checks: list[str] = [
     'class="landing-nav"',
     'class="nav-inner"',
     'class="nav-links"',
+    'class="nav-end"',
+    'id="i-x"',
+    'href="https://x.com/"',
+    'href="#token"',
+    'href="#roadmap"',
     'class="hero-accent"',
     'class="scroll-cue"',
     'class="stack-scene"',
@@ -71,6 +76,13 @@ landing_checks: list[str] = [
     "pythsol doctor",
     "What PythSol is",
     'id="faq"',
+    'class="reveal panel token" id="token"',
+    'class="reveal panel roadmap" id="roadmap"',
+    'class="milestone now"',
+    'id="token-ca"',
+    'id="copy-ca"',
+    'href="https://pump.fun"',
+    "Fees fund development",
     "foot-grid",
     "/docs/security",
     "/docs/architecture",
@@ -167,6 +179,10 @@ site_checks = [
     ".hero.hero-landing",  # dark backdrop scoped to the landing hero
     'url("/hero-bg.webp")',  # supplied neon art
     ".landing-nav",  # glass nav over the cover
+    "nav.landing-nav .nav-end",  # X + GitHub cluster on the right rail
+    ".token-grid",  # $PS token panel
+    ".token-buy",  # Pump.fun exit
+    ".milestones",  # milestone roadmap, no dates
     ".hero-accent",  # gradient "Python."
     ".stack-scene",  # sticky story stack
     ".stack-card",  # pinned story cards

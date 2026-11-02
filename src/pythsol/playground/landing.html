@@ -42,6 +42,7 @@
         <g id="i-external"><path d="M14 4h6v6M20 4l-8 8M18 13v7H4V6h7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
         <g id="i-copy"><path d="M9 9h11v11H9zM5 15V4h11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
         <g id="i-github"><path d="M12 2.2a9.8 9.8 0 0 0-3.1 19.1c.5.1.7-.2.7-.5v-1.7c-2.7.6-3.3-1.3-3.3-1.3-.4-1.1-1.1-1.4-1.1-1.4-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.2-.3-4.5-1.1-4.5-4.9 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.8-2.3 4.6-4.5 4.9.3.3.6.9.6 1.8v2.7c0 .3.2.6.7.5A9.8 9.8 0 0 0 12 2.2z" fill="currentColor"/></g>
+        <g id="i-x"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="currentColor"/></g>
       </defs>
     </svg>
 
@@ -51,8 +52,14 @@
         <div class="nav-links">
           <a class="item" href="/docs">Docs</a>
           <a class="item" href="/playground">Playground</a>
+          <a class="item" href="#roadmap">Roadmap</a>
+          <a class="item" href="#token">$PS</a>
         </div>
-        <a class="item gh" href="https://github.com/PythSol/pythsol" target="_blank" rel="noopener"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a>
+        <div class="nav-end">
+          <!-- X account is not live yet: swap https://x.com/ for the profile URL. -->
+          <a class="item x" href="https://x.com/" target="_blank" rel="noopener" aria-label="PythSol on X (link coming soon)" title="PythSol on X (link coming soon)"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-x"/></svg></a>
+          <a class="item gh" href="https://github.com/PythSol/pythsol" target="_blank" rel="noopener" aria-label="PythSol on GitHub"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-github"/></svg><span class="nav-text">GitHub</span></a>
+        </div>
       </div>
     </nav>
 
@@ -463,6 +470,88 @@ pythsol build</pre>
         </div>
       </section>
 
+      <section class="reveal panel roadmap" id="roadmap" aria-labelledby="roadmap-title">
+        <p class="roadmap-kicker">Milestones, not dates</p>
+        <h2 id="roadmap-title"><svg class="h2-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-list"/></svg>What ships next.</h2>
+        <p class="note roadmap-lead">
+          No launch dates. A milestone is done when its checks pass and the
+          docs match the code.
+        </p>
+        <ol class="milestones">
+          <li class="milestone done">
+            <span class="milestone-dot" aria-hidden="true"></span>
+            <div>
+              <p class="milestone-status">Shipped · 0.1.0</p>
+              <h3>Compiler and CLI</h3>
+              <p class="note">Typed Python checked and lowered to C, native SBF builds, Anchor-style IDL, solders client, and LiteSVM tests.</p>
+            </div>
+          </li>
+          <li class="milestone done">
+            <span class="milestone-dot" aria-hidden="true"></span>
+            <div>
+              <p class="milestone-status">Shipped · live</p>
+              <h3>Playground and docs</h3>
+              <p class="note">The in-browser checker, quickstart, language and accounts pages, and this site.</p>
+            </div>
+          </li>
+          <li class="milestone now" aria-current="step">
+            <span class="milestone-dot" aria-hidden="true"></span>
+            <div>
+              <p class="milestone-status">In progress</p>
+              <h3>$PS token</h3>
+              <p class="note">Launch on Pump.fun, with trading fees funding compiler and docs work. The contract address goes up on the token card.</p>
+            </div>
+          </li>
+          <li class="milestone next">
+            <span class="milestone-dot" aria-hidden="true"></span>
+            <div>
+              <p class="milestone-status">Next</p>
+              <h3>PyPI packaging</h3>
+              <p class="note">Versioned releases and <code>pip install pythsol</code>, instead of installing from the git URL.</p>
+            </div>
+          </li>
+          <li class="milestone later">
+            <span class="milestone-dot" aria-hidden="true"></span>
+            <div>
+              <p class="milestone-status">Later</p>
+              <h3>Mainnet path</h3>
+              <p class="note">Deployment and verification hardening. Mainnet stays opt-in behind <code>--yes</code>, never the default.</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="reveal panel token" id="token" aria-labelledby="token-title">
+        <div class="token-grid">
+          <div class="token-copy">
+            <p class="token-kicker">$PS · community token</p>
+            <h2 id="token-title"><svg class="h2-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chain"/></svg>This is our token.</h2>
+            <p>
+              <b>$PS</b> is the PythSol token. Trading fees go back into
+              development — the compiler, the docs, the examples, and this
+              playground.
+            </p>
+            <ul class="token-facts">
+              <li>Fees fund development, not a team payout.</li>
+              <li>Launches on Pump.fun; buy from the button on this card.</li>
+              <li>Check the contract address here before every buy.</li>
+            </ul>
+          </div>
+          <div class="token-buy-card">
+            <h3>Contract address</h3>
+            <div class="token-ca">
+              <code id="token-ca">Coming soon</code>
+              <button class="copy-cmd token-copy" id="copy-ca" type="button" disabled aria-disabled="true" title="Contract address coming soon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-copy"/></svg><span class="lbl">Copy</span></button>
+            </div>
+            <a class="token-buy" id="token-buy" href="https://pump.fun" target="_blank" rel="noopener">Buy on Pump.fun <svg class="cta-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-external"/></svg></a>
+            <p class="note">
+              The address and the coin page go live at launch. $PS is not an
+              investment or a claim on PythSol.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <h2 id="faq"><svg class="h2-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-help"/></svg>Questions worth asking</h2>
       <div class="faq reveal">
         <details>
@@ -665,6 +754,24 @@ pythsol build</pre>
       /* Quickstart block copies the visible command list. */
       wireCopy("copy-qs", function () {
         return document.getElementById("qs-cmds").textContent.trim();
+      });
+
+      /* Token card: the copy button stays disabled until a real base58 mint
+         is in #token-ca. Drop the mint in and the button unlocks by itself. */
+      var tokenCa = document.getElementById("token-ca");
+      var tokenCopy = document.getElementById("copy-ca");
+      if (tokenCa && tokenCopy) {
+        var ca = tokenCa.textContent.trim();
+        tokenCa.textContent = ca;
+        if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(ca)) {
+          tokenCa.classList.add("live");
+          tokenCopy.disabled = false;
+          tokenCopy.removeAttribute("aria-disabled");
+          tokenCopy.title = "Copy contract address";
+        }
+      }
+      wireCopy("copy-ca", function () {
+        return document.getElementById("token-ca").textContent.trim();
       });
     </script>
   </body>

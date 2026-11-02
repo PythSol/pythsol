@@ -90,11 +90,28 @@ nav.landing-nav .nav-links {
   gap: clamp(20px, 2.4vw, 34px);
 }
 nav.landing-nav .mark { justify-self: start; color: #fff; }
-nav.landing-nav .gh { justify-self: end; }
+nav.landing-nav .nav-end {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: clamp(18px, 2vw, 28px);
+}
+nav.landing-nav .nav-end a.item { display: inline-flex; align-items: center; }
 nav.landing-nav a.item { color: #c2cedf; }
 nav.landing-nav a.item:hover,
 nav.landing-nav a.item[aria-current="page"] { color: #fff; }
-@media (max-width: 380px) {
+@media (max-width: 620px) {
+  nav.landing-nav .nav-inner { gap: 12px; }
+  nav.landing-nav .nav-links { gap: 14px; }
+  nav.landing-nav .nav-text { display: none; }
+  nav.landing-nav .nav-end { gap: 14px; }
+  nav.landing-nav .nav-ico { margin-right: 0; }
+}
+@media (max-width: 420px) {
+  nav.landing-nav .nav-inner { gap: 8px; }
+  nav.landing-nav .nav-links { gap: 12px; }
+}
+@media (max-width: 480px) {
   nav.landing-nav .nav-inner {
     display: flex;
     flex-wrap: wrap;
@@ -102,7 +119,10 @@ nav.landing-nav a.item[aria-current="page"] { color: #fff; }
     gap: 8px 16px;
     padding: 10px 0;
   }
-  nav.landing-nav .nav-links { gap: 16px; }
+  nav.landing-nav .mark { margin-right: auto; }
+  nav.landing-nav .nav-end { margin-left: auto; }
+  nav.landing-nav .nav-links { order: 3; flex-basis: 100%; gap: 16px; }
+  .token, .roadmap { scroll-margin-top: 96px; }
 }
 .cmd-card {
   max-width: 34rem;
@@ -590,6 +610,163 @@ h2 { margin: 32px 0 8px; }
 .plus li::before { content: "\2713  "; position: absolute; left: 2px; color: #1a7f4b; font-weight: 700; }
 .minus li::before { content: "\2717  "; position: absolute; left: 2px; color: #b3462e; font-weight: 700; }
 
+/* Roadmap: milestone order, never calendar dates */
+.roadmap {
+  background: var(--bg-subtle);
+  scroll-margin-top: calc(var(--nav-h) + 12px);
+}
+.roadmap h2 { margin-top: 2px; }
+.roadmap-kicker {
+  margin: 0 0 2px;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blue-strong);
+}
+.roadmap-lead { margin: 0 0 16px; max-width: 62ch; }
+.milestones {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  display: grid;
+  gap: 4px;
+}
+.milestones::before {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 18px;
+  bottom: 18px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--mint), var(--blue) 55%, var(--purple));
+  opacity: 0.35;
+}
+.milestone {
+  position: relative;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 14px;
+  padding: 10px 12px 10px 0;
+  border-radius: 10px;
+}
+.milestone:hover { background: rgba(255, 255, 255, 0.7); }
+.milestone-dot {
+  justify-self: center;
+  width: 12px;
+  height: 12px;
+  margin-top: 7px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: #fff;
+  position: relative;
+  z-index: 1;
+}
+.milestone.done .milestone-dot { border-color: #0f9f63; background: var(--mint); }
+.milestone.now .milestone-dot {
+  border-color: #c99a00;
+  background: var(--yellow);
+  box-shadow: 0 0 0 4px rgba(255, 212, 59, 0.28);
+}
+.milestone.next .milestone-dot { border-color: var(--blue); background: #fff; }
+.milestone.later .milestone-dot { border-color: var(--purple); background: #fff; }
+.milestone-status {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.milestone.done .milestone-status { color: #1a7f4b; }
+.milestone.now .milestone-status { color: #8a6a00; }
+.milestone h3 { margin: 2px 0 4px; font-size: 16px; }
+.milestone .note { margin: 0; }
+
+/* Token: $PS mint + Pump.fun exit, kept inside the light product sections */
+.token {
+  background:
+    linear-gradient(180deg, rgba(20, 241, 149, 0.07), rgba(153, 69, 255, 0.05)),
+    var(--bg-subtle);
+  border-color: #c9e6d8;
+  scroll-margin-top: calc(var(--nav-h) + 12px);
+}
+.token-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 24px;
+  align-items: start;
+  margin-top: 4px;
+}
+.token h2 { margin-top: 2px; }
+.token-kicker {
+  margin: 0 0 2px;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blue-strong);
+}
+.token-copy p { margin: 10px 0; }
+.token-facts { list-style: none; margin: 12px 0 0; padding: 0; }
+.token-facts li { position: relative; padding-left: 24px; margin: 7px 0; font-size: 14px; }
+.token-facts li::before { content: "\2713"; position: absolute; left: 2px; color: #1a7f4b; font-weight: 700; }
+.token-buy-card {
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--mint);
+  border-radius: 12px;
+  background: #fff;
+  padding: 16px;
+}
+.token-buy-card h3 {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.token-ca { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.token-ca code {
+  flex: 1 1 190px;
+  min-width: 0;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 12.5px;
+  padding: 8px 10px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: var(--bg-subtle);
+  overflow-wrap: anywhere;
+  color: var(--text);
+}
+.token-ca code.live {
+  border-style: solid;
+  border-color: #9fd8bf;
+  background: #f2fbf6;
+}
+.token-copy { flex: 0 0 auto; }
+.token-copy:disabled { opacity: 0.55; cursor: not-allowed; }
+.token-buy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px 16px;
+  border-radius: 10px;
+  background: var(--blue);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+.token-buy:hover { background: var(--blue-strong); }
+.token-buy:focus-visible { outline: 2px solid var(--blue-strong); outline-offset: 2px; }
+.token-buy .cta-ico { width: 16px; height: 16px; }
+.token-buy-card .note { margin: 10px 0 0; font-size: 12.5px; }
+
 /* FAQ accordion */
 .faq details {
   border: 1px solid var(--border);
@@ -890,7 +1067,7 @@ footer .ico {
 .copy-cmd:focus-visible { outline: 2px solid var(--blue-strong); outline-offset: 2px; }
 
 @media (max-width: 860px) {
-  .hero-grid, .try, .qs-grid, .trust-grid { grid-template-columns: minmax(0, 1fr); }
+  .hero-grid, .try, .qs-grid, .trust-grid, .token-grid { grid-template-columns: minmax(0, 1fr); }
   .foot-grid { grid-template-columns: 1fr 1fr; }
   .artifacts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .hero.hero-landing {
