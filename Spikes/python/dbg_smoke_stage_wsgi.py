@@ -55,8 +55,10 @@ cases = [
     ("/favicon-32.png", b"", "GET"),
     ("/apple-touch-icon.png", b"", "GET"),
     ("/hero-bg.webp", b"", "GET"),
+    ("/site-bg.svg", b"", "GET"),
     ("/docs", b"", "GET"),
     ("/docs/quickstart", b"", "GET"),
+    ("/docs/site-bg.svg", b"", "GET"),
     ("/v1/check", json.dumps({"source": src, "filename": "c.py"}).encode(), "POST"),
 ]
 for path, body, method in cases:
@@ -70,6 +72,8 @@ st, ico, _ = run("/favicon.ico")
 st, png32, _ = run("/favicon-32.png")
 st, apple, _ = run("/apple-touch-icon.png")
 st, hero_bg, _ = run("/hero-bg.webp")
+st, site_bg, _ = run("/site-bg.svg")
+st, docs_bg, docs_hdrs = run("/docs/site-bg.svg")
 print("landing headline OK:", b"Write Solana programs in Python." in raw)
 print("landing gradient span OK:", b'class="so"' in raw)
 print("landing hero bg OK:", b'class="hero hero-landing"' in raw and b'href="/hero-bg.webp"' in raw)
@@ -78,3 +82,11 @@ print("favicon ico OK:", ico.startswith(b"\x00\x00\x01\x00"))
 print("favicon png OK:", png32.startswith(b"\x89PNG"))
 print("apple touch icon OK:", apple.startswith(b"\x89PNG"))
 print("hero bg webp OK:", hero_bg.startswith(b"RIFF") and hero_bg[8:12] == b"WEBP", len(hero_bg), "bytes")
+print("site bg svg OK:", site_bg.startswith(b"<svg"), len(site_bg), "bytes")
+print(
+    "docs site bg svg OK:",
+    st == "200" and docs_bg.startswith(b"<svg"),
+    len(docs_bg),
+    "bytes",
+    docs_hdrs.get("content-type", ""),
+)

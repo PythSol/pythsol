@@ -156,6 +156,8 @@ site_checks = [
     ".cmd-line",
     ".hero.hero-landing",  # dark backdrop scoped to the landing hero
     'url("/hero-bg.webp")',  # supplied neon art
+    "body::before",  # site-wide ambient canvas layer
+    'url("/site-bg.svg")',  # generated vector backdrop
 ]
 missing_site = [c for c in site_checks if c not in site]
 print("site.css:", "all present" if not missing_site else "MISSING")
@@ -189,6 +191,7 @@ ico = get_bytes("/favicon.ico")
 png32 = get_bytes("/favicon-32.png")
 apple = get_bytes("/apple-touch-icon.png")
 hero_bg = get_bytes("/hero-bg.webp")
+site_bg = get_bytes("/site-bg.svg")
 print("favicon ico:", "OK" if ico.startswith(b"\x00\x00\x01\x00") else "PROBLEM")
 print("favicon png:", "OK" if png32.startswith(b"\x89PNG") else "PROBLEM")
 print("apple touch icon:", "OK" if apple.startswith(b"\x89PNG") else "PROBLEM")
@@ -198,6 +201,7 @@ print(
     len(hero_bg),
     "bytes",
 )
+print("site bg svg:", "OK" if site_bg.startswith(b"<svg") else "PROBLEM", len(site_bg), "bytes")
 
 # The docs copy must be byte-identical to the route copy it shadows.
 try:

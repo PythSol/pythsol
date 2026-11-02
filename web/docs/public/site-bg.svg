@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" fill="none" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="paper" x1="120" y1="0" x2="1480" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fcfdff"/>
+      <stop offset=".52" stop-color="#f7fbfe"/>
+      <stop offset="1" stop-color="#eef7fc"/>
+    </linearGradient>
+    <radialGradient id="glow-blue" cx="50%" cy="50%" r="50%">
+      <stop stop-color="#306998" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#306998" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-mint" cx="50%" cy="50%" r="50%">
+      <stop stop-color="#14f195" stop-opacity=".14"/>
+      <stop offset="1" stop-color="#14f195" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-purple" cx="50%" cy="50%" r="50%">
+      <stop stop-color="#9945ff" stop-opacity=".14"/>
+      <stop offset="1" stop-color="#9945ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-yellow" cx="50%" cy="50%" r="50%">
+      <stop stop-color="#ffd43b" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#ffd43b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="trace" x1="0" y1="0" x2="1600" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#306998" stop-opacity=".34"/>
+      <stop offset=".45" stop-color="#14f195" stop-opacity=".26"/>
+      <stop offset="1" stop-color="#9945ff" stop-opacity=".3"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="760" y1="240" x2="1340" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#306998" stop-opacity=".2"/>
+      <stop offset=".5" stop-color="#14f195" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#9945ff" stop-opacity=".18"/>
+    </linearGradient>
+    <linearGradient id="floor-fade" x1="0" y1="620" x2="0" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".45" stop-color="#fff" stop-opacity=".45"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="1"/>
+    </linearGradient>
+    <filter id="bokeh" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+    <clipPath id="floor">
+      <rect x="0" y="620" width="1600" height="380"/>
+    </clipPath>
+    <mask id="floor-mask">
+      <rect x="0" y="620" width="1600" height="380" fill="url(#floor-fade)"/>
+    </mask>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#paper)"/>
+  <ellipse cx="110" cy="40" rx="540" ry="390" fill="url(#glow-blue)"/>
+  <ellipse cx="1540" cy="60" rx="430" ry="320" fill="url(#glow-mint)"/>
+  <ellipse cx="1590" cy="560" rx="390" ry="430" fill="url(#glow-purple)"/>
+  <ellipse cx="120" cy="980" rx="390" ry="310" fill="url(#glow-yellow)"/>
+
+  <g opacity=".9">
+    <circle cx="92" cy="146" r="7" fill="#ffb347" opacity=".34"/>
+    <circle cx="168" cy="78" r="3" fill="#9945ff" opacity=".3"/>
+    <circle cx="224" cy="196" r="12" fill="#306998" opacity=".16"/>
+    <circle cx="294" cy="118" r="5" fill="#ffb347" opacity=".32"/>
+    <circle cx="64" cy="326" r="10" fill="#9945ff" opacity=".14"/>
+    <circle cx="188" cy="386" r="4" fill="#14f195" opacity=".38"/>
+    <circle cx="326" cy="282" r="8" fill="#306998" opacity=".16"/>
+    <circle cx="126" cy="470" r="3" fill="#ffb347" opacity=".3"/>
+    <circle cx="252" cy="516" r="6" fill="#9945ff" opacity=".18"/>
+    <circle cx="388" cy="178" r="3" fill="#14f195" opacity=".4"/>
+    <circle cx="438" cy="92" r="6" fill="#306998" opacity=".12"/>
+    <circle cx="404" cy="914" r="6" fill="#ffb347" opacity=".28"/>
+    <circle cx="522" cy="960" r="3" fill="#9945ff" opacity=".28"/>
+    <circle cx="664" cy="902" r="8" fill="#14f195" opacity=".2"/>
+    <circle cx="758" cy="952" r="4" fill="#306998" opacity=".16"/>
+    <circle cx="906" cy="918" r="5" fill="#ffb347" opacity=".24"/>
+    <circle cx="1354" cy="296" r="4" fill="#14f195" opacity=".3"/>
+    <circle cx="1462" cy="218" r="7" fill="#ffb347" opacity=".26"/>
+    <circle cx="1556" cy="402" r="3" fill="#9945ff" opacity=".34"/>
+    <circle cx="1258" cy="486" r="5" fill="#306998" opacity=".16"/>
+  </g>
+
+  <g stroke="url(#ring)" stroke-width="1.2">
+    <circle cx="1040" cy="492" r="322" opacity=".55"/>
+    <circle cx="1040" cy="492" r="214" opacity=".4"/>
+    <circle cx="1040" cy="492" r="118" opacity=".3"/>
+  </g>
+
+  <g stroke="url(#trace)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M1004 122h176a14 14 0 0 0 14-14V58"/>
+    <path d="M1012 212h228a16 16 0 0 1 16-16v-64a16 16 0 0 0 16-16h168"/>
+    <path d="M1118 302h212a12 12 0 0 0 12-12v-68a12 12 0 0 1 12-12h248"/>
+    <path d="M1262 402h160a14 14 0 0 0 14-14v-58"/>
+    <path d="M1376 182h124a12 12 0 0 1 12 12v66"/>
+    <path d="M1042 858h178a16 16 0 0 0 16-16v-82"/>
+    <path d="M1122 938h238a14 14 0 0 0 14-14v-84"/>
+    <path d="M1240 782h258a12 12 0 0 1 12 12v108"/>
+    <path d="M1420 958h140a12 12 0 0 0 12-12v-66"/>
+    <path d="M-18 598h178a14 14 0 0 0 14-14v-64"/>
+    <path d="M-18 698h108a12 12 0 0 1 12 12v88"/>
+  </g>
+  <g fill="#306998" opacity=".22">
+    <circle cx="1004" cy="122" r="3"/>
+    <circle cx="1194" cy="58" r="3.4"/>
+    <circle cx="1272" cy="116" r="3"/>
+    <circle cx="1456" cy="116" r="3.2"/>
+    <circle cx="1118" cy="302" r="3"/>
+    <circle cx="1354" cy="210" r="3"/>
+    <circle cx="1600" cy="210" r="2.6"/>
+    <circle cx="1262" cy="402" r="3"/>
+    <circle cx="1436" cy="330" r="2.8"/>
+    <circle cx="1512" cy="260" r="3"/>
+    <circle cx="1042" cy="858" r="3"/>
+    <circle cx="1236" cy="760" r="3"/>
+    <circle cx="1122" cy="938" r="3"/>
+    <circle cx="1374" cy="840" r="3.2"/>
+    <circle cx="1510" cy="902" r="3"/>
+    <circle cx="1572" cy="880" r="2.8"/>
+    <circle cx="174" cy="598" r="3"/>
+    <circle cx="160" cy="520" r="2.8"/>
+    <circle cx="102" cy="798" r="3"/>
+  </g>
+
+  <g clip-path="url(#floor)" mask="url(#floor-mask)" stroke="#306998" stroke-width="1" opacity=".1">
+    <path d="M800 618L-160 1000M800 618L60 1000M800 618L300 1000M800 618L540 1000M800 618L760 1000M800 618L1040 1000M800 618L1300 1000M800 618L1540 1000M800 618L1760 1000"/>
+    <path d="M0 668h1600M0 702h1600M0 744h1600M0 796h1600M0 858h1600M0 932h1600"/>
+  </g>
+
+  <g stroke="#9945ff" stroke-width="1.1" stroke-linejoin="round" opacity=".16">
+    <path d="M300 706l96 56v110l-96 56-96-56V762z"/>
+    <path d="M300 758l72 94H228z"/>
+    <path d="M300 706v52M396 762l-24 90M396 872l-96-24M204 872l24-110M204 762l96-56"/>
+  </g>
+  <g fill="#14f195" opacity=".4">
+    <circle cx="300" cy="706" r="3"/>
+    <circle cx="396" cy="762" r="3"/>
+    <circle cx="396" cy="872" r="3"/>
+    <circle cx="300" cy="928" r="3"/>
+    <circle cx="204" cy="872" r="3"/>
+    <circle cx="204" cy="762" r="3"/>
+    <circle cx="300" cy="758" r="2.4"/>
+    <circle cx="372" cy="852" r="2.4"/>
+    <circle cx="228" cy="852" r="2.4"/>
+  </g>
+  <g filter="url(#bokeh)" fill="#ffb347" opacity=".2">
+    <circle cx="474" cy="836" r="5"/>
+    <circle cx="548" cy="792" r="3"/>
+    <circle cx="612" cy="874" r="7"/>
+  </g>
+</svg>

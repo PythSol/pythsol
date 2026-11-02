@@ -140,6 +140,32 @@
 }
 
 /*
+ * Site-wide vector canvas for the docs build. Uses the same ambient art as
+ * the main pages; light theme only, so the dark palette stays a clean surface.
+ */
+html { background: var(--sl-color-bg); }
+:root[data-theme="light"] body { background: transparent; }
+:root[data-theme="light"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: url("/docs/site-bg.svg") center center / cover no-repeat;
+}
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] body { background: transparent; }
+  :root[data-theme="auto"] body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: url("/docs/site-bg.svg") center center / cover no-repeat;
+  }
+}
+
+/*
  * Header matches the marketing navbar: white (page bg) with a Python blue
  * hairline in light. Scope to PageFrame's outer bar; the inner Header
  * component carries its own layout styles.

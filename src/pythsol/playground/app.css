@@ -19,7 +19,7 @@
 body {
   margin: 0;
   font-family: "Segoe UI", sans-serif;
-  background: var(--bg);
+  background: transparent;
   color: var(--text);
 }
 .tools-bar {

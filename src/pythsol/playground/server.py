@@ -248,6 +248,9 @@ def make_handler(
             if path == "/hero-bg.webp":
                 _send(self, 200, _asset("hero-bg.webp"), content_type="image/webp")
                 return
+            if path == "/site-bg.svg":
+                _send(self, 200, _asset("site-bg.svg"), content_type="image/svg+xml")
+                return
             if path == "/healthz":
                 _send(self, 200, {"ok": True, "compile": compile_enabled})
                 return

@@ -47,6 +47,7 @@ The public site, served by `pythsol serve` on `127.0.0.1:8765`:
 | `/playground` | Editor: Check, Show C, Compile .so |
 | `/site.css`, `/app.css`, `/app.js` | Assets. CSS is a file. Inline `<style>` is blocked by CSP `default-src 'self'`. |
 | `/hero-bg.webp` | Landing-only hero backdrop (optimized 1920px WebP). |
+| `/site-bg.svg` | Site-wide ambient vector canvas (fixed layer behind every page). |
 
 `pythsol serve --public --host 0.0.0.0` is the hostable mode: check and emit
 only. Compile stays off until you also pass `--allow-compile` (the hosted
@@ -230,9 +231,10 @@ test or a real host.
 - Stage changes touch three places together: `deploy/vercel/index.py`
   routing table, the stage script's UI-file list, and the source file
   itself. The favicon files (`favicon.svg`, `favicon.ico`,
-  `favicon-32.png`, `apple-touch-icon.png`) and `hero-bg.webp` are served
-  through `_UI_FILES`; forget any there and the stage ships without it. They
-  are also force-included in the wheel so `pythsol serve` can serve them.
+  `favicon-32.png`, `apple-touch-icon.png`), `hero-bg.webp`, and
+  `site-bg.svg` are served through `_UI_FILES`; forget any there and the
+  stage ships without it. They are also force-included in the wheel so
+  `pythsol serve` can serve them.
 - The landing command box must stay installable: version 0.1.0 is NOT on
   PyPI, so the box teaches
   `pip install git+https://github.com/PythSol/pythsol.git` (wheel verified
@@ -242,11 +244,15 @@ test or a real host.
   (`c`, `idl`, `client`) — update the tabs if those keys change.
 - Site art is hand-written inline SVG/CSS: sprite icons (`<use href="#i-…">`),
   hero texture, the Counter byte map, build-artifact shelf, browser chrome,
-  and example tiles. The one raster asset is `hero-bg.webp`, the supplied
-  neon art used only behind `.hero-landing` (preloaded, scrimmed, with the
-  light dot grid disabled there); it is served through `_UI_FILES` and
-  force-included in the wheel. No stock images, external fonts, or other new
-  asset files (the stage script's file list is explicit). Motion sits behind
+  and example tiles. Two external art files exist: `hero-bg.webp`, the
+  supplied neon art used only behind `.hero-landing` (preloaded, scrimmed,
+  with the light dot grid disabled there), and `site-bg.svg`, the generated
+  light ambient canvas fixed behind every page (`body::before` in
+  `site.css`; `app.css` keeps the playground body transparent). Both are
+  served through `_UI_FILES` and force-included in the wheel. The docs build
+  copies the same SVG to `web/docs/public/site-bg.svg`. No stock images,
+  external fonts, or other new asset files (the stage script's file list is
+  explicit). Motion sits behind
   `prefers-reduced-motion: no-preference`. Keep shipped pages free of
   `style=` attributes: `pythsol serve` sends CSP `default-src 'self'`, so
   the byte-map proportions live in `.seg-*` classes, not per-element custom
@@ -272,6 +278,11 @@ test or a real host.
   `pythsol-ps-sg`.
 - `astro.config.mjs` pins `site: "https://www.pythsol.com"`,
   `base: "/docs"`, `trailingSlash: "never"`. Keep those when editing.
+- Docs ambient background: `web/docs/public/site-bg.svg` is a copy of the
+  playground asset, painted on `body::before` by `theme.css` only for
+  `data-theme="light"` (and `auto` with a light OS preference). Dark mode
+  stays a solid surface. After editing either SVG copy, update both and run
+  `npm run build` in `web/docs`.
 - Starlight's **gray scale is directional per mode** (learned the hard
   way, 2026-11-01): stock light ramps gray-1 darkest (`#23262f`) →
   gray-7 lightest (`#f6f7f9`); stock dark ramps gray-1 lightest

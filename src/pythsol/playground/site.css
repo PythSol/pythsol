@@ -13,12 +13,22 @@
   --mint: #14f195;
 }
 * { box-sizing: border-box; }
+html { background: var(--bg); }
 body {
   margin: 0;
   font-family: "Segoe UI", sans-serif;
-  background: var(--bg);
+  background: transparent;
   color: var(--text);
   line-height: 1.5;
+}
+/* Site-wide ambient canvas: vector-only, fixed behind every page. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: url("/site-bg.svg") center center / cover no-repeat;
 }
 a { color: var(--blue-strong); }
 nav {
