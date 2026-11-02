@@ -85,3 +85,35 @@ missing_site = [c for c in site_checks if c not in site]
 print("site.css:", "all present" if not missing_site else "MISSING")
 for m in missing_site:
     print("  missing:", m)
+
+# Favicon: letterform-only pS — no background plate anywhere in the file.
+fav = get("/favicon.svg")
+fav_have = [
+    'viewBox="0 0 32 32"',  # letterform spec, not the old 64 plate canvas
+    "#ffd43b",  # Python yellow start (p)
+    "#e8a20c",  # amber end: contrast on a white tab strip
+    "#14f195",  # Solana mint (S)
+    "#9945ff",  # Solana purple (S)
+    "paint-order",  # outline sits behind the fill
+]
+fav_missing = [c for c in fav_have if c not in fav]
+plate_gone = "<rect" not in fav
+print("favicon:", "all present" if not fav_missing and plate_gone else "PROBLEM")
+if not plate_gone:
+    print("  plate <rect> still present")
+for m in fav_missing:
+    print("  missing:", m)
+
+# The docs copy must be byte-identical to the route copy it shadows.
+try:
+    docs_fav = urllib.request.urlopen(
+        urllib.request.Request(
+            "https://www.pythsol.com/docs/favicon.svg",
+            headers={"User-Agent": "pythsol-check/1"},
+        ),
+        timeout=60,
+    ).read()
+    same = docs_fav == get("/favicon.svg").encode("utf-8")
+    print("docs favicon identical:", same)
+except Exception as exc:  # noqa: BLE001 - diagnostic script prints the reason
+    print("docs favicon fetch failed:", exc)
