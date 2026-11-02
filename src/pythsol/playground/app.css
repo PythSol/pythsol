@@ -130,6 +130,9 @@ pre.on-info { border-left-color: transparent; }
   padding: 8px 12px;
   border-bottom: 1px solid var(--border);
 }
+/* JS toggles the `hidden` attribute; re-assert display so diagnostics and
+   the empty state never show artifact tabs. */
+.tabs[hidden] { display: none; }
 .tablist { display: flex; gap: 6px; }
 .tab {
   background: #fff;

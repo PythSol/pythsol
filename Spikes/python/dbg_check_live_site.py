@@ -66,6 +66,7 @@ css_checks = [
     "pre.on-ok",
     "pre.on-diag",
     "pre.on-err",
+    ".tabs[hidden] { display: none; }",  # hidden attribute must win over flex
 ]
 missing_css = [c for c in css_checks if c not in css]
 print("app.css:", "all present" if not missing_css else "MISSING")
