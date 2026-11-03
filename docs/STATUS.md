@@ -75,7 +75,7 @@ representation, translated docs (`i18n` intentionally empty).
 
 ## Hosting
 
-Live as of 2026-11-01 — **one Vercel project, one domain**:
+Live as of 2026-11-01, last verified 2026-11-03 - **one Vercel project, one domain**:
 
 | Path | What runs there |
 |---|---|
@@ -86,14 +86,17 @@ Live as of 2026-11-01 — **one Vercel project, one domain**:
 | `/v1/compile` | 403 with Docker guidance (compile needs the SBF toolchain) |
 | `/healthz`, `/examples*` | Health, init templates |
 
-- Live on **`https://www.pythsol.com`** (verified 2026-11-01: domain at
+- Live on **`https://www.pythsol.com`** (verified 2026-11-03: domain at
   NameCheap, DNS on Cloudflare, `www` CNAME → the Vercel project). The
-  Vercel alias `https://pythsol.vercel.app` still resolves.
+  Vercel alias `https://pythsol.vercel.app` still resolves. Latest production
+  deployment: `dpl_HWgRounJWY34gCQuc4wC1K6SUhuW`.
 - The single Vercel project is `pythsol` (the older `pythsol-docs` and
   `pythsol-playground` projects were deleted after the merge). Deploy the
-  whole site with `Spikes/tools/stage-vercel-one.ps1` then
+  whole site with `tools/stage_vercel.py` then
   `vercel deploy target\vercel_stage --prod --yes --scope
-  rehmandakat67-3497 --name pythsol`. New deployments need the SSO
+  rehmandakat67-3497 --name pythsol`. The repo-root `vercel.json` build is
+  verified; it waits on the Vercel account's GitHub connection for
+  push-to-deploy. New deployments need the SSO
   protection toggle only once per project (`Spikes/tools/unprotect-pythsol.ps1`).
 - Full-compile container playground: **Render** — blocked on a payment card
   at <https://dashboard.render.com/billing>; the create-service script is
