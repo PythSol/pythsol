@@ -77,8 +77,10 @@ test, or a live URL. Details and blockers live in `docs/HANDOFF.md`.
    - [x] Lighthouse on the live landing page (2026-11-03): performance 86,
      accessibility 100, best practices 100, SEO 100 — `docs/lighthouse.md`.
    - [ ] published security audit (needs an external auditor)
-7. **InsForge backend** — linked but empty; build tables/functions only for
-   a real feature, not as a demo.
+7. **InsForge backend** — linked but empty on purpose: no current feature
+   needs it. Do not add tables/functions as a demo. If a share-snippet or
+   account feature is approved, use the `insforge-cli` skill, add RLS, and
+   test it against the real project.
 8. **Deploy automation** — repo-root build is implemented and verified:
    `vercel.json` + `api/index.py` build the Starlight site and serve the
    landing/playground/docs/API from one Python function. `vercel build`
