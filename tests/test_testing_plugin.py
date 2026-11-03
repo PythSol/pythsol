@@ -38,7 +38,7 @@ def toolchain_ready() -> None:
 
 
 @pytest.mark.toolchain
-@pytest.mark.parametrize("template", ["counter", "ledger", "vault", "escrow"])
+@pytest.mark.parametrize("template", ["counter", "ledger", "vault", "escrow", "multisig", "poll"])
 def test_template_pytest_uses_the_plugin(
     template: str,
     tmp_path: Path,

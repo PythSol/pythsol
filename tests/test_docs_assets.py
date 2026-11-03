@@ -8,9 +8,16 @@ from pathlib import Path
 ROOT = Path(__file__).parents[1]
 
 
-def test_gallery_lists_the_four_examples() -> None:
+def test_gallery_lists_every_example() -> None:
     payload = json.loads((ROOT / "docs" / "gallery" / "index.json").read_text(encoding="utf-8"))
-    assert [item["id"] for item in payload] == ["counter", "ledger", "vault", "escrow"]
+    assert [item["id"] for item in payload] == [
+        "counter",
+        "ledger",
+        "vault",
+        "escrow",
+        "multisig",
+        "poll",
+    ]
     for item in payload:
         assert (ROOT / item["sourcePath"]).is_file()
         assert item["playgroundUrl"] == f"/examples/{item['id']}"

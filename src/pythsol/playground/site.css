@@ -1044,6 +1044,8 @@ footer .ico {
 .tile-ledger { background: #e7f0f8; color: var(--blue-strong); }
 .tile-vault { background: #e6f8ee; color: #14603c; }
 .tile-escrow { background: #efe6ff; color: #6b2fb3; }
+.tile-multisig { background: #e7f0f8; color: #1f4e79; }
+.tile-poll { background: #e6f8ee; color: #14603c; }
 
 /* Quickstart terminal with a copy affordance */
 .cmd-shell .chrome { border: 1px solid var(--border); border-bottom: 0; }

@@ -418,6 +418,8 @@ class _Emitter:
         self._strings: dict[str, _StrVar] = {}
         self._value_enum: dict[str, str] = {}
         self._array_enum: dict[str, str] = {}
+        self._bools: set[str] = set()
+        self._bool_arrays: set[str] = set()
         self._loops: list[_Loop] = []
         self._loop_no = 0
         self._indent = 1
@@ -527,6 +529,8 @@ class _Emitter:
         self._strings = {}
         self._value_enum = {}
         self._array_enum = {}
+        self._bools = set()
+        self._bool_arrays = set()
         self._loops = []
         self._loop_no = 0
         self._indent = 1
@@ -644,6 +648,8 @@ class _Emitter:
                 self._line(f"uint64_t {var} = 0u;", 1)
                 self._line(f"rt_ld_u64(rt->data, {offset}u, &{var});", 1)
             self._data_vars[param.name] = (var, ctype)
+            if param.c_type == "bool":
+                self._bools.add(param.name)
             if param.defined:
                 self._value_enum[param.name] = param.defined
             offset += param.size
@@ -2133,6 +2139,8 @@ class _Emitter:
         else:
             self._s(f"{c_ctype} {var} = 0u;")
         self._locals[name] = (var, c_ctype)
+        if ann.id == "bool":
+            self._bools.add(name)
         if enum_name:
             self._value_enum[name] = enum_name
         if node.value is not None:
@@ -2152,6 +2160,8 @@ class _Emitter:
         items = list(ann.slice.elts) if isinstance(ann.slice, ast.Tuple) else [ann.slice]
         if items and isinstance(items[0], ast.Name) and items[0].id in self._enums:
             self._array_enum[name] = items[0].id
+        if items and isinstance(items[0], ast.Name) and items[0].id == "bool":
+            self._bool_arrays.add(name)
         if node.value is not None:
             self._emit_array_init(var, ctype, length, node.value)
 
@@ -2313,10 +2323,16 @@ class _Emitter:
         at: ast.AST | None = None,
     ) -> None:
         """Store one numeric field value (casting signeds to their raw word)."""
+        off = offset_expr if offset_expr is not None else f"{ACCOUNT_DATA_OFFSET + fmodel.offset}u"
+        if fmodel.c_type == "SolPubkey":
+            if frag.kind != "pub":
+                self._diag(PS5002, at, "cannot store a non-Pubkey into a Pubkey field")
+                return
+            self._s(f"rt_st_key({acc_var}->data, {off}, {frag.text});")
+            return
         if frag.kind != "pub" and _canon(frag.kind) != _canon(fmodel.c_type):
             text = self._coerce_numeric(frag, fmodel.c_type, at)
             frag = _Frag(text, _canon(fmodel.c_type))
-        off = offset_expr if offset_expr is not None else f"{ACCOUNT_DATA_OFFSET + fmodel.offset}u"
         size = _WIDTH_BYTES[fmodel.c_type]
         if size == 1:
             # One byte: store the raw bits directly (works for i8/u8/bool).
@@ -2596,7 +2612,7 @@ class _Emitter:
             return _Frag(f"(const SolPubkey *)(const void *)({data} + {off})", "pub")
         if fmodel.c_type in ("uint8_t", "bool"):
             self._s(f"uint8_t {var} = {data}[{off}];")
-            return _Frag(var, "uint8_t")
+            return _Frag(var, "bool" if fmodel.c_type == "bool" else "uint8_t")
         if fmodel.c_type == "int128_t":
             bits = self._mk_tmp()
             self._s(f"RtU128 {bits} = 0;")
@@ -2662,6 +2678,8 @@ class _Emitter:
             var, c_ctype = info
             if c_ctype == "SolPubkey":
                 return _Frag(f"&{var}", "pub")
+            if node.id in self._bools:
+                return _Frag(var, "bool")
             return _Frag(var, c_ctype)
         if isinstance(node, ast.Attribute):
             return self._load_attr(node)
@@ -3009,7 +3027,8 @@ class _Emitter:
                 return _Frag(f"&{var}[{idx}]", "pub")
             tmp = self._mk_tmp()
             self._s(f"{ctype} {tmp} = {var}[{idx}];")
-            return _Frag(tmp, ctype)
+            kind = "bool" if base.id in self._bool_arrays else ctype
+            return _Frag(tmp, kind)
         if isinstance(base, ast.Attribute):
             resolved = self._resolve_field(base)
             if resolved is None:

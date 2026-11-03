@@ -9,7 +9,8 @@ A short pointer is `AGENTS.md` at the repo root.
 
 - [x] Typed Python subset, checked with `pythsol check`
 - [x] Native SBF `.so`, IDL, and solders client from `pythsol build`
-- [x] LiteSVM tests for counter, ledger, vault, escrow, and the purse fixture
+- [x] LiteSVM tests for all six examples (counter, ledger, vault, escrow, multisig, poll) and the purse fixture
+- [x] Fixed-range list comprehensions (`[x for i in range(4)]` → `FixedArray`)
 - [x] `pythsol test`, build cache, wallet, faucet, deploy, port, verify, profile
 - [x] Hosted playground, browser check and emit: live at `https://www.pythsol.com/playground`; check and emit are served as serverless Python, compile answers 403 with Docker guidance
 - [x] Hosted docs: live under `/docs` of the same project (`https://www.pythsol.com/docs`), Starlight `base: /docs`
@@ -45,8 +46,11 @@ test, or a live URL. Details and blockers live in `docs/HANDOFF.md`.
    - [x] list comprehensions with a constant `range` length
    - [x] PDA-signed System Transfer
    - [x] unbounded `Vec[T]` diagnosed with the account-layout reason
-5. **More examples** — four real programs today; add only programs that
-   `check` and run in LiteSVM.
+5. **More examples** — six real programs now: counter, ledger, vault,
+   escrow, multisig, poll. Each one compiles
+   (`tests/test_examples.py`); the stateful and lamport ones run in LiteSVM
+   (`tests/test_examples_litesvm.py`). `multisig` and `poll` are also CLI
+   templates, exercised by `tests/test_testing_plugin.py`. Do not add stubs.
 6. **Proof, not claims** — published audit (external), measured LiteSVM CU
    benchmarks, Lighthouse on the live site. Never copy another project's
    numbers.

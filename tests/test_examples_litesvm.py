@@ -27,6 +27,8 @@ PROGRAM_ID = "F1x3Lz3Nn3jvrUWM65uwGFPzFGuCB5GMUksMiNGxiKgU"
 ROOT = Path(__file__).parents[1]
 VAULT_PATH = ROOT / "examples" / "vault" / "programs" / "vault.py"
 ESCROW_PATH = ROOT / "examples" / "escrow" / "programs" / "escrow.py"
+MULTISIG_PATH = ROOT / "examples" / "multisig" / "programs" / "multisig.py"
+POLL_PATH = ROOT / "examples" / "poll" / "programs" / "poll.py"
 FAUCET_LAMPORTS = 50_000_000
 GIFT = 1_000
 PRICE = 400
@@ -251,3 +253,203 @@ def test_escrow_take_and_cancel(escrow_example: tuple[Path, Any]) -> None:
     got = _lamports(svm, taker.pubkey())
     fee = taker_before + held - PRICE - got
     assert fee in {5_000, 10_000}, fee
+
+
+@pytest.fixture(scope="module")
+def multisig_example(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, Any]:
+    return _build(tmp_path_factory.mktemp("multisig_example"), MULTISIG_PATH)
+
+
+@pytest.fixture(scope="module")
+def poll_example(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, Any]:
+    return _build(tmp_path_factory.mktemp("poll_example"), POLL_PATH)
+
+
+@pytest.mark.smoke
+def test_multisig_needs_two_of_three(multisig_example: tuple[Path, Any]) -> None:
+    so_path, client = multisig_example
+    svm = LiteSVM()
+    prog_id = Pubkey.from_string(PROGRAM_ID)
+    svm.add_program(prog_id, so_path.read_bytes())
+    creator = Keypair()
+    first, second, third = Keypair(), Keypair(), Keypair()
+    donor, dest = Keypair(), Keypair()
+    for key in (creator, first, second, third, donor, dest):
+        svm.airdrop(key.pubkey(), FAUCET_LAMPORTS)
+    treasury, bump = Pubkey.find_program_address([b"treasury"], prog_id)
+
+    opened = _send(
+        svm,
+        creator,
+        client.initialize(
+            prog_id,
+            creator.pubkey(),
+            treasury,
+            first.pubkey(),
+            second.pubkey(),
+            third.pubkey(),
+            2,
+            bump,
+        ),
+        [creator],
+    )
+    assert not _failed(opened), _logs(opened)
+    data = bytes(svm.get_account(treasury).data)
+    assert data[8:40] == bytes(creator.pubkey())
+    assert data[40:72] == bytes(first.pubkey())
+    assert data[72:104] == bytes(second.pubkey())
+    assert data[104:136] == bytes(third.pubkey())
+    assert data[136] == 0
+    assert data[137] == 2
+    rent = _lamports(svm, treasury)
+
+    funded = _send(
+        svm,
+        donor,
+        client.fund(prog_id, donor.pubkey(), treasury, 1_000_000),
+        [donor],
+    )
+    assert not _failed(funded), _logs(funded)
+    assert _lamports(svm, treasury) == rent + 1_000_000
+
+    approved = _send(
+        svm,
+        first,
+        client.approve(prog_id, first.pubkey(), treasury, 0),
+        [first],
+    )
+    assert not _failed(approved), _logs(approved)
+    assert bytes(svm.get_account(treasury).data)[136] == 0b001
+
+    before_release = _lamports(svm, dest.pubkey())
+    not_approved = _send(
+        svm,
+        second,
+        client.release(prog_id, second.pubkey(), treasury, dest.pubkey(), 1, 400_000),
+        [second, dest],
+    )
+    assert _failed(not_approved)
+    assert _custom_code(not_approved) == 6003
+    assert _lamports(svm, dest.pubkey()) == before_release
+
+    duplicate = _send(
+        svm,
+        first,
+        client.approve(prog_id, first.pubkey(), treasury, 0),
+        [first],
+    )
+    assert _failed(duplicate)
+    assert _custom_code(duplicate) == 6002
+
+    wrong_slot = _send(
+        svm,
+        first,
+        client.approve(prog_id, first.pubkey(), treasury, 1),
+        [first],
+    )
+    assert _failed(wrong_slot)
+    assert _custom_code(wrong_slot) == 6000
+
+    second_approval = _send(
+        svm,
+        second,
+        client.approve(prog_id, second.pubkey(), treasury, 1),
+        [second],
+    )
+    assert not _failed(second_approval), _logs(second_approval)
+    assert bytes(svm.get_account(treasury).data)[136] == 0b011
+
+    released = _send(
+        svm,
+        second,
+        client.release(prog_id, second.pubkey(), treasury, dest.pubkey(), 1, 400_000),
+        [second, dest],
+    )
+    assert not _failed(released), _logs(released)
+    data = bytes(svm.get_account(treasury).data)
+    assert data[136] == 0
+    assert struct.unpack_from("<Q", data, 138)[0] == 400_000
+    assert _lamports(svm, dest.pubkey()) == before_release + 400_000
+    assert _lamports(svm, treasury) == rent + 600_000
+
+
+@pytest.mark.smoke
+def test_poll_counts_one_vote_per_key(poll_example: tuple[Path, Any]) -> None:
+    so_path, client = poll_example
+    svm = LiteSVM()
+    prog_id = Pubkey.from_string(PROGRAM_ID)
+    svm.add_program(prog_id, so_path.read_bytes())
+    creator = Keypair()
+    voters = [Keypair() for _ in range(4)]
+    for key in [creator, *voters]:
+        svm.airdrop(key.pubkey(), FAUCET_LAMPORTS)
+    poll, bump = Pubkey.find_program_address([b"poll"], prog_id)
+
+    opened = _send(
+        svm,
+        creator,
+        client.initialize(
+            prog_id,
+            creator.pubkey(),
+            poll,
+            voters[0].pubkey(),
+            voters[1].pubkey(),
+            voters[2].pubkey(),
+            voters[3].pubkey(),
+            bump,
+        ),
+        [creator],
+    )
+    assert not _failed(opened), _logs(opened)
+    data = bytes(svm.get_account(poll).data)
+    assert data[40:72] == bytes(voters[0].pubkey())
+    assert data[136:168] == bytes(voters[3].pubkey())
+    assert data[168] == 0
+    assert struct.unpack_from("<I", data, 169)[0] == 0
+    assert struct.unpack_from("<I", data, 173)[0] == 0
+
+    yes = _send(
+        svm,
+        voters[0],
+        client.vote(prog_id, voters[0].pubkey(), poll, 0, True),
+        [voters[0]],
+    )
+    assert not _failed(yes), _logs(yes)
+    no = _send(
+        svm,
+        voters[3],
+        client.vote(prog_id, voters[3].pubkey(), poll, 3, False),
+        [voters[3]],
+    )
+    assert not _failed(no), _logs(no)
+
+    duplicate = _send(
+        svm,
+        voters[0],
+        client.vote(prog_id, voters[0].pubkey(), poll, 0, True),
+        [voters[0]],
+    )
+    assert _failed(duplicate)
+    assert _custom_code(duplicate) == 6002
+
+    wrong_slot = _send(
+        svm,
+        voters[1],
+        client.vote(prog_id, voters[1].pubkey(), poll, 0, True),
+        [voters[1]],
+    )
+    assert _failed(wrong_slot)
+    assert _custom_code(wrong_slot) == 6001
+
+    second_yes = _send(
+        svm,
+        voters[1],
+        client.vote(prog_id, voters[1].pubkey(), poll, 1, True),
+        [voters[1]],
+    )
+    assert not _failed(second_yes), _logs(second_yes)
+
+    data = bytes(svm.get_account(poll).data)
+    assert data[168] == 0b1011
+    assert struct.unpack_from("<I", data, 169)[0] == 2
+    assert struct.unpack_from("<I", data, 173)[0] == 1

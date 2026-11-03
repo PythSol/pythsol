@@ -108,10 +108,13 @@ acceptance state; this section carries the implementation traps.
    (`emit.py::_emit_array_init`) all enforce the same shape. No `if` filters,
    no async, no comprehensions over account arrays, no list literals.
    `tests/test_listcomp.py` compiles and runs one in LiteSVM.
-3. **More examples** — four real programs. The old plan asked for ~20. Add
-   only programs that `check` and, if they move lamports, run in LiteSVM.
-   Do not invent a gallery of stubs. The escrow example moves **lamports**,
-   not SPL tokens. Token CPI lives on the token fixture / `token_transfer`.
+3. **More examples** — six real programs: counter, ledger, vault, escrow,
+   multisig, poll. Add only programs that `check` and, if they move lamports
+   or write state, run in LiteSVM. Do not invent a gallery of stubs. The
+   escrow example moves **lamports**, not SPL tokens. Token CPI lives on the
+   token fixture / `token_transfer`. `multisig` and `poll` are also CLI
+   templates under `src/pythsol/cli/template_programs/`; keep the example and
+   the template copy identical when editing either.
 4. **Full-compile playground on Render** — docs + check/emit are live on
    Vercel (see above). Render is blocked on the account billing card at
    `https://dashboard.render.com/billing`; once added, run

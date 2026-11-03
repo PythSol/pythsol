@@ -57,15 +57,18 @@ Client).
 
 ## Example programs
 
-The `examples/` directory ships four builds to learn from; each has a
-docs walkthrough.
+The `examples/` directory ships six builds to learn from. The first four
+have docs walkthroughs; the last two are documented by their source and
+tests.
 
 | Program | What it shows |
 | --- | --- |
 | [counter](/docs/tutorial-counter) | accounts, a signer/writable guard, a custom error |
-| [counter](/docs/tutorial-counter) / [ledger](/docs/language) | fixed-capacity `Vec[T, N]` payload fields |
+| [ledger](/docs/language) | fixed-capacity `Vec[T, N]` payload fields and a for-range fill |
 | [vault](/docs/accounts) | lamports held by a program-owned PDA |
 | [escrow](/docs/tutorial-escrow) | lamport moves between two users' accounts |
+| [multisig](https://github.com/PythSol/pythsol/blob/main/examples/multisig/programs/multisig.py) | a `FixedArray[Pubkey, 3]` owner set, approval bitmask, PDA payout |
+| [poll](https://github.com/PythSol/pythsol/blob/main/examples/poll/programs/poll.py) | allowlisted voters, `bool` arguments, one-vote bitmask |
 
 ## Subset in one breath
 

@@ -38,5 +38,25 @@
     "sourcePath": "examples/escrow/programs/escrow.py",
     "playgroundUrl": "/examples/escrow",
     "tests": "passing"
+  },
+  {
+    "id": "multisig",
+    "title": "Multisig treasury",
+    "summary": "A 2-of-3 treasury. Owners approve a payout and the PDA signs the lamport transfer; approvals reset after release.",
+    "level": "next",
+    "concepts": ["FixedArray", "Pubkey", "Seeds", "system_transfer", "bitmask"],
+    "sourcePath": "examples/multisig/programs/multisig.py",
+    "playgroundUrl": "/examples/multisig",
+    "tests": "passing"
+  },
+  {
+    "id": "poll",
+    "title": "Poll",
+    "summary": "Four allowlisted voters, one vote each. A u8 bitmask records who voted; yes and no counts live on the account.",
+    "level": "next",
+    "concepts": ["FixedArray", "Pubkey", "bool", "bitmask", "require"],
+    "sourcePath": "examples/poll/programs/poll.py",
+    "playgroundUrl": "/examples/poll",
+    "tests": "passing"
   }
 ]

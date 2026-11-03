@@ -318,7 +318,7 @@ def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
 
       <h2><svg class="h2-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-book"/></svg>Learn from working programs</h2>
       <p class="note">
-        Four examples ship with tests written against the real bytecode — read
+        Six examples ship with tests written against the real bytecode — read
         them locally or follow the walkthroughs.
       </p>
       <div class="examples reveal">
@@ -388,6 +388,38 @@ def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
           <p class="links">
             <a href="/docs/tutorial-escrow">Walkthrough</a>
             <a href="/examples/escrow">Source</a>
+          </p>
+        </section>
+        <section class="example">
+          <div class="example-head">
+            <div class="ex-title">
+              <span class="tile tile-multisig"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-shield"/></svg></span>
+              <h3>Multisig treasury</h3>
+            </div>
+            <span class="tag tag-web">2 of 3</span>
+          </div>
+          <p class="note">Owners approve a payout; the PDA signs the lamport transfer and approvals reset after release.</p>
+          <div class="chips">
+            <code>FixedArray</code><code>Pubkey</code><code>Seeds</code><code>bitmask</code>
+          </div>
+          <p class="links">
+            <a href="/examples/multisig">Source</a>
+          </p>
+        </section>
+        <section class="example">
+          <div class="example-head">
+            <div class="ex-title">
+              <span class="tile tile-poll"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-list"/></svg></span>
+              <h3>Poll</h3>
+            </div>
+            <span class="tag tag-web">one vote each</span>
+          </div>
+          <p class="note">Four allowlisted voters. A u8 bitmask records who voted; yes and no counts live on the account.</p>
+          <div class="chips">
+            <code>FixedArray</code><code>bool</code><code>bitmask</code><code>require</code>
+          </div>
+          <p class="links">
+            <a href="/examples/poll">Source</a>
           </p>
         </section>
       </div>

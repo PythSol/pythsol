@@ -117,11 +117,11 @@ The binary ABI conventions are pinned in
 | 4 | if/while/for, casts, full integer widths, `FixedArray`, checked expressions | **done** |
 | 5 | Python client (`*_client.py`, solders) | **done** |
 | 6 | `pythsol test`, pytest plugin, build cache, wallet, faucet, deploy, `pysol.toml` | **done** |
-| 7 | Starlight scaffold and light tokens (`web/docs`, `web/shared-tokens`) | **scaffold** (not deployed, no Lighthouse run) |
-| 8 | `pythsol serve` loopback check, emit, and compile | **local only** (no hosted Pyodide) |
-| 9 | gallery of the four examples, `pythsol port`, migration and contributor notes | **partial** (four examples, not twenty) |
+| 7 | Starlight scaffold and light tokens (`web/docs`, `web/shared-tokens`) | **done** (live at `/docs`; no Lighthouse run) |
+| 8 | `pythsol serve` loopback check, emit, and compile | **live check/emit** (hosted compile pending Render) |
+| 9 | gallery of the six examples, `pythsol port`, migration and contributor notes | **partial** (six examples, not twenty) |
 | 10 | `verify`, `profile`, `idl-publish`, `cpi`, VS Code diagnostics | **partial** (no audit, no CU gate) |
-| 11 | docs translations, comprehensions, a second IR, in-browser SBF | **not scheduled** |
+| 11 | docs translations, a second IR, in-browser SBF | **not scheduled** |
 | … | unit enums (`@enum`, `match`) | **done** |
 | … | fixed-width `Option[T]` (tag + reserved value) | **done** |
 | … | fixed-width `FixedString[N]` (`u32` length + reserved bytes) | **done** |

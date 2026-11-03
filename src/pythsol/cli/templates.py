@@ -10,7 +10,7 @@ from importlib.resources import files
 
 __all__ = ["TEMPLATES", "program_source", "program_test_source", "project_files"]
 
-TEMPLATES: tuple[str, ...] = ("counter", "ledger", "vault", "escrow")
+TEMPLATES: tuple[str, ...] = ("counter", "ledger", "vault", "escrow", "multisig", "poll")
 
 _PYSOL = """\
 [project]
@@ -103,11 +103,73 @@ def test_make_and_take(program, payer):
     program.take(taker=taker, maker=payer, escrow=escrow, price=400)
 """
 
+_MULTISIG_TEST = """\
+def test_two_of_three(program, payer):
+    first = program.keypair()
+    second = program.keypair()
+    third = program.keypair()
+    dest = program.keypair()
+    opened = program.initialize(
+        authority=payer,
+        first=first.pubkey(),
+        second=second.pubkey(),
+        third=third.pubkey(),
+        threshold=2,
+    )
+    treasury = opened.account("treasury")
+    program.fund(donor=payer, treasury=treasury, amount=1000)
+    program.approve(owner=first, treasury=treasury, slot=0)
+    program.approve(owner=second, treasury=treasury, slot=1)
+    program.release(owner=second, treasury=treasury, dest=dest, slot=1, amount=400)
+    assert program.fetch("Treasury", treasury)["paid"] == 400
+
+
+def test_one_approval_is_not_enough(program, payer):
+    first = program.keypair()
+    second = program.keypair()
+    third = program.keypair()
+    dest = program.keypair()
+    opened = program.initialize(
+        authority=payer,
+        first=first.pubkey(),
+        second=second.pubkey(),
+        third=third.pubkey(),
+        threshold=2,
+    )
+    treasury = opened.account("treasury")
+    program.fund(donor=payer, treasury=treasury, amount=1000)
+    program.approve(owner=first, treasury=treasury, slot=0)
+    with program.expect_error("NotApproved"):
+        program.release(owner=second, treasury=treasury, dest=dest, slot=1, amount=400)
+"""
+
+_POLL_TEST = """\
+def test_one_vote_per_key(program, payer):
+    voters = [program.keypair() for _ in range(4)]
+    opened = program.initialize(
+        authority=payer,
+        first=voters[0].pubkey(),
+        second=voters[1].pubkey(),
+        third=voters[2].pubkey(),
+        fourth=voters[3].pubkey(),
+    )
+    poll = opened.account("poll")
+    program.vote(voter=voters[0], poll=poll, slot=0, choice=True)
+    program.vote(voter=voters[3], poll=poll, slot=3, choice=False)
+    state = program.fetch("Poll", poll)
+    assert state["yes"] == 1
+    assert state["no"] == 1
+    with program.expect_error("AlreadyVoted"):
+        program.vote(voter=voters[0], poll=poll, slot=0, choice=True)
+"""
+
 _TEMPLATE_TESTS = {
     "counter": _COUNTER_TEST,
     "ledger": _LEDGER_TEST,
     "vault": _VAULT_TEST,
     "escrow": _ESCROW_TEST,
+    "multisig": _MULTISIG_TEST,
+    "poll": _POLL_TEST,
 }
 
 
