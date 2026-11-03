@@ -101,8 +101,13 @@ acceptance state; this section carries the implementation traps.
    change `Vec[T]` (arity 1) diagnostics: `tests/test_option.py` and
    `tests/test_phase2.py` pin `Vec[u64]` as instruction-arg `PS3001` and
    account-field `PS4001`.
-2. **List comprehensions** — subset rejects them (`PS1011`). Lowering them is
-   a subset + typecheck + emit change. `pass` is already allowed.
+2. **List comprehensions** — supported only as `[expr for i in range(<int
+   literal>)]`, and only where the target is an annotated
+   `FixedArray[T, N]` local. Subset (`subset.py::_visit_listcomp`), typecheck
+   (`typecheck.py::_listcomp_ty`), and emit
+   (`emit.py::_emit_array_init`) all enforce the same shape. No `if` filters,
+   no async, no comprehensions over account arrays, no list literals.
+   `tests/test_listcomp.py` compiles and runs one in LiteSVM.
 3. **More examples** — four real programs. The old plan asked for ~20. Add
    only programs that `check` and, if they move lamports, run in LiteSVM.
    Do not invent a gallery of stubs. The escrow example moves **lamports**,
@@ -123,10 +128,11 @@ acceptance state; this section carries the implementation traps.
    `tests/test_packaging.py`); the upload still needs the user's API token.
    Audit and Lighthouse need real external runs. Do not copy TypeSol's
    numbers. Do not invent a token.
-7. **PDA-signed System Transfer CPI** — the System program refuses Transfer
-   when `from` carries data. Paying out of a program account uses
-   `rt_move_lamports` (direct debit of a program-owned account). Keep
-   `rt_system_transfer` for a `Signer` source.
+7. **PDA-signed System Transfer CPI** — done: the System program refuses
+   Transfer when `from` carries data, so a PDA source lowers to
+   `rt_move_lamports` (direct debit of a program-owned account), while a
+   `Signer` source keeps `rt_system_transfer`. Pinned by
+   `tests/test_vec_pda.py` and `tests/fixtures/purse.py`.
 8. **Instruction-arg data enums** — data enums are account fields. A data
    enum as instruction data is `PS4001`. Payload `.value` is
    `account.field.value`.

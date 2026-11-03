@@ -7,6 +7,8 @@ The subset accepts annotated integers `u8` through `u128` and `i8` through
 `i128`, `bool`, `Pubkey`, `Signer`, `Mut`, `Init`, `Account`, `FixedArray`,
 `Option`, `FixedString`, unit `@enum` with `match`, `@struct`, `@event` and
 `emit`, plain helpers, `if` / `while` / `for` over `range`, and `require`.
+A fixed-range list comprehension, `[base + i for i in range(4)]`, initializes
+a `FixedArray[T, 4]` local.
 
 Calls the compiler knows are `require`, `len`, `range`, `emit`,
 `system_transfer`, `token_transfer`, `token2022_transfer`, `ata_create`, and

@@ -1196,8 +1196,47 @@ class TypeChecker:
             return self._subscript_expr_ty(node, env)
         if isinstance(node, ast.Call):
             return self._call_ty(node, env)
+        if isinstance(node, ast.ListComp):
+            return self._listcomp_ty(node, env)
         # Anything else: subset should have rejected it; stay quiet.
         return TyUnknown()
+
+    def _listcomp_ty(self, node: ast.ListComp, env: dict[str, Ty]) -> Ty:
+        """``[expr for i in range(4)]`` is a ``FixedArray[T, 4]``."""
+        gen = node.generators[0] if len(node.generators) == 1 else None
+        if gen is None or gen.is_async or gen.ifs or not isinstance(gen.target, ast.Name):
+            self._at(node, PS2006, "a list comprehension is `[expr for i in range(<int>)]`")
+            return TyUnknown()
+        it = gen.iter
+        count: int | None = None
+        elem: Ty = TyUnknown()
+        if isinstance(it, ast.Call) and isinstance(it.func, ast.Name) and it.func.id == "range":
+            bound = it.args[0] if len(it.args) == 1 else None
+            if (
+                isinstance(bound, ast.Constant)
+                and isinstance(bound.value, int)
+                and not isinstance(bound.value, bool)
+            ):
+                count = bound.value
+                elem = TInt(width=64, signed=False)
+        else:
+            iter_ty = self._type_of(it, env)
+            if isinstance(iter_ty, (TFixedArray, TVec)):
+                count = iter_ty.size if isinstance(iter_ty, TFixedArray) else iter_ty.cap
+                elem = iter_ty.elt
+            elif isinstance(iter_ty, TFixedString):
+                count = iter_ty.size
+                elem = TInt(width=8, signed=False)
+        if count is None or not 1 <= count <= 4096:
+            self._at(it, PS2006, "a list comprehension needs a constant length 1..4096")
+            return TyUnknown()
+        if gen.target.id in env:
+            self._at(gen.target, PS2001, f"`{gen.target.id}` is already declared")
+            return TyUnknown()
+        inner = dict(env)
+        inner[gen.target.id] = elem
+        elt_ty = self._type_of(node.elt, inner)
+        return TFixedArray(elt=elt_ty, size=count)
 
     def _name_ty(self, node: ast.Name, env: dict[str, Ty]) -> Ty:
         name = node.id

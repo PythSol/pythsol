@@ -242,7 +242,13 @@ FIXTURES: list[Fixture] = [
     ),
     _body_fixture("keyword-call", "PS1003", 14, 18, "    require(cond=1, err=Err.Unauthorized)"),
     # --- PS1011 comprehensions ---------------------------------------------
-    _body_fixture("comprehension", "PS1011", 14, 10, "    xs = [i for i in range(10)]"),
+    _body_fixture(
+        "comprehension",
+        "PS1011",
+        14,
+        10,
+        "    xs = [i for i in range(2) for j in range(2)]",
+    ),
     _body_fixture("generator", "PS1011", 14, 10, "    xs = (i for i in range(10))"),
     # --- PS1012 classes ----------------------------------------------------
     Fixture(

@@ -38,8 +38,13 @@ test, or a live URL. Details and blockers live in `docs/HANDOFF.md`.
    card. Then run `Spikes/tools/render-service.ps1`.
 3. **Deploy-to-Devnet button** — after Render is live; browser wallet,
    devnet RPC, program + IDL.
-4. **Compiler gaps** — unbounded `Vec[T]` (design), list comprehensions,
-   PDA-signed System Transfer via `rt_move_lamports`.
+4. **Compiler gaps** — `[expr for i in range(<int>)]` now lowers to a
+   `FixedArray[T, N]` local (`tests/test_listcomp.py`, including a LiteSVM
+   run). PDA-signed `system_transfer` already uses `rt_move_lamports`
+   (`tests/test_vec_pda.py`). Unbounded `Vec[T]` stays rejected by design.
+   - [x] list comprehensions with a constant `range` length
+   - [x] PDA-signed System Transfer
+   - [x] unbounded `Vec[T]` diagnosed with the account-layout reason
 5. **More examples** — four real programs today; add only programs that
    `check` and run in LiteSVM.
 6. **Proof, not claims** — published audit (external), measured LiteSVM CU

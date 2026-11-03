@@ -2146,15 +2146,58 @@ class _Emitter:
             self._diag(PS5002, node, "only `FixedArray[scalar, N]` locals are lowered")
             return
         ctype, length = parsed
-        if node.value is not None:
-            self._diag(PS5002, node.value, "assign array elements with `name[i] = ...`")
-            return
         var = f"v_{name}"
         self._s(f"{ctype} {var}[{length}] = {{0}};")
         self._arrays[name] = (var, ctype, length)
         items = list(ann.slice.elts) if isinstance(ann.slice, ast.Tuple) else [ann.slice]
         if items and isinstance(items[0], ast.Name) and items[0].id in self._enums:
             self._array_enum[name] = items[0].id
+        if node.value is not None:
+            self._emit_array_init(var, ctype, length, node.value)
+
+    def _emit_array_init(
+        self, var: str, ctype: str, length: int, value: ast.expr
+    ) -> None:
+        """Fill a FixedArray local from a list comprehension."""
+        if not isinstance(value, ast.ListComp):
+            self._diag(PS5002, value, "assign array elements with `name[i] = ...`")
+            return
+        gen = value.generators[0] if len(value.generators) == 1 else None
+        if gen is None or not isinstance(gen.target, ast.Name):
+            self._diag(PS5002, value, "unsupported list comprehension")
+            return
+        name = gen.target.id
+        ivar = f"v_{name}"
+        self._locals[name] = (ivar, "uint64_t")
+        self._loop_no += 1
+        tag = self._loop_no
+        self._s("{")
+        self._indent += 1
+        self._s(f"uint64_t {ivar} = 0u;")
+        self._s(f"rt_h{tag}:")
+        self._s(f"if (!({ivar} < {length}u)) goto rt_d{tag};")
+        self._store_array_element(var, ctype, ivar, value.elt)
+        self._s(f"{ivar} = {ivar} + 1u;")
+        self._s(f"goto rt_h{tag};")
+        self._s(f"rt_d{tag}: ;")
+        self._indent -= 1
+        self._s("}")
+        self._locals.pop(name, None)
+
+    def _store_array_element(
+        self, var: str, ctype: str, index: str, value: ast.expr
+    ) -> None:
+        frag = self._load(value)
+        if ctype == "SolPubkey":
+            if frag.kind != "pub":
+                self._diag(PS5002, value, "cannot store a non-Pubkey into a Pubkey array")
+                return
+            self._s(f"rt_key_copy(&{var}[{index}], {frag.text});")
+            return
+        text = frag.text
+        if _canon(frag.kind) != _canon(ctype):
+            text = self._coerce_numeric(frag, ctype, value)
+        self._s(f"{var}[{index}] = ({ctype})({text});")
 
     def _fixed_array_ann(self, ann: ast.Subscript) -> tuple[str, int] | None:
         if not isinstance(ann.value, ast.Name) or ann.value.id != "FixedArray":

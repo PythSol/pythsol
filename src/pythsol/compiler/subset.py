@@ -163,6 +163,14 @@ def _assign_str_ok(stmt: ast.Assign) -> bool:
     return bool(stmt.targets) and all(isinstance(target, ast.Attribute) for target in stmt.targets)
 
 
+def _is_const_int(node: ast.expr) -> bool:
+    return (
+        isinstance(node, ast.Constant)
+        and isinstance(node.value, int)
+        and not isinstance(node.value, bool)
+    )
+
+
 def _ann_str_ok(stmt: ast.AnnAssign) -> bool:
     """``name: FixedString[N] = "hi"`` is the annotated form of the same store."""
     if stmt.value is None or not _is_str_lit(stmt.value):
@@ -956,16 +964,46 @@ class _SubsetVisitor:
         if isinstance(node, (ast.JoinedStr, ast.FormattedValue)):
             self._at(node, PS1003, "f-strings are not supported in phase 2")
             return
-        if isinstance(
-            node,
-            (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp),
-        ):
-            self._at(node, PS1011, "comprehensions/generators are not supported")
+        if isinstance(node, ast.ListComp):
+            self._visit_listcomp(node)
+            return
+        if isinstance(node, (ast.SetComp, ast.DictComp, ast.GeneratorExp)):
+            self._at(node, PS1011, "only list comprehensions are supported")
             return
         if isinstance(node, ast.Slice):
             self._at(node, PS1003, "slice expressions are not supported")
             return
         self._at(node, PS1003, f"unsupported expression: {type(node).__name__}")
+
+    def _visit_listcomp(self, node: ast.ListComp) -> None:
+        """A list comprehension is a fixed-size array initializer.
+
+        Allowed shape: ``[expr for name in range(<int literal>)]``. The length
+        must be a compile-time constant so the result can be a FixedArray.
+        """
+        if len(node.generators) != 1:
+            self._at(node, PS1011, "a list comprehension takes exactly one `for` clause")
+            return
+        gen = node.generators[0]
+        if gen.is_async:
+            self._at(node, PS1011, "async comprehensions are not supported")
+            return
+        if gen.ifs:
+            self._at(gen.ifs[0], PS1011, "comprehension `if` filters are not supported")
+            return
+        if not isinstance(gen.target, ast.Name):
+            self._at(gen.target, PS1011, "the comprehension variable must be a plain name")
+            return
+        it = gen.iter
+        if not (
+            isinstance(it, ast.Call) and isinstance(it.func, ast.Name) and it.func.id == "range"
+        ):
+            self._at(it, PS1011, "a list comprehension iterates `range(<int literal>)`")
+            return
+        if len(it.args) != 1 or not _is_const_int(it.args[0]):
+            self._at(it, PS1011, "comprehension range takes one integer literal")
+            return
+        self._visit_expr(node.elt)
 
     def _visit_call(self, node: ast.Call) -> None:
         func = node.func

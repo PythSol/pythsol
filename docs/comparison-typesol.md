@@ -32,7 +32,9 @@ Language and accounts:
 - TypeSol has `u256` for locals, plus `mulDiv` and `isqrt`. PythSol stops at `u128` / `i128` in accounts and arguments.
 - TypeSol has variable Borsh strings. PythSol has `FixedString[N]` and `Vec[T, N]`. A `Vec` with no capacity is rejected so later fields stay at fixed offsets.
 - TypeSol's escrow example moves SPL tokens. PythSol's escrow example moves lamports. Token transfer exists as `token_transfer`, not as that example.
-- List comprehensions are rejected. TypeSol lowers more expression forms, including some callbacks in its later versions.
+- List comprehensions are limited to `[expr for i in range(<int literal>)]`,
+  which lowers to a fixed-size `FixedArray`. TypeSol lowers more expression
+  forms, including some callbacks in its later versions.
 
 Product:
 

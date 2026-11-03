@@ -42,6 +42,7 @@ pythsol build</pre>
       <h2><svg class="h2-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-book"/></svg>Language</h2>
       <p>Annotated integers <code>u8</code> through <code>u128</code> and <code>i8</code> through <code>i128</code>, <code>bool</code>, <code>Pubkey</code>, <code>Signer</code>, <code>Mut</code>, <code>Init</code>, <code>FixedArray</code>, <code>Option</code>, <code>FixedString</code>, <code>Vec[T, N]</code>, unit enums, and data enums written as <code>Name: u64</code>.</p>
       <p>Still rejected: a <code>Vec</code> with no capacity, f-strings, and a generic on-chain invoke. One PDA seed, letters, digits, and <code>_</code>.</p>
+      <p>A fixed-range list comprehension, <code>[base + i for i in range(4)]</code>, initializes a <code>FixedArray[T, 4]</code> local at compile time.</p>
       <h2><svg class="h2-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-tools"/></svg>CLI</h2>
       <pre>pythsol doctor
 pythsol check PROGRAM.py
