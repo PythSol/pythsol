@@ -5,6 +5,23 @@ This is the hostable surface. A checked box is in the tree and covered by a test
 The next agent should read **`docs/HANDOFF.md`** (goal, built, left, traps).
 A short pointer is `AGENTS.md` at the repo root.
 
+## Blocked on the user
+
+1. **PyPI upload** — the wheel and sdist build, pass `twine check`, and the
+   clean-venv install works. Upload needs the project API token; set
+   `TWINE_USERNAME=__token__` and `TWINE_PASSWORD` locally, then follow
+   `docs/guides/release.md`.
+2. **Render full compile** — needs a payment card at
+   <https://dashboard.render.com/billing>; then run
+   `Spikes/tools/render-service.ps1`.
+3. **Push-to-deploy** — the root Vercel build is verified. Connect GitHub to
+   the Vercel account, then run `vercel git connect --scope
+   rehmandakat67-3497`.
+4. **X + Pump.fun** — the X link is `https://x.com/` until the real profile
+   exists; `#token-ca` shows "Coming soon" until the mint is supplied.
+5. **Published audit** — needs an external auditor. Benchmarks and Lighthouse
+   are measured and recorded.
+
 ## Working now
 
 - [x] Typed Python subset, checked with `pythsol check`
