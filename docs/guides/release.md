@@ -11,8 +11,8 @@ From the repo root, with the project virtualenv:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install "build>=1.2" "twine>=5"
-.\.venv\Scripts\python.exe -m build --outdir dist
-.\.venv\Scripts\python.exe -m twine check dist\*
+.\.venv\Scripts\python.exe -m build --outdir target\dist
+.\.venv\Scripts\python.exe -m twine check target\dist\*
 ```
 
 Both `pythsol-0.1.0.tar.gz` and `pythsol-0.1.0-py3-none-any.whl` must PASS.
@@ -23,7 +23,7 @@ Use a **fresh** virtualenv and install the wheel, not `-e .`:
 
 ```powershell
 python -m venv target\pypi-venv
-.\target\pypi-venv\Scripts\python.exe -m pip install dist\pythsol-0.1.0-py3-none-any.whl
+.\target\pypi-venv\Scripts\python.exe -m pip install target\dist\pythsol-0.1.0-py3-none-any.whl
 .\target\pypi-venv\Scripts\pythsol.exe --version
 ```
 
@@ -52,18 +52,43 @@ playground file is added without a matching force-include entry.
 
 ## 3. Upload
 
-Set the token in the shell (PowerShell):
+The package name `pythsol` is free as of 2026-11-03. PyPI needs an account
+with a verified email and an API token; the token is shown once and must not
+be committed or pasted into chat.
+
+### One command (prompts for the token, hidden)
 
 ```powershell
-$env:TWINE_USERNAME = "__token__"
-$env:TWINE_PASSWORD = "<the PyPI API token>"
-.\.venv\Scripts\python.exe -m twine upload dist\*
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\publish_pypi.ps1
 ```
+
+The script builds if needed, runs `twine check`, prompts with hidden input,
+uploads only for that process, and clears the variables afterwards.
+
+### Or let the agent upload from a local config
+
+Create `%USERPROFILE%\.pypirc` yourself (never in the repo):
+
+```ini
+[pypi]
+username = __token__
+password = pypi-AgEIcHlwaS5vcmc...
+```
+
+Then the upload is:
+
+```powershell
+.\.venv\Scripts\python.exe -m twine upload --config-file "$env:USERPROFILE\.pypirc" target\dist\*
+```
+
+For the first upload the token scope must be **Entire account** because the
+project does not exist yet. After the first release, replace it with a
+project-scoped token.
 
 TestPyPI first is optional but recommended:
 
 ```powershell
-.\.venv\Scripts\python.exe -m twine upload --repository testpypi dist\*
+.\.venv\Scripts\python.exe -m twine upload --repository testpypi target\dist\*
 ```
 
 ## 4. Verify the release
