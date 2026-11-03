@@ -33,6 +33,8 @@ test, or a live URL. Details and blockers live in `docs/HANDOFF.md`.
    - [x] `python -m build` produces sdist + wheel, `twine check` passes
    - [x] clean-venv wheel install runs `init`, `check`, `emit-c`, native
      `build`, and `serve` (landing, playground, check endpoint)
+   - [x] the installed wheel serves `robots.txt` and `/examples/multisig`;
+     all six templates are in the wheel
    - [x] every playground asset is force-included; `tests/test_packaging.py`
    - [ ] `twine upload`, then `pip install "pythsol[test]"` from PyPI
 2. **Hosted full compile (Render)** — staged, blocked on the Render billing
