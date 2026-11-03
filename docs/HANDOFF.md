@@ -19,10 +19,15 @@ The domain is registered at NameCheap with its zone on Cloudflare: apex A →
 `216.198.79.1`, `www` CNAME → `4ef91b6d76096047.vercel-dns-017.com`. The
 alias `https://pythsol.vercel.app` still resolves. Source of these deploys:
 `github.com/PythSol/pythsol` branch `main`.
-**Production deploy path: local CLI staging** (`Spikes/tools/
-stage-vercel-one.ps1` then `vercel deploy target\vercel_stage --prod ...
---name pythsol`). Push-to-deploy is not wired yet; that is build-queue item 8
-in `docs/STATUS.md`.
+**Production deploy path: local CLI staging**
+(`tools/stage_vercel.py`, or the older
+`Spikes/tools/stage-vercel-one.ps1`, then
+`vercel deploy target\vercel_stage --prod --name pythsol`). A repo-root
+Vercel build also exists (`vercel.json` + `api/index.py`): `vercel build`
+succeeds and a `--prebuilt` preview serves the site and `/v1/check`.
+Push-to-deploy only needs the Vercel account to connect GitHub
+(`vercel git connect` returns 400 until then); see build-queue item 8 in
+`docs/STATUS.md`.
 Render (full compile container) is staged in `Spikes/tools/render-service.ps1`
 and blocked on a dashboard payment card. The Vercel Python runtime serves one
 entrypoint (`deploy/vercel/index.py`, exact `def app(environ, start_response)`
@@ -126,11 +131,14 @@ acceptance state; this section carries the implementation traps.
 5. **In-browser SBF / WASM clang / second IR / docs i18n** — Phase 11, not
    scheduled. Starlight warns that the `i18n` collection is empty. That is
    expected.
-6. **PyPI, audit, Lighthouse, CU-vs-Anchor table** — packaging now builds
-   and is verified from a clean wheel (`docs/guides/release.md`,
+6. **PyPI, audit, Lighthouse, CU-vs-Anchor table** — packaging builds and is
+   verified from a clean wheel (`docs/guides/release.md`,
    `tests/test_packaging.py`); the upload still needs the user's API token.
-   Audit and Lighthouse need real external runs. Do not copy TypeSol's
-   numbers. Do not invent a token.
+   LiteSVM CU is measured by `tools/bench_examples.py` into
+   `docs/benchmarks.md` and gated by `tests/test_benchmarks.py`. Lighthouse
+   ran on the live landing page on 2026-11-03: 86 / 100 / 100 / 100
+   (`docs/lighthouse.md`). A published audit still needs an external
+   auditor. Do not copy TypeSol's numbers. Do not invent a token.
 7. **PDA-signed System Transfer CPI** — done: the System program refuses
    Transfer when `from` carries data, so a PDA source lowers to
    `rt_move_lamports` (direct debit of a program-owned account), while a
@@ -146,6 +154,10 @@ acceptance state; this section carries the implementation traps.
     playground "Deploy" action that runs the bpf_loader upgradeable flow
     client-side via solana web3.js (program + IDL), pointing at Devnet RPC,
     with the wallet in the browser. Build this after Render goes live.
+11. **Push-to-deploy trigger** — the repo-root build is ready and verified;
+    the remaining step is account-level: connect GitHub to the Vercel
+    account, then `vercel git connect --scope rehmandakat67-3497` in the
+    repo. Until then the CLI stage deploy is the production path.
 
 ## How later agents mismatch (read this and the work stays short)
 

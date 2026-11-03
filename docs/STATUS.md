@@ -51,14 +51,24 @@ test, or a live URL. Details and blockers live in `docs/HANDOFF.md`.
    (`tests/test_examples.py`); the stateful and lamport ones run in LiteSVM
    (`tests/test_examples_litesvm.py`). `multisig` and `poll` are also CLI
    templates, exercised by `tests/test_testing_plugin.py`. Do not add stubs.
-6. **Proof, not claims** — published audit (external), measured LiteSVM CU
-   benchmarks, Lighthouse on the live site. Never copy another project's
-   numbers.
+6. **Proof, not claims** — measured, not copied; never copy another
+   project's numbers.
+   - [x] LiteSVM CU benchmarks: `tools/bench_examples.py` writes
+     `docs/benchmarks.md`; `tests/test_benchmarks.py` enforces a 20k ceiling.
+   - [x] Lighthouse on the live landing page (2026-11-03): performance 86,
+     accessibility 100, best practices 100, SEO 100 — `docs/lighthouse.md`.
+   - [ ] published security audit (needs an external auditor)
 7. **InsForge backend** — linked but empty; build tables/functions only for
    a real feature, not as a demo.
-8. **Deploy automation** — pushing to `main` does not deploy. Add a GitHub
-   Action (or a Vercel root build) that stages and deploys; until then use
-   the CLI staging flow.
+8. **Deploy automation** — repo-root build is implemented and verified:
+   `vercel.json` + `api/index.py` build the Starlight site and serve the
+   landing/playground/docs/API from one Python function. `vercel build`
+   succeeded locally and a `--prebuilt` preview answered `/`, `/docs`,
+   `/robots.txt`, `/healthz`, and `/v1/check` with 200s. Push-to-deploy now
+   needs one account-level step: connect GitHub to Vercel
+   (`vercel git connect` returns 400 until the Vercel account has a GitHub
+   login connection). Until then, use `tools/stage_vercel.py` +
+   `vercel deploy target/vercel_stage --prod`.
 
 Not scheduled: in-browser SBF/WASM clang, a second intermediate
 representation, translated docs (`i18n` intentionally empty).

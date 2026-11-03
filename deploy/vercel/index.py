@@ -7,7 +7,6 @@ also serve the static bundle files. Reuses the exact check/emit helpers as
 
 from __future__ import annotations
 
-import json
 import os
 import pathlib
 from urllib.parse import parse_qs, unquote
@@ -15,7 +14,6 @@ from urllib.parse import parse_qs, unquote
 from wsgi_common import _json_response, _read_body, _source_of
 
 from pythsol.playground.server import _check, _emit, _examples
-
 
 __all__ = ["app"]
 
@@ -33,6 +31,7 @@ _UI_FILES: dict[str, str] = {
     "apple-touch-icon.png": "image/png",
     "hero-bg.webp": "image/webp",
     "site-bg.svg": "image/svg+xml",
+    "robots.txt": "text/plain; charset=utf-8",
 }
 
 _PAGE_ROUTES: dict[str, str] = {
@@ -79,8 +78,9 @@ def _serve_ui(start_response, rel: str) -> list[bytes]:
     if ctype is None:
         return _not_found_404(start_response)
     base = os.path.basename(rel)
+    ui_root = pathlib.Path(os.environ.get("PYTHSOL_UI_DIR", ".")).resolve()
     try:
-        with open(base, "rb") as handle:
+        with open(ui_root / base, "rb") as handle:
             raw = handle.read()
     except OSError:
         return _not_found_404(start_response)

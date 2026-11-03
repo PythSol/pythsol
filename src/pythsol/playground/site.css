@@ -806,7 +806,7 @@ footer nav a {
 footer nav a:hover,
 footer nav a:focus-visible { color: var(--blue-strong); }
 .foot-brand { font-weight: 800; font-size: 18px; margin: 0 0 6px; }
-.foot-brand .po { color: var(--yellow); }
+.foot-brand .po { color: var(--blue-strong); }
 .foot-brand .so {
   background: linear-gradient(90deg, var(--mint) 0%, var(--purple) 100%);
   -webkit-background-clip: text;

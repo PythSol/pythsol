@@ -92,6 +92,10 @@ def test_playground_check_emit_and_rejects_secrets(playground: str) -> None:
     assert site_bg_status == 200
     assert site_bg.startswith(b"<svg")
     assert b"glow-blue" in site_bg
+    robots_status, robots = _get(playground + "/robots.txt")
+    assert robots_status == 200
+    assert b"User-agent: *" in robots
+    assert b"Sitemap: https://www.pythsol.com/docs/sitemap-index.xml" in robots
     assert b'class="landing-page"' in html
     assert b'class="landing-nav"' in html
     assert b'class="nav-inner"' in html

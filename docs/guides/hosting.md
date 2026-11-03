@@ -65,11 +65,34 @@ Commands (CLI is Vercel-authenticated on this Windows machine; token lives
 in `%APPDATA%\com.vercel.cli\Data\auth.json` — never commit it):
 
 ```powershell
-# stage then deploy (Spikes/tools/stage-vercel-one.ps1 builds the tree)
-powershell -NoProfile -ExecutionPolicy Bypass -File Spikes\tools\stage-vercel-one.ps1
+# stage then deploy (tools/stage_vercel.py builds the tree; the old
+# Spikes/tools/stage-vercel-one.ps1 does the same on PowerShell)
+.\.venv\Scripts\python.exe tools\stage_vercel.py
 target\cli\node_modules\.bin\vercel.cmd deploy target\vercel_stage `
   --prod --yes --scope rehmandakat67-3497 --name pythsol
 ```
+
+### Repository-root build (push-to-deploy path)
+
+`vercel.json` at the repo root builds `web/docs` and sends every route to
+`api/index.py`, which loads `deploy/vercel/index.py` with
+`PYTHSOL_UI_DIR=src/pythsol/playground` and
+`PYTHSOL_DOCS_DIR=web/docs/dist`. `functions["api/index.py"].includeFiles`
+carries those two trees; `excludeFiles` keeps `target/`, `Spikes/`, `.venv/`,
+`node_modules/`, and `.git/` out of the 500 MB function limit.
+
+Verified locally with `vercel build` and a `--prebuilt` preview on 2026-11-03
+(`https://pythsol-9fud8iu2u-rehmandakat67-3497.vercel.app`): `/`,
+`/playground`, `/docs`, `/docs/quickstart`, `/robots.txt`, `/healthz`, and
+`POST /v1/check` all returned 200. To make a push to `main` deploy, the
+Vercel account needs a GitHub login connection first, then:
+
+```powershell
+vercel git connect --scope rehmandakat67-3497
+```
+
+Until that account step exists, the CLI stage deploy above is the production
+path. A failed root build does not move the production alias.
 
 Traps learned here:
 

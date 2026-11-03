@@ -44,3 +44,6 @@ Thumbs.db
 # --- InsForge (linked backend; .insforge/project.json holds an admin API key) ---
 .env.local
 .insforge/
+
+.vercel
+.env*

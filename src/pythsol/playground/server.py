@@ -251,6 +251,9 @@ def make_handler(
             if path == "/site-bg.svg":
                 _send(self, 200, _asset("site-bg.svg"), content_type="image/svg+xml")
                 return
+            if path == "/robots.txt":
+                _send(self, 200, _asset("robots.txt"), content_type="text/plain; charset=utf-8")
+                return
             if path == "/healthz":
                 _send(self, 200, {"ok": True, "compile": compile_enabled})
                 return

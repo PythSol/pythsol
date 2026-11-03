@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm --prefix web/docs ci && npm --prefix web/docs run build",
+  "functions": {
+    "api/index.py": {
+      "includeFiles": "{src/pythsol/**,web/docs/dist/**,deploy/vercel/**}",
+      "excludeFiles": "{target/**,Spikes/**,.venv/**,node_modules/**,web/docs/node_modules/**,.git/**,.vercel/**,.mypy_cache/**,graphify-out/**,.pytest_cache/**,.ruff_cache/**,.hypothesis/**}"
+    }
+  },
+  "rewrites": [{ "source": "/(.*)", "destination": "/api/index?pathname=/$1" }]
+}
