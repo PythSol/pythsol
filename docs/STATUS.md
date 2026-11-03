@@ -11,10 +11,9 @@ A short pointer is `AGENTS.md` at the repo root.
 - [x] Native SBF `.so`, IDL, and solders client from `pythsol build`
 - [x] LiteSVM tests for counter, ledger, vault, escrow, and the purse fixture
 - [x] `pythsol test`, build cache, wallet, faucet, deploy, port, verify, profile
-- [x] Hosted playground, browser check and emit: deployed to Vercel (`https://pythsol.vercel.app`) as one project with the docs; check and emit served as serverless Python, compile answers 403 with Docker guidance
-- [x] Hosted docs: served under `/docs` of the same project (`https://pythsol.vercel.app/docs`), Starlight `base: /docs`
-- [x] `pythsol.com` and `www.pythsol.com` are attached to the project — they go live as soon as the user points DNS (A `@` → `76.76.21.21`, CNAME `www` → `cname.vercel-dns.com`); the domain name itself is not registered yet
-- [x] Hosted full-compile playground: staged on Render (`deploy/Dockerfile`, `starter` plan) — creation is blocked on a payment card in the Render dashboard
+- [x] Hosted playground, browser check and emit: live at `https://www.pythsol.com/playground`; check and emit are served as serverless Python, compile answers 403 with Docker guidance
+- [x] Hosted docs: live under `/docs` of the same project (`https://www.pythsol.com/docs`), Starlight `base: /docs`
+- [x] `pythsol.com` and `www.pythsol.com` are live (verified 2026-11-02): domain at NameCheap, DNS on Cloudflare, apex A → `216.198.79.1`, `www` CNAME → `4ef91b6d76096047.vercel-dns-017.com`
 - [x] `Vec[T, N]`, fixed-width data enums, PDA lamport moves
 - [x] Local playground: check, emit, and compile on loopback
 - [x] Public playground: `pythsol serve --public` checks and emits, and does not compile until `--allow-compile`
@@ -23,17 +22,37 @@ A short pointer is `AGENTS.md` at the repo root.
 - [x] Docs site builds with `npm run build` in `web/docs` (static files in `dist/`)
 - [x] Windows is a supported developer machine for the compiler and LiteSVM
 
-## Not done
+## Build queue
 
-- [ ] Unbounded `Vec[T]` (a value with no capacity would move later account fields)
-- [ ] In-browser SBF compile (no WASM clang in this tree)
-- [ ] A second compiler IR
-- [ ] Translated docs
-- [ ] List comprehensions
-- [ ] Twenty gallery examples (four programs are real: counter, ledger, vault, escrow)
-- [ ] Published audit
-- [ ] PyPI release (version is still 0.1.0)
-- [ ] Lighthouse score for the docs site
+The order the project is being completed in. Tick only with a command, a
+test, or a live URL. Details and blockers live in `docs/HANDOFF.md`.
+
+1. **PyPI release** — packaging is verified end to end; upload is the only
+   step left and needs the PyPI API token. Steps: `docs/guides/release.md`.
+   - [x] `python -m build` produces sdist + wheel, `twine check` passes
+   - [x] clean-venv wheel install runs `init`, `check`, `emit-c`, native
+     `build`, and `serve` (landing, playground, check endpoint)
+   - [x] every playground asset is force-included; `tests/test_packaging.py`
+   - [ ] `twine upload`, then `pip install "pythsol[test]"` from PyPI
+2. **Hosted full compile (Render)** — staged, blocked on the Render billing
+   card. Then run `Spikes/tools/render-service.ps1`.
+3. **Deploy-to-Devnet button** — after Render is live; browser wallet,
+   devnet RPC, program + IDL.
+4. **Compiler gaps** — unbounded `Vec[T]` (design), list comprehensions,
+   PDA-signed System Transfer via `rt_move_lamports`.
+5. **More examples** — four real programs today; add only programs that
+   `check` and run in LiteSVM.
+6. **Proof, not claims** — published audit (external), measured LiteSVM CU
+   benchmarks, Lighthouse on the live site. Never copy another project's
+   numbers.
+7. **InsForge backend** — linked but empty; build tables/functions only for
+   a real feature, not as a demo.
+8. **Deploy automation** — pushing to `main` does not deploy. Add a GitHub
+   Action (or a Vercel root build) that stages and deploys; until then use
+   the CLI staging flow.
+
+Not scheduled: in-browser SBF/WASM clang, a second intermediate
+representation, translated docs (`i18n` intentionally empty).
 
 ## Hosting
 

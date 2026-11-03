@@ -48,6 +48,7 @@ pythsol = "pythsol.testing.plugin"
 
 [tool.hatch.build.targets.wheel.force-include]
 "src/pythsol/playground/index.html" = "pythsol/playground/index.html"
+"src/pythsol/playground/landing.html" = "pythsol/playground/landing.html"
 "src/pythsol/playground/playground.html" = "pythsol/playground/playground.html"
 "src/pythsol/playground/docs.html" = "pythsol/playground/docs.html"
 "src/pythsol/playground/site.css" = "pythsol/playground/site.css"

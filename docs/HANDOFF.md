@@ -12,19 +12,17 @@ release or publish to PyPI unless the user gives credentials and an explicit
 publish order.
 
 Live since 2026-11-01 (see `docs/guides/hosting.md` for URL truth and deploy
-traps): **one Vercel project** at `https://pythsol.vercel.app` — `/` landing,
+traps): **one Vercel project** at `https://www.pythsol.com` — `/` landing,
 `/playground` (check/emit serverless, compile returns 403 with Docker
 guidance by design), `/docs/...` Starlight (rebuilt with `base: /docs`).
-Domains `pythsol.com` and `www.pythsol.com` are attached to the project but
-the domain name is not registered yet; DNS records for it are in the hosting
-guide. Source of these deploys: `github.com/PythSol/pythsol` branch `main`.
+The domain is registered at NameCheap with its zone on Cloudflare: apex A →
+`216.198.79.1`, `www` CNAME → `4ef91b6d76096047.vercel-dns-017.com`. The
+alias `https://pythsol.vercel.app` still resolves. Source of these deploys:
+`github.com/PythSol/pythsol` branch `main`.
 **Production deploy path: local CLI staging** (`Spikes/tools/
 stage-vercel-one.ps1` then `vercel deploy target\vercel_stage --prod ...
---name pythsol`). The project is git-linked with framework `python`, but a
-repo-root git build has no entrypoint (the tree is a monorepo) and fails at
-build without touching the alias — do not rely on push-to-deploy yet; fix
-only by giving Vercel a real root build (or moving the site into a subdir
-with `rootDirectory`).
+--name pythsol`). Push-to-deploy is not wired yet; that is build-queue item 8
+in `docs/STATUS.md`.
 Render (full compile container) is staged in `Spikes/tools/render-service.ps1`
 and blocked on a dashboard payment card. The Vercel Python runtime serves one
 entrypoint (`deploy/vercel/index.py`, exact `def app(environ, start_response)`
@@ -94,7 +92,8 @@ has no pytest. PowerShell 5.1: chain with `;`, not `&&`.
 ## Left to build
 
 These are still open. Pick from this list. Do not mark them done without a
-test or a real host.
+test or a real host. `docs/STATUS.md` has the ordered queue and the
+acceptance state; this section carries the implementation traps.
 
 1. **Unbounded `Vec[T]`** — rejected. A variable payload in the middle of an
    account moves later fields. `Vec[T, N]` is the supported form. A last-field
@@ -119,9 +118,11 @@ test or a real host.
 5. **In-browser SBF / WASM clang / second IR / docs i18n** — Phase 11, not
    scheduled. Starlight warns that the `i18n` collection is empty. That is
    expected.
-6. **PyPI, audit, Lighthouse, CU-vs-Anchor table** — need a real publish, a
-   real audit, a real Lighthouse run, and a measured benchmark suite. Do not
-   copy TypeSol's numbers. Do not invent a token.
+6. **PyPI, audit, Lighthouse, CU-vs-Anchor table** — packaging now builds
+   and is verified from a clean wheel (`docs/guides/release.md`,
+   `tests/test_packaging.py`); the upload still needs the user's API token.
+   Audit and Lighthouse need real external runs. Do not copy TypeSol's
+   numbers. Do not invent a token.
 7. **PDA-signed System Transfer CPI** — the System program refuses Transfer
    when `from` carries data. Paying out of a program account uses
    `rt_move_lamports` (direct debit of a program-owned account). Keep

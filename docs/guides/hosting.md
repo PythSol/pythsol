@@ -23,18 +23,20 @@ compiler-generated C, and no user source is ever executed.
 
 | URL | What runs there | Made by |
 |---|---|---|
-| https://pythsol.vercel.app | **one project**: `/` landing, `/playground` editor (check + emit), `/docs/...` Starlight, `/v1/*` API | Vercel CLI deploy of `target\vercel_stage` (built by `Spikes/tools/stage-vercel-one.ps1`) |
+| https://www.pythsol.com | **one project**: `/` landing, `/playground` editor (check + emit), `/docs/...` Starlight, `/v1/*` API | Vercel CLI deploy of `target\vercel_stage` (built by `Spikes/tools/stage-vercel-one.ps1`) |
+| https://pythsol.vercel.app | mirror of the same project | same deployment |
 
-Production domains on the same project: `pythsol.com` + `www.pythsol.com`.
-The name is **not registered yet** — when it is, point DNS at Vercel:
+Production domains on the same project: `pythsol.com` + `www.pythsol.com`,
+live since 2026-11-02. Domain registration is at NameCheap and DNS is on
+Cloudflare:
 
 | Record | Name | Value |
 |---|---|---|
-| A | `@` | `76.76.21.21` |
-| CNAME | `www` | `cname.vercel-dns.com` |
+| A | `@` | `216.198.79.1` |
+| CNAME | `www` | `4ef91b6d76096047.vercel-dns-017.com` |
 
-TLS is issued automatically once DNS resolves. Then
-`https://pythsol.com` is the product, `pythsol.vercel.app` stays as a mirror.
+TLS is issued automatically once DNS resolves. `https://www.pythsol.com` is
+the product, `pythsol.vercel.app` stays as a mirror.
 
 Because the GA Python runtime routes **every** request to the one
 `index.py` entrypoint, it also serves the docs static files under `/docs`
