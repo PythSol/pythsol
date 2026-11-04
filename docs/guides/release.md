@@ -1,9 +1,11 @@
 # Publishing PythSol to PyPI
 
-The package name `pythsol` is free on PyPI as of 2026-11-03 (the JSON API
-returns 404). Version stays `0.1.0` until the user orders a version bump.
-Do not upload without an explicit publish order and an API token available
-in the environment — never put the token in this repo or in chat.
+**0.1.0 is published** (2026-11-04):
+<https://pypi.org/project/pythsol/0.1.0/>. Version stays `0.1.0` until the
+user orders a version bump; PyPI releases are immutable, so a new upload
+needs a new version. Do not upload without an explicit publish order and an
+API token — never put the token in this repo or in chat. The first token was
+exposed in chat; revoke it and use a project-scoped token.
 
 ## 1. Build
 
@@ -100,12 +102,14 @@ python -m venv target\pypi-release-check
 .\target\pypi-release-check\Scripts\pythsol.exe --version
 ```
 
-Then, and only then, update the install copy that still says “not on PyPI”:
+After a **new version** is uploaded, update the install copy that names the
+version or the release state:
 
 - `README.md` install block
-- `src/pythsol/playground/landing.html` note under the install card
+- `src/pythsol/playground/landing.html` install card and roadmap
 - `src/pythsol/playground/docs.html` quickstart
 - `web/docs` quickstart page
 - `docs/STATUS.md` and `docs/HANDOFF.md`
+- `docs/guides/release.md` (this file)
 
 Keep the git install line as the development path.

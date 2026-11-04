@@ -5,14 +5,13 @@ description: Install PythSol, scaffold a counter, and run it in LiteSVM.
 
 ## Prerequisites
 
-- Python **3.11+** and a Git checkout of [PythSol/pythsol](https://github.com/PythSol/pythsol) — the package is not on PyPI yet.
+- Python **3.11+**. `pip install "pythsol[test]"` installs the compiler, CLI, and the `test` extra (pytest, LiteSVM, solders). A Git checkout is only needed to work on PythSol itself.
 - For `pythsol build` only: the Solana SBF toolchain (`clang` targeting SBF). `pythsol doctor` prints exactly what is missing on your machine.
-- `pip install -e ".[test]"` installs compile-time deps plus the `test` extra (pytest, LiteSVM, solders).
 
 ## Five commands
 
 ```bash
-pip install -e ".[test]"
+pip install "pythsol[test]"
 pythsol init app --template counter
 cd app
 pythsol check programs/app.py

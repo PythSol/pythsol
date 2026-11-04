@@ -7,25 +7,22 @@ A short pointer is `AGENTS.md` at the repo root.
 
 ## Blocked on the user
 
-1. **PyPI upload** — the wheel and sdist build, pass `twine check`, and the
-   clean-venv install works. Upload needs the project API token; set
-   `TWINE_USERNAME=__token__` and `TWINE_PASSWORD` locally, then follow
-   `docs/guides/release.md`.
-2. **Render full compile** — needs a payment card at
+1. **Render full compile** — needs a payment card at
    <https://dashboard.render.com/billing>; then run
    `Spikes/tools/render-service.ps1`.
-3. **Push-to-deploy** — the root Vercel build is verified. Connect GitHub to
+2. **Push-to-deploy** — the root Vercel build is verified. Connect GitHub to
    the Vercel account, then run `vercel git connect --scope
    rehmandakat67-3497`.
-4. **X + Pump.fun** — the X link is `https://x.com/` until the real profile
+3. **X + Pump.fun** — the X link is `https://x.com/` until the real profile
    exists; `#token-ca` shows "Coming soon" until the mint is supplied.
-5. **Published audit** — needs an external auditor. Benchmarks and Lighthouse
+4. **Published audit** — needs an external auditor. Benchmarks and Lighthouse
    are measured and recorded.
 
 ## Working now
 
 - [x] Typed Python subset, checked with `pythsol check`
 - [x] Native SBF `.so`, IDL, and solders client from `pythsol build`
+- [x] PyPI release **0.1.0** — `pip install pythsol` / `pip install "pythsol[test]"` (published 2026-11-04)
 - [x] LiteSVM tests for all six examples (counter, ledger, vault, escrow, multisig, poll) and the purse fixture
 - [x] Fixed-range list comprehensions (`[x for i in range(4)]` → `FixedArray`)
 - [x] `pythsol test`, build cache, wallet, faucet, deploy, port, verify, profile
@@ -45,15 +42,17 @@ A short pointer is `AGENTS.md` at the repo root.
 The order the project is being completed in. Tick only with a command, a
 test, or a live URL. Details and blockers live in `docs/HANDOFF.md`.
 
-1. **PyPI release** — packaging is verified end to end; upload is the only
-   step left and needs the PyPI API token. Steps: `docs/guides/release.md`.
+1. **PyPI release** — shipped **0.1.0** on 2026-11-04:
+   <https://pypi.org/project/pythsol/0.1.0/>. Steps:
+   `docs/guides/release.md`.
    - [x] `python -m build` produces sdist + wheel, `twine check` passes
    - [x] clean-venv wheel install runs `init`, `check`, `emit-c`, native
      `build`, and `serve` (landing, playground, check endpoint)
    - [x] the installed wheel serves `robots.txt` and `/examples/multisig`;
      all six templates are in the wheel
    - [x] every playground asset is force-included; `tests/test_packaging.py`
-   - [ ] `twine upload`, then `pip install "pythsol[test]"` from PyPI
+   - [x] `twine upload`; fresh venv `pip install pythsol` and
+     `pip install "pythsol[test]"`; `pythsol test` passed
 2. **Hosted full compile (Render)** — staged, blocked on the Render billing
    card. Then run `Spikes/tools/render-service.ps1`.
 3. **Deploy-to-Devnet button** — after Render is live; browser wallet,
@@ -110,7 +109,7 @@ Live as of 2026-11-01, last verified 2026-11-03 - **one Vercel project, one doma
 - Live on **`https://www.pythsol.com`** (verified 2026-11-03: domain at
   NameCheap, DNS on Cloudflare, `www` CNAME → the Vercel project). The
   Vercel alias `https://pythsol.vercel.app` still resolves. Latest production
-  deployment: `dpl_HWgRounJWY34gCQuc4wC1K6SUhuW`.
+  deployment: `dpl_919gHHmZCzAvbVpoSJYXnYXZKe58`.
 - The single Vercel project is `pythsol` (the older `pythsol-docs` and
   `pythsol-playground` projects were deleted after the merge). Deploy the
   whole site with `tools/stage_vercel.py` then

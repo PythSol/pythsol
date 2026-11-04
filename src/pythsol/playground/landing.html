@@ -81,9 +81,9 @@
               <span></span><span></span><span></span><b>shell</b>
               <button class="copy-cmd" id="copy-install" type="button" title="Copy install commands"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-copy"/></svg><span class="lbl">Copy</span></button>
             </div>
-            <pre class="cmd-pre" id="install-cmds" aria-label="Install commands"><span class="cmd-line"><span class="pr" aria-hidden="true">$</span><code class="cmd-text">pip install git+https://github.com/PythSol/pythsol.git</code></span><span class="cmd-line"><span class="pr" aria-hidden="true">$</span><code class="cmd-text">pythsol init my-program</code></span></pre>
+            <pre class="cmd-pre" id="install-cmds" aria-label="Install commands"><span class="cmd-line"><span class="pr" aria-hidden="true">$</span><code class="cmd-text">pip install pythsol</code></span><span class="cmd-line"><span class="pr" aria-hidden="true">$</span><code class="cmd-text">pythsol init my-program</code></span></pre>
           </div>
-          <p class="note">Straight from the repository — PythSol is not on PyPI yet.</p>
+          <p class="note">From PyPI. The git install stays the development path.</p>
         </div>
 
         <figure class="hero-viz" aria-label="A PythSol instruction and its compiler result">
@@ -496,7 +496,7 @@ pythsol build</pre>
               <li>Not all of Python - no async, no f-strings, no stdlib imports on-chain. Comprehensions must be a fixed-range array initializer.</li>
               <li>Not an interpreter: the site parses and type-checks, it never executes your Python.</li>
               <li>No in-browser SBF compile — <code>.so</code> builds run where Solana's clang lives (your machine or Docker).</li>
-              <li>Not on PyPI yet — install from the repository.</li>
+              <li>Not audited yet — a published security audit is still ahead.</li>
             </ul>
           </div>
         </div>
@@ -534,12 +534,12 @@ pythsol build</pre>
               <p class="note">Launch on Pump.fun, with trading fees funding compiler and docs work. The contract address goes up on the token card.</p>
             </div>
           </li>
-          <li class="milestone next">
+          <li class="milestone done">
             <span class="milestone-dot" aria-hidden="true"></span>
             <div>
-              <p class="milestone-status">Next</p>
+              <p class="milestone-status">Shipped · PyPI</p>
               <h3>PyPI packaging</h3>
-              <p class="note">Versioned releases and <code>pip install pythsol</code>. The wheel and sdist build and pass <code>twine check</code>; the upload needs the project token.</p>
+              <p class="note"><code>pip install pythsol</code> from the public index, version 0.1.0.</p>
             </div>
           </li>
           <li class="milestone later">
@@ -655,7 +655,7 @@ pythsol build</pre>
             A typed Python subset for Solana programs — checked, lowered to C,
             compiled to native SBF.
           </p>
-          <p class="note">Not on PyPI yet.</p>
+          <p class="note">Install with <code>pip install pythsol</code>.</p>
         </div>
         <nav class="foot-col" aria-label="Documentation">
           <h3>Docs</h3>

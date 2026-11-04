@@ -6,10 +6,11 @@ program, and host a light-themed site like https://typesol.com/ (landing,
 docs, playground). TypeSol is TypeScript. This project is Python. Do not
 copy TypeSol's compute-unit table, token, or dark theme.
 
-Today's date in the last session was 2026-11-01. Version is **0.1.0**.
-CHANGELOG stays **Unreleased**. IDL spec stays **0.1.0**. Do not cut a
-release or publish to PyPI unless the user gives credentials and an explicit
-publish order.
+Today's date in the last session was 2026-11-04. Version is **0.1.0**,
+published to PyPI on 2026-11-04 (`pip install pythsol`). CHANGELOG stays
+**Unreleased**. IDL spec stays **0.1.0**. Do not bump the version or publish
+a new release unless the user gives an explicit order; PyPI releases are
+immutable.
 
 Live since 2026-11-01 (see `docs/guides/hosting.md` for URL truth and deploy
 traps): **one Vercel project** at `https://www.pythsol.com` — `/` landing,
@@ -131,14 +132,17 @@ acceptance state; this section carries the implementation traps.
 5. **In-browser SBF / WASM clang / second IR / docs i18n** — Phase 11, not
    scheduled. Starlight warns that the `i18n` collection is empty. That is
    expected.
-6. **PyPI, audit, Lighthouse, CU-vs-Anchor table** — packaging builds and is
-   verified from a clean wheel (`docs/guides/release.md`,
-   `tests/test_packaging.py`); the upload still needs the user's API token.
-   LiteSVM CU is measured by `tools/bench_examples.py` into
-   `docs/benchmarks.md` and gated by `tests/test_benchmarks.py`. Lighthouse
-   ran on the live landing page on 2026-11-03: 86 / 100 / 100 / 100
-   (`docs/lighthouse.md`). A published audit still needs an external
-   auditor. Do not copy TypeSol's numbers. Do not invent a token.
+6. **PyPI, audit, Lighthouse, CU-vs-Anchor table** — PyPI **0.1.0** is live
+   (2026-11-04, <https://pypi.org/project/pythsol/0.1.0/>); the wheel and
+   sdist were verified from a fresh venv, including `pythsol test`
+   (`docs/guides/release.md`, `tests/test_packaging.py`). The upload token
+   was pasted in chat once: revoke it at
+   <https://pypi.org/manage/account/token/> and use a project-scoped token
+   for the next release. LiteSVM CU is measured by `tools/bench_examples.py`
+   into `docs/benchmarks.md` and gated by `tests/test_benchmarks.py`.
+   Lighthouse ran on the live landing page on 2026-11-03:
+   86 / 100 / 100 / 100 (`docs/lighthouse.md`). A published audit still
+   needs an external auditor. Do not copy TypeSol's numbers.
 7. **PDA-signed System Transfer CPI** — done: the System program refuses
    Transfer when `from` carries data, so a PDA source lowers to
    `rt_move_lamports` (direct debit of a program-owned account), while a
@@ -257,11 +261,9 @@ acceptance state; this section carries the implementation traps.
   `site-bg.svg` are served through `_UI_FILES`; forget any there and the
   stage ships without it. They are also force-included in the wheel so
   `pythsol serve` can serve them.
-- The landing command box must stay installable: version 0.1.0 is NOT on
-  PyPI, so the box teaches
-  `pip install git+https://github.com/PythSol/pythsol.git` (wheel verified
-  locally). Change it to the plain `pip install pythsol` line only in the
-  same commit that really publishes to PyPI. The playground result pane
+- The landing command box teaches `pip install pythsol`; version 0.1.0 is
+  live on PyPI (2026-11-04). The git install stays the development path. The
+  playground result pane
   keeps C / IDL / Client tabs in sync with `/v1/emit`'s payload keys
   (`c`, `idl`, `client`) — update the tabs if those keys change.
 - Site art is hand-written inline SVG/CSS: sprite icons (`<use href="#i-…">`),

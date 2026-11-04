@@ -56,8 +56,8 @@ def increment(authority: Signer, counter: Mut[Counter], by: u64) -> None:
 ## Install
 
 ```bash
+pip install pythsol       # compiler and CLI
 pip install -e ".[test]"  # developer install, with pytest and solders
-pip install pythsol       # compiler and CLI only (when published)
 ```
 
 `pythsol test` needs the `test` extra. Until you reinstall the editable package,

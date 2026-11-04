@@ -10,7 +10,7 @@ checks = [
     'class="hero-grid"',
     "hero-viz",
     'href="/hero-bg.webp"',
-    "not on PyPI yet",
+    "From PyPI",
     'href="/playground"',
     'href="/docs/quickstart"',
     # Full-cover hero + sticky story stack
@@ -101,7 +101,7 @@ checks = [
     'id="install-cmds"',
     'class="cmd-text"',
     "pythsol init my-program",
-    "pip install git+https://github.com/PythSol/pythsol.git",
+    "pip install pythsol",
     'class="viz-artifacts"',
     'class="ok-ico"',
     'class="ln"',
