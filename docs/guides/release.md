@@ -74,7 +74,7 @@ Create `%USERPROFILE%\.pypirc` yourself (never in the repo):
 ```ini
 [pypi]
 username = __token__
-password = pypi-AgEIcHlwaS5vcmc...
+password = pypi-...
 ```
 
 Then the upload is:
