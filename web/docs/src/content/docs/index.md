@@ -22,7 +22,7 @@ job for `pythsol build`.
 ## The pipeline
 
 ```bash
-pip install -e ".[test]"
+pip install "pythsol[test]"
 pythsol init app --template counter
 cd app
 pythsol check programs/app.py

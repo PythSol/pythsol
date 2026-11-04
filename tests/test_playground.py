@@ -88,6 +88,10 @@ def test_playground_check_emit_and_rejects_secrets(playground: str) -> None:
     assert b"top: var(--stack-top)" in site_css
     assert b"min-height: calc(100svh - var(--nav-h))" in site_css
     assert b"--stack-p" in site_css
+    assert b".chrome > span:nth-child(1) { background: #ff5f57; }" in site_css
+    assert b".chrome > span:nth-child(2) { background: #febc2e; }" in site_css
+    assert b".chrome > span:nth-child(3) { background: #28c840; }" in site_css
+    assert b".mock-browser .dot:nth-child(1) { background: #ff5f57; }" in site_css
     site_bg_status, site_bg = _get(playground + "/site-bg.svg")
     assert site_bg_status == 200
     assert site_bg.startswith(b"<svg")

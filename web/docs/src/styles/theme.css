@@ -257,3 +257,17 @@ html { background: var(--sl-color-bg); }
   padding: 0.12em 0.35em;
 }
 /* Expressive Code line and block chrome adapt via its own dark theme. */
+/*
+ * macOS-style traffic lights on terminal blocks. Expressive Code paints one
+ * strip for the dots; replace it with the three window controls.
+ */
+.sl-markdown-content .expressive-code .frame.is-terminal .header::before {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background-color: #ff5f57;
+  box-shadow: 0.8rem 0 0 #febc2e, 1.6rem 0 0 #28c840;
+  -webkit-mask-image: none;
+  mask-image: none;
+  opacity: 1;
+}

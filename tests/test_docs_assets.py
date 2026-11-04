@@ -24,6 +24,15 @@ def test_gallery_lists_every_example() -> None:
         assert item["tests"] == "passing"
 
 
+def test_docs_terminal_uses_macos_traffic_lights() -> None:
+    css = (ROOT / "web" / "docs" / "src" / "styles" / "theme.css").read_text(encoding="utf-8")
+    assert ".sl-markdown-content .expressive-code .frame.is-terminal .header::before" in css
+    assert "#ff5f57" in css
+    assert "#febc2e" in css
+    assert "#28c840" in css
+    assert "mask-image: none" in css
+
+
 def test_tokens_are_light_only() -> None:
     payload = json.loads(
         (ROOT / "web" / "shared-tokens" / "tokens.json").read_text(encoding="utf-8")

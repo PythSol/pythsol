@@ -109,7 +109,7 @@ Live as of 2026-11-01, last verified 2026-11-03 - **one Vercel project, one doma
 - Live on **`https://www.pythsol.com`** (verified 2026-11-03: domain at
   NameCheap, DNS on Cloudflare, `www` CNAME → the Vercel project). The
   Vercel alias `https://pythsol.vercel.app` still resolves. Latest production
-  deployment: `dpl_CWBfm26ZGFPqMvuLvARxGdnziVTK`.
+  deployment: `dpl_2cVJg4UbyPEmh3tCHx56gmzTUMQw`.
 - The single Vercel project is `pythsol` (the older `pythsol-docs` and
   `pythsol-playground` projects were deleted after the merge). Deploy the
   whole site with `tools/stage_vercel.py` then
