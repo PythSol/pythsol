@@ -1,7 +1,7 @@
 # Publishing PythSol to PyPI
 
-**0.1.0 is published** (2026-11-04):
-<https://pypi.org/project/pythsol/0.1.0/>. Version stays `0.1.0` until the
+**0.1.1 is published** (2026-11-04):
+<https://pypi.org/project/pythsol/0.1.1/>. Version stays `0.1.1` until the
 user orders a version bump; PyPI releases are immutable, so a new upload
 needs a new version. Do not upload without an explicit publish order and an
 API token — never put the token in this repo or in chat. The first token was
@@ -17,7 +17,7 @@ From the repo root, with the project virtualenv:
 .\.venv\Scripts\python.exe -m twine check target\dist\*
 ```
 
-Both `pythsol-0.1.0.tar.gz` and `pythsol-0.1.0-py3-none-any.whl` must PASS.
+Both `pythsol-0.1.1.tar.gz` and `pythsol-0.1.1-py3-none-any.whl` must PASS.
 
 ## 2. Prove the wheel, not the checkout
 
@@ -25,7 +25,7 @@ Use a **fresh** virtualenv and install the wheel, not `-e .`:
 
 ```powershell
 python -m venv target\pypi-venv
-.\target\pypi-venv\Scripts\python.exe -m pip install target\dist\pythsol-0.1.0-py3-none-any.whl
+.\target\pypi-venv\Scripts\python.exe -m pip install target\dist\pythsol-0.1.1-py3-none-any.whl
 .\target\pypi-venv\Scripts\pythsol.exe --version
 ```
 

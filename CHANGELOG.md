@@ -33,7 +33,12 @@ PythSol follows Keep a Changelog; before 1.0 every breaking change is listed und
 - Docs scaffold: `web/docs` (Astro 7.4.4, Starlight 0.42.7), light-only `web/shared-tokens/tokens.json`, `docs/gallery/index.json` for counter, ledger, vault, and escrow, short guides under `docs/guides/`, and `contrib/vscode` which maps `pythsol check --json` into editor diagnostics. No Lighthouse score, no hosted playground, and no package publish in this change.
 - Hosted-playground deploy path: `pythsol serve --allow-compile` opts a public bind into `POST /v1/compile` (clang sees only compiler-generated C; the endpoint is 403 without the flag). `deploy/Dockerfile` pins Anza platform-tools v1.58 by sha256, strips the Rust toolchain, runs as a non-root user and honours `PORT`; `deploy/fly.toml` and `deploy/render.yaml` are one-command blueprints; `docs/guides/hosting.md` covers Fly, Render, a plain VPS, and the static Starlight docs.
 
-## [0.1.0] — 2026-10-30
+## [0.1.1] - 2026-11-04
+### Fixed
+- The landing page and docs inside the installed wheel now teach `pip install pythsol`. `0.1.0` shipped with the pre-release copy that said PythSol was not on PyPI.
+- `robots.txt` is included in the wheel and served by `pythsol serve`.
+
+## [0.1.0] - 2026-10-30
 ### Added
 - Phase 3 — compiler back-end: `compiler/model.py` (IR-free `ProgramModel` with Anchor discriminators/packed Borsh layouts/`6000 + index` error codes), `compiler/emit.py` (C emitter lowering role checks, PDAs, System CPIs, `require`, checked arithmetic, dispatch table), `compiler/pipeline.py` (`emit_program`, `PS4xxx`/`PS5xxx` diagnostics), and `compiler/idl.py` (deterministic Anchor-legacy IDL + structural validator).
 - Phase 3 — `pythsol build PROGRAM.py`: native SBF `.so` + generated C + IDL + `manifest.json` (sha256 hashes, toolchain info); byte-deterministic output verified by two-build tests.

@@ -80,6 +80,7 @@ form. Failures are stable codes, never discount signals.
 
 ## Served vs. local
 
-The package version is `0.1.0`. This site is the static build in
-`dist/`; it is **not** a PyPI release. `pythsol serve` on loopback can
-compile; `pythsol serve --public` checks and emits only.
+The package version is `0.1.1` and it is published on PyPI
+(`pip install pythsol`). This site is the static build in `dist/`.
+`pythsol serve` on loopback can compile; `pythsol serve --public` checks and
+emits only.

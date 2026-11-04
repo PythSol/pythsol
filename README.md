@@ -26,7 +26,7 @@ Write Solana programs in **typed Python**, compiled to native SBF bytecode — n
 > playground (check + emit + compile) with Docker — see
 > `docs/guides/hosting.md` (also `/v1/compile` behind `--allow-compile`).
 > Without that flag a public server checks and emits only. The checklist is
-> `docs/STATUS.md`. This tree is version 0.1.0 and is not a release.
+> `docs/STATUS.md`. Version 0.1.1 is published on PyPI (`pip install pythsol`).
 
 Source of truth: `docs/spec/PRD.md` (scope) + `docs/spec/TRD.md` (how).
 When possible ADRs under `docs/decisions/` record every assumption that was validated.

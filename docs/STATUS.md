@@ -22,7 +22,7 @@ A short pointer is `AGENTS.md` at the repo root.
 
 - [x] Typed Python subset, checked with `pythsol check`
 - [x] Native SBF `.so`, IDL, and solders client from `pythsol build`
-- [x] PyPI release **0.1.0** — `pip install pythsol` / `pip install "pythsol[test]"` (published 2026-11-04)
+- [x] PyPI release **0.1.1** — `pip install pythsol` / `pip install "pythsol[test]"` (published 2026-11-04)
 - [x] LiteSVM tests for all six examples (counter, ledger, vault, escrow, multisig, poll) and the purse fixture
 - [x] Fixed-range list comprehensions (`[x for i in range(4)]` → `FixedArray`)
 - [x] `pythsol test`, build cache, wallet, faucet, deploy, port, verify, profile
@@ -42,8 +42,8 @@ A short pointer is `AGENTS.md` at the repo root.
 The order the project is being completed in. Tick only with a command, a
 test, or a live URL. Details and blockers live in `docs/HANDOFF.md`.
 
-1. **PyPI release** — shipped **0.1.0** on 2026-11-04:
-   <https://pypi.org/project/pythsol/0.1.0/>. Steps:
+1. **PyPI release** — shipped **0.1.1** on 2026-11-04:
+   <https://pypi.org/project/pythsol/0.1.1/>. Steps:
    `docs/guides/release.md`.
    - [x] `python -m build` produces sdist + wheel, `twine check` passes
    - [x] clean-venv wheel install runs `init`, `check`, `emit-c`, native
@@ -109,7 +109,7 @@ Live as of 2026-11-01, last verified 2026-11-03 - **one Vercel project, one doma
 - Live on **`https://www.pythsol.com`** (verified 2026-11-03: domain at
   NameCheap, DNS on Cloudflare, `www` CNAME → the Vercel project). The
   Vercel alias `https://pythsol.vercel.app` still resolves. Latest production
-  deployment: `dpl_919gHHmZCzAvbVpoSJYXnYXZKe58`.
+  deployment: `dpl_CWBfm26ZGFPqMvuLvARxGdnziVTK`.
 - The single Vercel project is `pythsol` (the older `pythsol-docs` and
   `pythsol-playground` projects were deleted after the merge). Deploy the
   whole site with `tools/stage_vercel.py` then

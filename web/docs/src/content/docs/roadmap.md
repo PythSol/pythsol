@@ -3,7 +3,7 @@ title: Roadmap
 description: What is still open. Phase 11 is not scheduled.
 ---
 
-Shipped: `pip install pythsol` 0.1.0 is on PyPI, the six examples compile,
+Shipped: `pip install pythsol` 0.1.1 is on PyPI, the six examples compile,
 the stateful ones run in LiteSVM, and the live landing page scores 86
 performance / 100 accessibility / 100 best practices / 100 SEO.
 
