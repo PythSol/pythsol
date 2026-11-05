@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-labelledby="pythsol-mark-title">
+  <title id="pythsol-mark-title">PythSol</title>
+  <defs>
+    <linearGradient id="pythsol-mark-pg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd43b"/>
+      <stop offset="1" stop-color="#e8a20c"/>
+    </linearGradient>
+    <linearGradient id="pythsol-mark-sg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#14f195"/>
+      <stop offset="1" stop-color="#9945ff"/>
+    </linearGradient>
+  </defs>
+  <g
+    transform="translate(21.9 14.5) scale(14.72)"
+    font-family="'Segoe UI', Arial, 'Helvetica Neue', sans-serif"
+    font-weight="900"
+    font-size="24"
+    stroke="#23262f"
+    stroke-width="1.15"
+    stroke-linejoin="round"
+    paint-order="stroke"
+  >
+    <text x="1.8" y="24.1" textLength="14.6" lengthAdjust="spacingAndGlyphs" fill="url(#pythsol-mark-pg)">P</text>
+    <text x="14.2" y="24.1" textLength="14.6" lengthAdjust="spacingAndGlyphs" fill="url(#pythsol-mark-sg)">S</text>
+  </g>
+</svg>

@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>PythSol — intro</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --ground: #05080f;
+        --surface: #0a0f18;
+        --surface-2: #0f1726;
+        --ink: #f2f6ff;
+        --muted: #8c9ab4;
+        --line: #22304a;
+        --blue: #5b9bd5;
+        --blue-deep: #306998;
+        --yellow: #ffd43b;
+        --mint: #14f195;
+        --purple: #a970ff;
+        --font-display: "Inter", sans-serif;
+        --font-mono: "IBM Plex Mono", monospace;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--ground);
+        color: var(--ink);
+        font-family: var(--font-display);
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+      #bg,
+      #glow-a,
+      #glow-b,
+      #grid,
+      #progress {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      #bg {
+        background:
+          radial-gradient(1200px 700px at 72% 18%, rgba(48, 105, 152, 0.28), transparent 62%),
+          radial-gradient(900px 600px at 18% 82%, rgba(153, 69, 255, 0.18), transparent 65%),
+          var(--ground);
+      }
+      #glow-a {
+        background: radial-gradient(620px 620px at 82% 72%, rgba(20, 241, 149, 0.12), transparent 70%);
+        filter: blur(10px);
+      }
+      #glow-b {
+        background: radial-gradient(760px 520px at 8% 12%, rgba(255, 212, 59, 0.09), transparent 70%);
+        filter: blur(14px);
+      }
+      #grid {
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+        background-size: 72px 72px;
+        mask-image: radial-gradient(1100px 760px at 50% 45%, #000 0%, transparent 78%);
+        opacity: 0.65;
+      }
+      #progress {
+        top: auto;
+        bottom: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--yellow), var(--mint) 55%, var(--purple));
+        transform-origin: 0 50%;
+        transform: scaleX(0);
+      }
+      .scene-inner {
+        position: absolute;
+        inset: 0;
+        padding: 96px 120px;
+      }
+      .kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-family: var(--font-mono);
+        font-size: 20px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .kicker .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--mint);
+        box-shadow: 0 0 18px rgba(20, 241, 149, 0.7);
+      }
+      .mono {
+        font-family: var(--font-mono);
+      }
+      .grad {
+        background: linear-gradient(90deg, var(--yellow) 0%, var(--mint) 48%, var(--purple) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      /* 01 — hook */
+      #hook-inner {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding-left: 120px;
+      }
+      .hook-kicker {
+        margin-bottom: 34px;
+      }
+      .hook-line-1 {
+        font-size: 78px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        color: #c4d2e8;
+      }
+      .hook-line-2 {
+        font-size: 210px;
+        line-height: 0.92;
+        font-weight: 900;
+        letter-spacing: -0.055em;
+        margin-top: 4px;
+      }
+      .hook-sub {
+        margin-top: 36px;
+        font-size: 34px;
+        color: #aab8cf;
+        letter-spacing: 0.01em;
+      }
+      .hook-rule {
+        margin-top: 44px;
+        width: 460px;
+        height: 3px;
+        transform-origin: 0 50%;
+        background: linear-gradient(90deg, var(--yellow), var(--mint), var(--purple));
+      }
+      .hook-badge {
+        position: absolute;
+        right: 120px;
+        bottom: 110px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 22px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(10, 15, 24, 0.72);
+        font-family: var(--font-mono);
+        font-size: 20px;
+        color: #b9c6dc;
+      }
+      .hook-badge b {
+        color: var(--mint);
+        font-weight: 600;
+      }
+
+      /* 02 — code */
+      #code-inner {
+        display: grid;
+        grid-template-columns: 620px 1fr;
+        gap: 90px;
+        align-items: center;
+      }
+      .sec-num {
+        font-family: var(--font-mono);
+        font-size: 20px;
+        letter-spacing: 0.2em;
+        color: var(--blue);
+        margin-bottom: 18px;
+      }
+      .sec-title {
+        font-size: 76px;
+        line-height: 1.02;
+        font-weight: 800;
+        letter-spacing: -0.045em;
+      }
+      .sec-copy {
+        margin-top: 26px;
+        font-size: 28px;
+        line-height: 1.45;
+        color: #aab8cf;
+      }
+      .cmd-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 30px;
+        padding: 12px 18px;
+        border: 1px solid #2a3b58;
+        border-radius: 10px;
+        background: #0b1220;
+        font-family: var(--font-mono);
+        font-size: 24px;
+        color: #dbe6f7;
+      }
+      .cmd-pill .prompt {
+        color: var(--mint);
+      }
+      .code-card {
+        position: relative;
+        width: 100%;
+        border: 1px solid #24334d;
+        border-radius: 18px;
+        background: linear-gradient(180deg, #0b1220, #080d16);
+        box-shadow: 0 40px 120px rgba(0, 0, 0, 0.55);
+        overflow: hidden;
+      }
+      .code-chrome {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 18px 22px;
+        border-bottom: 1px solid #1d2a40;
+        background: #0d1522;
+      }
+      .code-chrome i {
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        display: block;
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+      }
+      .code-chrome i:nth-child(1) { background: #ff5f57; }
+      .code-chrome i:nth-child(2) { background: #febc2e; }
+      .code-chrome i:nth-child(3) { background: #28c840; }
+      .code-chrome span {
+        margin-left: 12px;
+        font-family: var(--font-mono);
+        font-size: 17px;
+        color: #7486a3;
+      }
+      .code-body {
+        padding: 30px 34px 26px;
+        font-family: var(--font-mono);
+        font-size: 24px;
+        line-height: 1.62;
+        white-space: pre;
+      }
+      .code-line { display: block; }
+      .c-key { color: #ffd43b; }
+      .c-type { color: #7fd1ff; }
+      .c-fn { color: #f2f6ff; }
+      .c-com { color: #5f6f8a; }
+      .c-str { color: #14f195; }
+      .c-punc { color: #9fb0c9; }
+      .scan {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 120px;
+        background: linear-gradient(180deg, transparent, rgba(20, 241, 149, 0.10), transparent);
+        border-bottom: 1px solid rgba(20, 241, 149, 0.55);
+        opacity: 0;
+      }
+      .diag {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 18px;
+        padding: 16px 20px;
+        border: 1px solid rgba(20, 241, 149, 0.35);
+        border-radius: 12px;
+        background: rgba(20, 241, 149, 0.07);
+        font-family: var(--font-mono);
+        font-size: 24px;
+        color: #bfffe2;
+      }
+      .diag b {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--mint);
+        color: #042414;
+        font-size: 18px;
+      }
+
+      /* 03 — pipeline */
+      #pipe-inner {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .pipe-head {
+        text-align: center;
+        font-size: 70px;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+      .pipe-head span { color: var(--mint); }
+      .pipe-sub {
+        text-align: center;
+        margin-top: 16px;
+        font-size: 28px;
+        color: #9aa9c2;
+      }
+      .pipe-rail {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        margin: 64px auto 0;
+        width: 1560px;
+      }
+      .pipe-line {
+        position: absolute;
+        left: 130px;
+        right: 130px;
+        top: 90px;
+        height: 2px;
+        background: linear-gradient(90deg, var(--blue), var(--yellow), var(--purple), var(--mint));
+        transform-origin: 0 50%;
+        opacity: 0.5;
+      }
+      .pipe-node {
+        position: relative;
+        width: 330px;
+        height: 180px;
+        border: 1px solid #24334d;
+        border-radius: 16px;
+        background: rgba(10, 15, 24, 0.86);
+        padding: 28px 30px;
+        z-index: 2;
+      }
+      .pipe-node .tag {
+        font-family: var(--font-mono);
+        font-size: 16px;
+        letter-spacing: 0.16em;
+        color: #7486a3;
+      }
+      .pipe-node h3 {
+        margin-top: 12px;
+        font-size: 40px;
+        letter-spacing: -0.03em;
+      }
+      .pipe-node p {
+        margin-top: 8px;
+        font-size: 24px;
+        color: #93a3bd;
+      }
+      .pipe-node:nth-child(2) { border-color: rgba(91, 155, 213, 0.5); }
+      .pipe-node:nth-child(3) { border-color: rgba(255, 212, 59, 0.5); }
+      .pipe-node:nth-child(4) { border-color: rgba(169, 112, 255, 0.5); }
+      .pipe-node:nth-child(5) { border-color: rgba(20, 241, 149, 0.5); }
+      .pipe-node:nth-child(2) h3 { color: var(--blue); }
+      .pipe-node:nth-child(3) h3 { color: var(--yellow); }
+      .pipe-node:nth-child(4) h3 { color: var(--purple); }
+      .pipe-node:nth-child(5) h3 { color: var(--mint); }
+      .pipe-term {
+        width: 1420px;
+        margin: 58px auto 0;
+        border: 1px solid #24334d;
+        border-radius: 14px;
+        background: #080d16;
+        overflow: hidden;
+      }
+      .pipe-term .bar {
+        display: flex;
+        gap: 8px;
+        padding: 13px 18px;
+        border-bottom: 1px solid #1d2a40;
+        background: #0d1522;
+      }
+      .pipe-term .bar i {
+        width: 11px; height: 11px; border-radius: 50%;
+      }
+      .pipe-term .bar i:nth-child(1) { background: #ff5f57; }
+      .pipe-term .bar i:nth-child(2) { background: #febc2e; }
+      .pipe-term .bar i:nth-child(3) { background: #28c840; }
+      .pipe-term pre {
+        padding: 22px 26px;
+        font-family: var(--font-mono);
+        font-size: 22px;
+        line-height: 1.62;
+        color: #c8d5e9;
+      }
+      .term-line { display: block; }
+      .term-line .ok { color: var(--mint); }
+      .term-line .dim { color: #6f809b; }
+
+      /* 04 — proof */
+      #proof-inner {
+        padding: 64px 120px;
+      }
+      .proof-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 18px;
+        border: 1px solid rgba(20, 241, 149, 0.35);
+        border-radius: 999px;
+        background: rgba(20, 241, 149, 0.08);
+        font-family: var(--font-mono);
+        font-size: 19px;
+        letter-spacing: 0.14em;
+        color: #bfffe2;
+      }
+      .proof-tag .dot {
+        width: 9px; height: 9px; border-radius: 50%; background: var(--mint);
+      }
+      .browser {
+        position: absolute;
+        left: 150px;
+        right: 150px;
+        top: 120px;
+        border: 1px solid #2a3b58;
+        border-radius: 18px;
+        background: #0b1220;
+        overflow: hidden;
+        box-shadow: 0 50px 140px rgba(0, 0, 0, 0.6);
+        transform-origin: 50% 50%;
+      }
+      .browser-bar {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        height: 44px;
+        padding: 0 18px;
+        border-bottom: 1px solid #1d2a40;
+        background: #0d1522;
+      }
+      .browser-bar i {
+        width: 12px; height: 12px; border-radius: 50%;
+      }
+      .browser-bar i:nth-child(1) { background: #ff5f57; }
+      .browser-bar i:nth-child(2) { background: #febc2e; }
+      .browser-bar i:nth-child(3) { background: #28c840; }
+      .browser-bar span {
+        margin-left: 14px;
+        font-family: var(--font-mono);
+        font-size: 16px;
+        color: #7d8faa;
+      }
+      .browser img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .proof-caption {
+        position: absolute;
+        left: 150px;
+        bottom: 58px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 18px 24px;
+        border: 1px solid #2a3b58;
+        border-radius: 14px;
+        background: #080d16;
+      }
+      .proof-caption h3 {
+        font-size: 30px;
+        letter-spacing: -0.02em;
+      }
+      .proof-caption p {
+        font-size: 24px;
+        color: #9aa9c2;
+        margin-top: 4px;
+      }
+      .proof-caption .check {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--mint);
+        color: #042414;
+        font-size: 22px;
+        font-weight: 800;
+      }
+      .badges {
+        position: absolute;
+        right: 150px;
+        bottom: 58px;
+        display: flex;
+        gap: 12px;
+      }
+      .badge {
+        padding: 14px 18px;
+        border: 1px solid #2a3b58;
+        border-radius: 10px;
+        background: #080d16;
+        font-family: var(--font-mono);
+        font-size: 20px;
+        color: #c8d5e9;
+      }
+      .badge b { color: var(--mint); font-weight: 500; }
+
+      /* 05 — payoff */
+      #pay-inner {
+        display: grid;
+        grid-template-columns: 620px 1fr;
+        gap: 90px;
+        align-items: center;
+      }
+      .pay-title {
+        font-size: 86px;
+        line-height: 0.98;
+        font-weight: 800;
+        letter-spacing: -0.05em;
+      }
+      .pay-title span { color: var(--yellow); }
+      .pay-copy {
+        margin-top: 26px;
+        font-size: 28px;
+        line-height: 1.45;
+        color: #aab8cf;
+      }
+      .pay-term {
+        border: 1px solid #24334d;
+        border-radius: 18px;
+        background: linear-gradient(180deg, #0b1220, #080d16);
+        box-shadow: 0 40px 120px rgba(0, 0, 0, 0.55);
+        overflow: hidden;
+      }
+      .pay-term .bar {
+        display: flex;
+        gap: 9px;
+        padding: 17px 20px;
+        border-bottom: 1px solid #1d2a40;
+        background: #0d1522;
+      }
+      .pay-term .bar i {
+        width: 13px; height: 13px; border-radius: 50%;
+      }
+      .pay-term .bar i:nth-child(1) { background: #ff5f57; }
+      .pay-term .bar i:nth-child(2) { background: #febc2e; }
+      .pay-term .bar i:nth-child(3) { background: #28c840; }
+      .pay-body {
+        padding: 36px 40px 40px;
+        font-family: var(--font-mono);
+      }
+      .pay-cmd {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 54px;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+      }
+      .pay-cmd .prompt { color: var(--mint); }
+      .pay-cmd .word { color: #f2f6ff; }
+      .pay-cmd .type-mask {
+        overflow: hidden;
+        display: inline-block;
+        white-space: nowrap;
+      }
+      .pay-cursor {
+        display: inline-block;
+        width: 18px;
+        height: 54px;
+        background: var(--mint);
+        vertical-align: -6px;
+      }
+      .pay-next {
+        margin-top: 26px;
+        font-size: 28px;
+        color: #9aa9c2;
+      }
+      .pay-pypi {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 30px;
+        padding: 14px 20px;
+        border: 1px solid rgba(255, 212, 59, 0.35);
+        border-radius: 10px;
+        background: rgba(255, 212, 59, 0.07);
+        font-family: var(--font-mono);
+        font-size: 20px;
+        color: #ffe9a0;
+      }
+      .pay-pypi b { color: var(--yellow); }
+
+      /* 06 — end */
+      #end-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .end-mark {
+        width: 190px;
+        height: 190px;
+        filter: drop-shadow(0 24px 60px rgba(20, 241, 149, 0.18));
+      }
+      .end-word {
+        margin-top: 18px;
+        font-size: 112px;
+        font-weight: 900;
+        letter-spacing: -0.06em;
+        line-height: 1;
+      }
+      .end-word .po { color: var(--yellow); }
+      .end-word .so {
+        background: linear-gradient(90deg, var(--mint), var(--purple));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .end-tag {
+        margin-top: 24px;
+        font-size: 38px;
+        color: #c4d2e8;
+        letter-spacing: -0.01em;
+      }
+      .end-cta {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        margin-top: 40px;
+      }
+      .end-pill {
+        padding: 16px 24px;
+        border: 1px solid #2a3b58;
+        border-radius: 12px;
+        background: rgba(10, 15, 24, 0.85);
+        font-family: var(--font-mono);
+        font-size: 28px;
+        color: #dbe6f7;
+      }
+      .end-pill b { color: var(--mint); font-weight: 500; }
+      .end-meta {
+        margin-top: 28px;
+        font-family: var(--font-mono);
+        font-size: 18px;
+        letter-spacing: 0.12em;
+        color: #6f809b;
+      }
+      .end-rule {
+        width: 560px;
+        height: 3px;
+        margin-top: 34px;
+        transform-origin: 50% 50%;
+        background: linear-gradient(90deg, transparent, var(--mint), var(--purple), transparent);
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="28"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div id="bg" data-layout-ignore></div>
+      <div id="glow-a" data-layout-ignore></div>
+      <div id="glow-b" data-layout-ignore></div>
+      <div id="grid" data-layout-ignore></div>
+
+      <section id="hook" class="clip" data-start="0" data-duration="3.4" data-track-index="1">
+        <div id="hook-inner" class="scene-inner">
+          <div class="kicker hook-kicker" data-layout-ignore><span class="dot"></span> PythSol · Python on Solana</div>
+          <div class="hook-line-1">SOLANA PROGRAMS</div>
+          <div class="hook-line-2 grad">IN PYTHON.</div>
+          <div class="hook-sub">Typed. Checked. Compiled to native SBF.</div>
+          <div class="hook-rule"></div>
+        </div>
+        <div class="hook-badge" data-layout-ignore><b>0.1.1</b> · on PyPI · pip install pythsol</div>
+      </section>
+
+      <section id="code" class="clip" data-start="3.4" data-duration="4.2" data-track-index="2">
+        <div id="code-inner" class="scene-inner">
+          <div class="code-copy">
+            <div class="sec-num" data-layout-ignore>01 / WRITE</div>
+            <h2 class="sec-title">Typed Python,<br />not glue code.</h2>
+            <div class="cmd-pill"><span class="prompt">$</span> pythsol check programs/counter.py</div>
+          </div>
+          <div>
+            <div class="code-card">
+              <div class="code-chrome"><i></i><i></i><i></i><span>programs/counter.py</span></div>
+              <div class="code-body" data-layout-ignore><span class="code-line"><span class="c-key">@instruction</span></span><span class="code-line"><span class="c-key">def</span> <span class="c-fn">increment</span><span class="c-punc">(</span></span><span class="code-line">    <span class="c-fn">authority</span><span class="c-punc">:</span> <span class="c-type">Signer</span><span class="c-punc">,</span></span><span class="code-line">    <span class="c-fn">counter</span><span class="c-punc">:</span> <span class="c-type">Mut</span><span class="c-punc">[</span><span class="c-type">Counter</span><span class="c-punc">],</span></span><span class="code-line">    <span class="c-fn">by</span><span class="c-punc">:</span> <span class="c-type">u64</span><span class="c-punc">,</span></span><span class="code-line"><span class="c-punc">)</span> <span class="c-punc">-&gt;</span> <span class="c-type">None</span><span class="c-punc">:</span></span><span class="code-line">    <span class="c-fn">require</span><span class="c-punc">(</span>counter.authority <span class="c-punc">==</span> authority.key<span class="c-punc">,</span></span><span class="code-line">            CounterError.Unauthorized<span class="c-punc">)</span></span><span class="code-line">    counter.count <span class="c-punc">+=</span> by</span></div>
+              <div class="scan"></div>
+            </div>
+            <div class="diag"><b>✓</b> 0 diagnostics</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="pipe" class="clip" data-start="7.6" data-duration="4.8" data-track-index="3">
+        <div id="pipe-inner" class="scene-inner">
+          <h2 class="pipe-head">From Python to <span>Solana bytecode.</span></h2>
+          <p class="pipe-sub">One pipeline. One command. No Rust toolchain for the program author.</p>
+          <div class="pipe-rail">
+            <div class="pipe-line"></div>
+            <div class="pipe-node"><div class="tag">SOURCE</div><h3>PYTHON</h3><p>typed subset</p></div>
+            <div class="pipe-node"><div class="tag">GATE</div><h3>CHECK</h3><p>0 diagnostics</p></div>
+            <div class="pipe-node"><div class="tag">LOWER</div><h3>C</h3><p>readable output</p></div>
+            <div class="pipe-node"><div class="tag">SHIP</div><h3>SBF</h3><p>native bytecode</p></div>
+          </div>
+          <div class="pipe-term">
+            <div class="bar"><i></i><i></i><i></i></div>
+            <pre data-layout-ignore><span class="term-line"><span class="dim">$</span> pythsol build programs/counter.py</span><span class="term-line"><span class="ok">build:</span> programs/counter.py -&gt; target/pythsol/counter/counter.so</span><span class="term-line"><span class="ok">build:</span> idl -&gt; counter.json</span><span class="term-line"><span class="ok">build:</span> client -&gt; counter_client.py</span><span class="term-line"><span class="ok">build:</span> manifest -&gt; manifest.json</span></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="proof" class="clip" data-start="12.4" data-duration="6" data-track-index="4">
+        <div id="proof-inner" class="scene-inner">
+          <div class="proof-tag" data-layout-ignore><span class="dot"></span> REAL PLAYGROUND · REAL COMPILER OUTPUT</div>
+          <div class="browser" data-layout-allow-overflow>
+            <div class="browser-bar"><i></i><i></i><i></i><span data-layout-ignore>pythsol.com/playground</span></div>
+            <img id="proof-shot" src="assets/playground.png" alt="PythSol playground with counter.py and generated C" />
+          </div>
+          <div class="proof-caption">
+            <div class="check">✓</div>
+            <div><h3>From source to artifacts.</h3><p>counter.py → native SBF, IDL, solders client, manifest.</p></div>
+          </div>
+          <div class="badges" data-layout-ignore>
+            <div class="badge"><b>✓</b> counter.so</div>
+            <div class="badge"><b>✓</b> counter.json</div>
+            <div class="badge"><b>✓</b> client.py</div>
+            <div class="badge"><b>✓</b> LiteSVM</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="pay" class="clip" data-start="18.4" data-duration="4.8" data-track-index="5">
+        <div id="pay-inner" class="scene-inner">
+          <div class="pay-copy-wrap">
+            <div class="sec-num" data-layout-ignore>02 / SHIP</div>
+            <h2 class="pay-title">Write it.<br />Check it.<br /><span>Ship it.</span></h2>
+            <p class="pay-copy">
+              One Python package. Scaffold a program, then build real Solana
+              bytecode.
+            </p>
+          </div>
+          <div>
+            <div class="pay-term">
+              <div class="bar"><i></i><i></i><i></i></div>
+              <div class="pay-body">
+                <div class="pay-cmd"><span class="prompt">$</span><span class="word">pip install</span><span class="type-mask"><span class="word">pythsol</span></span><span class="pay-cursor"></span></div>
+                <div class="pay-next">then: <span class="mono">pythsol init my-program</span></div>
+                <div class="pay-pypi"><b>PyPI</b> pypi.org/project/pythsol · 0.1.1</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="end" class="clip" data-start="23.2" data-duration="4.8" data-track-index="6">
+        <div id="end-inner" class="scene-inner">
+          <img class="end-mark" src="assets/pythsol-mark.svg" alt="PythSol mark" />
+          <div class="end-word"><span class="po">Pyth</span><span class="so">Sol</span></div>
+          <div class="end-tag">Write Solana programs in Python.</div>
+          <div class="end-cta">
+            <div class="end-pill"><b>$</b> pip install pythsol</div>
+            <div class="end-pill">pythsol.com</div>
+          </div>
+          <div class="end-rule"></div>
+          <div class="end-meta" data-layout-ignore>0.1.1 · PyPI · APACHE-2.0</div>
+        </div>
+      </section>
+
+      <audio id="bgm" src="assets/bgm.mp3" data-start="0" data-duration="28" data-volume="1"></audio>
+
+      <div id="progress" data-layout-ignore></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* global atmosphere */
+      tl.fromTo("#glow-a", { opacity: 0.25, scale: 0.9 }, { opacity: 0.6, scale: 1.08, duration: 14, ease: "sine.inOut" }, 0);
+      tl.fromTo("#glow-b", { opacity: 0.2 }, { opacity: 0.55, duration: 12, ease: "sine.inOut" }, 6);
+      tl.fromTo("#grid", { opacity: 0.35 }, { opacity: 0.75, duration: 6, ease: "sine.out" }, 0);
+      tl.fromTo("#progress", { scaleX: 0 }, { scaleX: 1, duration: 28, ease: "none" }, 0);
+
+      /* 01 hook */
+      tl.fromTo(".hook-line-2", { opacity: 1, y: 22, scale: 0.98 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "power4.out" }, 0);
+      tl.fromTo(".hook-sub", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 1.0);
+      tl.fromTo(".hook-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power3.inOut" }, 1.25);
+      tl.fromTo(".hook-badge", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 1.6);
+      tl.fromTo("#hook-inner", { opacity: 1, y: 0 }, { opacity: 0, y: -28, duration: 0.35, ease: "power2.in" }, 3.0);
+      tl.fromTo(".hook-badge", { opacity: 1 }, { opacity: 0, duration: 0.25, immediateRender: false }, 3.0);
+
+      /* 02 code */
+      tl.fromTo(".code-copy", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.55, ease: "power3.out" }, 3.65);
+      tl.fromTo(".code-card", { opacity: 0, y: 46, scale: 0.98 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "power3.out" }, 3.5);
+      tl.fromTo(".code-line", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.28, stagger: 0.045, ease: "power2.out" }, 3.75);
+      tl.fromTo(".scan", { y: 0, opacity: 0 }, { opacity: 1, duration: 0.2 }, 4.95);
+      tl.fromTo(".scan", { y: 0 }, { y: 520, duration: 1.05, ease: "sine.inOut", immediateRender: false }, 5.0);
+      tl.fromTo(".scan", { opacity: 1 }, { opacity: 0, duration: 0.2, immediateRender: false }, 6.05);
+      tl.fromTo(".diag", { opacity: 0, scale: 0.94, y: 8 }, { opacity: 1, scale: 1, y: 0, duration: 0.35, ease: "back.out(1.4)" }, 5.95);
+      tl.fromTo("#code-inner", { opacity: 1 }, { opacity: 0, duration: 0.3 }, 7.25);
+
+      /* 03 pipeline */
+      tl.fromTo(".pipe-head", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 7.8);
+      tl.fromTo(".pipe-sub", { opacity: 0 }, { opacity: 1, duration: 0.45 }, 8.05);
+      tl.fromTo(".pipe-line", { scaleX: 0, opacity: 0.2 }, { scaleX: 1, opacity: 0.5, duration: 1.1, ease: "power3.inOut" }, 8.25);
+      tl.fromTo(".pipe-node", { opacity: 0, y: 30, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.45, stagger: 0.14, ease: "back.out(1.3)" }, 8.2);
+      tl.fromTo(".pipe-term", { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 9.2);
+      tl.fromTo(".term-line", { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.24, stagger: 0.16, ease: "power2.out" }, 9.45);
+      tl.fromTo("#pipe-inner", { opacity: 1 }, { opacity: 0, duration: 0.3 }, 12.05);
+
+      /* 04 proof */
+      tl.fromTo(".proof-tag", { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 12.65);
+      tl.fromTo(".browser", { opacity: 0, scale: 0.96, y: 24 }, { opacity: 1, scale: 1, y: 0, duration: 0.7, ease: "power3.out" }, 12.8);
+      tl.fromTo("#proof-shot", { scale: 1.02 }, { scale: 1.06, duration: 5.4, ease: "sine.inOut" }, 12.8);
+      tl.fromTo(".proof-caption", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 13.2);
+      tl.fromTo(".badge", { opacity: 0, y: 12, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 0.35, stagger: 0.06, ease: "back.out(1.3)" }, 13.35);
+      tl.fromTo("#proof-inner", { opacity: 1 }, { opacity: 0, duration: 0.3 }, 18.05);
+
+      /* 05 payoff */
+      tl.fromTo(".pay-copy-wrap", { opacity: 0, x: -28 }, { opacity: 1, x: 0, duration: 0.55, ease: "power3.out" }, 18.6);
+      tl.fromTo(".pay-term", { opacity: 0, y: 36, scale: 0.98 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "power3.out" }, 18.8);
+      tl.fromTo(".type-mask", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.75, ease: "steps(7)" }, 19.35);
+      tl.fromTo(".pay-cursor", { opacity: 1 }, { opacity: 0, duration: 0.35, repeat: 3, yoyo: true, ease: "none" }, 19.35);
+      tl.fromTo(".pay-next", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }, 20.2);
+      tl.fromTo(".pay-pypi", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }, 20.45);
+      tl.fromTo("#pay-inner", { opacity: 1 }, { opacity: 0, duration: 0.3 }, 22.85);
+
+      /* 06 end */
+      tl.fromTo(".end-mark", { opacity: 0, scale: 0.7, rotate: -6 }, { opacity: 1, scale: 1, rotate: 0, duration: 0.65, ease: "back.out(1.4)" }, 23.35);
+      tl.fromTo(".end-word", { opacity: 0, y: 18, filter: "blur(8px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.55, ease: "power4.out" }, 23.7);
+      tl.fromTo(".end-tag", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 24.1);
+      tl.fromTo(".end-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power3.inOut" }, 24.3);
+      tl.fromTo(".end-cta", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 24.6);
+      tl.fromTo(".end-meta", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 25.0);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
+
